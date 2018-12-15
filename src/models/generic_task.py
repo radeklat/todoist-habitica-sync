@@ -5,6 +5,7 @@ from enum import (
     IntEnum,
     auto,
 )
+from typing import Optional
 
 from src.models.todoist_task import TodoistTask
 
@@ -23,8 +24,8 @@ class GenericTask:
     content: str
     priority: int
     state: TaskState
-    due_date_utc_timestamp: int
-    habitica_task_id: str = None
+    due_date_utc_timestamp: Optional[int]
+    habitica_task_id: Optional[str] = None
 
     def __post_init__(self):
         if not isinstance(self.state, TaskState):

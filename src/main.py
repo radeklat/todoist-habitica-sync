@@ -132,10 +132,12 @@ class TasksSync:  # pylint: disable=too-few-public-methods
             todoist_task: TodoistTask,
             generic_task: GenericTask = None,
     ) -> bool:
-        return (
+        return bool(
             todoist_task.checked or (
                 todoist_task.is_repeated and
                 generic_task and
+                generic_task.due_date_utc_timestamp and
+                todoist_task.due_date_utc_timestamp and
                 generic_task.due_date_utc_timestamp < todoist_task.due_date_utc_timestamp
             )
         )

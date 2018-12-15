@@ -51,7 +51,11 @@ class TasksCache:
         generic_task.habitica_task_id = new_habitica_task_id
         self.save_task(generic_task, previous_habitica_id)
 
-    def save_task(self, generic_task: GenericTask, previous_habitica_id: str = ''):
+    def save_task(
+            self,
+            generic_task: GenericTask,
+            previous_habitica_id: Optional[str] = ''
+    ):
         if previous_habitica_id != '':
             habitica_id = previous_habitica_id
         else:
