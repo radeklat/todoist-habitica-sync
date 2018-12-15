@@ -1,0 +1,26 @@
+# Uncomment only lines you need to change.
+
+#ENABLE_UNITTESTS=true
+#ENABLE_COVERAGE=true
+#ENABLE_BDD=false
+#ENABLE_TYPES=true
+#ENABLE_TODOS=true
+
+MIN_PYTHON_VERSION="3.7.0"
+MAX_PYTHON_VERSION="3.7.1"
+
+#SOURCES_FOLDER='src'
+#TESTS_FOLDER='tests'
+#UNIT_TESTS_FOLDER="${TESTS_FOLDER}/unit"
+
+#GITHUB_UPDATE_PERSONAL_ACCESS_TOKEN=''
+#GITHUB_UPDATE_REPOSITORY='radeklat/python-before-push/master'  # <owner>/<repository>/<branch>
+#GITHUB_UPDATE_TEST_SCRIPT='test.sh'
+#declare -A GITHUB_UPDATE_SOURCES_TARGETS=(
+#    ["${GITHUB_UPDATE_TEST_SCRIPT}"]="$(basename "$0")"
+#    ["tests/.pylintrc"]="${TESTS_FOLDER}/.pylintrc"
+#    ["src/.pylintrc"]="${SOURCES_FOLDER}/.pylintrc"
+#)
+
+#COVERAGE_MIN_PERCENTAGE=100
+#TODOS_LIMIT_PER_PERSON=10

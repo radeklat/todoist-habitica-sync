@@ -1,0 +1,5 @@
+todoist-python
+tinydb
+ujson
+dotmap
+requests

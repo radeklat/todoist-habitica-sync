@@ -1,0 +1,5 @@
+coverage
+pylint
+mypy
+pytest
+pytest-cov
