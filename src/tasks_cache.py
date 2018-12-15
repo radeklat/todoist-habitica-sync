@@ -1,14 +1,14 @@
 import logging
-from dataclasses import asdict
+from dataclasses import asdict  # pylint: disable=wrong-import-order
 from typing import (
     Iterator,
     Optional,
 )
 
 from tinydb import (
+    Query,
     TinyDB,
     where,
-    Query,
 )
 
 from src.config import Config
@@ -27,8 +27,8 @@ class TasksCache:
     ])
 
     def __init__(self):
-        db = TinyDB(Config.database_file)
-        self._task_cache = db.table('tasks_cache')
+        tiny_db = TinyDB(Config.database_file)
+        self._task_cache = tiny_db.table('tasks_cache')
         self._log = logging.getLogger(self.__class__.__name__)
 
     def __len__(self):

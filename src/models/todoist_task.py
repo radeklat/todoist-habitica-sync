@@ -54,13 +54,15 @@ class TodoistTask(NamedTuple):
             updated_task_data = copy.deepcopy(task_data)
 
             if updated_task_data['due_date_utc'] is not None:
-                updated_task_data['due_date_utc_timestamp'] = int(datetime.datetime.strptime(
-                    updated_task_data['due_date_utc'], _TIME_FORMAT
-                ).timestamp())
+                updated_task_data['due_date_utc_timestamp'] = int(
+                    datetime.datetime.strptime(
+                        updated_task_data['due_date_utc'], _TIME_FORMAT
+                    ).timestamp()
+                )
 
             updated_task_data['is_repeated'] = (
-                    updated_task_data['date_string'] is not None
-                    and "every" in updated_task_data['date_string']
+                updated_task_data['date_string'] is not None
+                and "every" in updated_task_data['date_string']
             )
 
             return TodoistTask(**updated_task_data)

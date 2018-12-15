@@ -4,7 +4,9 @@ import requests
 
 API_URI_BASE = 'api/v3'
 API_CONTENT_TYPE = 'application/json'
-SUCCESS_CODES = frozenset([requests.codes.ok, requests.codes.created])
+SUCCESS_CODES = frozenset([
+    requests.codes.ok, requests.codes.created  # pylint: disable=no-member
+])
 
 
 class HabiticaAPI:
@@ -19,15 +21,14 @@ class HabiticaAPI:
         self.headers = auth if auth else {}
         self.headers.update({'content-type': API_CONTENT_TYPE})
 
-    def __getattr__(self, m):
+    def __getattr__(self, name):
         try:
-            return object.__getattr__(self, m)
+            return object.__getattr__(self, name)
         except AttributeError:
             if not self.resource:
-                return HabiticaAPI(auth=self.auth, resource=m)
-            else:
-                return HabiticaAPI(auth=self.auth, resource=self.resource,
-                                   aspect=m)
+                return HabiticaAPI(auth=self.auth, resource=name)
+
+            return HabiticaAPI(auth=self.auth, resource=self.resource, aspect=name)
 
     def __call__(self, **kwargs):
         method = kwargs.pop('_method', 'get')
@@ -61,14 +62,16 @@ class HabiticaAPI:
 
         # actually make the request of the API
         if method in ['put', 'post', 'delete']:
-            res = getattr(requests, method)(uri, headers=self.headers,
-                                            data=json.dumps(kwargs))
+            res = getattr(requests, method)(
+                uri, headers=self.headers, data=json.dumps(kwargs)
+            )
         else:
-            res = getattr(requests, method)(uri, headers=self.headers,
-                                            params=kwargs)
+            res = getattr(requests, method)(
+                uri, headers=self.headers, params=kwargs
+            )
 
         # print(res.url)  # debug...
-        if res.status_code in SUCCESS_CODES:
-            return res.json()["data"]
-        else:
+        if res.status_code not in SUCCESS_CODES:
             res.raise_for_status()
+
+        return res.json()["data"]

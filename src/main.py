@@ -1,18 +1,17 @@
 import logging
 import time
 from os.path import (
-    join,
     dirname,
+    join,
 )
-from time import sleep
 
 import todoist
 from requests import HTTPError
 
 from src.config import (
     Config,
-    TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY,
     HABITICA_REQUEST_WAIT_TIME,
+    TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY,
 )
 from src.habitica_api import HabiticaAPI
 from src.models.generic_task import (
@@ -24,7 +23,7 @@ from src.models.todoist_task import TodoistTask
 from src.tasks_cache import TasksCache
 
 
-class TasksSync:
+class TasksSync:  # pylint: disable=too-few-public-methods
     """
     Todoist API: https://developer.todoist.com/sync/v7/?python#overview
     Habitica API: https://habitica.com/apidoc
@@ -69,6 +68,38 @@ class TasksSync:
             f"{self._todoist.state['user']['full_name']}'s Todoist synchronised."
         )
 
+    def _next_state_with_existing_generic_task(
+            self,
+            todoist_task: TodoistTask,
+            generic_task: GenericTask
+    ) -> TaskState:
+        if todoist_task.is_deleted:
+            return TaskState.HIDDEN
+
+        if self._should_task_score_points(todoist_task, generic_task):
+            return TaskState.HABITICA_NEW
+
+        return TaskState.TODOIST_ACTIVE
+
+    def _next_state_with_new_generic_task(
+            self,
+            todoist_task: TodoistTask,
+            initial_sync: bool
+    ) -> TaskState:
+        if todoist_task.is_deleted:
+            return TaskState.HIDDEN
+
+        if not todoist_task.checked:
+            return TaskState.TODOIST_ACTIVE
+
+        if initial_sync:
+            return TaskState.HIDDEN
+
+        if self._should_task_score_points(todoist_task):
+            return TaskState.HABITICA_NEW
+
+        return TaskState.TODOIST_ACTIVE
+
     def _next_tasks_state_based_on_todoist(self):
         initial_sync = len(self._task_cache) == 0
 
@@ -79,36 +110,22 @@ class TasksSync:
             if generic_task:
                 if generic_task.state in self.TODOIST_CONTINUE_STATES:
                     continue
-                else:
-                    if todoist_task.is_deleted:
-                        state = TaskState.HIDDEN
-                    else:
-                        if self._should_task_score_points(todoist_task, generic_task):
-                            state = TaskState.HABITICA_NEW
-                        else:
-                            state = TaskState.TODOIST_ACTIVE
 
-                    self._task_cache.set_task_state(generic_task, state)
+                generic_task.state = self._next_state_with_existing_generic_task(
+                    todoist_task, generic_task
+                )
+                generic_task.content = todoist_task.content
+                generic_task.priority = todoist_task.priority
             else:
-                if todoist_task.is_deleted:
-                    state = TaskState.HIDDEN
-                else:
-                    if not todoist_task.checked:
-                        state = TaskState.TODOIST_ACTIVE
-                    else:
-                        if initial_sync:
-                            state = TaskState.HIDDEN
-                        else:
-                            if self._should_task_score_points(todoist_task):
-                                state = TaskState.HABITICA_NEW
-                            else:
-                                state = TaskState.TODOIST_ACTIVE
-
-                generic_task = GenericTask.from_todoist_task(todoist_task, state)
-                self._task_cache.save_task(generic_task)
+                generic_task = GenericTask.from_todoist_task(
+                    todoist_task,
+                    self._next_state_with_new_generic_task(todoist_task, initial_sync)
+                )
                 self._log.info(
                     f"New task {generic_task.content}, {generic_task.state.name}"
                 )
+
+            self._task_cache.save_task(generic_task)
 
     @staticmethod
     def _should_task_score_points(
@@ -140,7 +157,7 @@ class TasksSync:
                     self._task_cache.set_task_state(
                         generic_task, TaskState.HABITICA_CREATED
                     )
-                    sleep(HABITICA_REQUEST_WAIT_TIME)
+                    time.sleep(HABITICA_REQUEST_WAIT_TIME)
 
                 if generic_task.state == TaskState.HABITICA_CREATED:
                     self._habitica.user.tasks(
@@ -150,7 +167,7 @@ class TasksSync:
                     self._task_cache.set_task_state(
                         generic_task, TaskState.HABITICA_FINISHED
                     )
-                    sleep(HABITICA_REQUEST_WAIT_TIME)
+                    time.sleep(HABITICA_REQUEST_WAIT_TIME)
 
                 if generic_task.state == TaskState.HABITICA_FINISHED:
                     self._habitica.user.tasks(
@@ -158,7 +175,7 @@ class TasksSync:
                     )
 
                     self._task_cache.set_task_state(generic_task, TaskState.HIDDEN)
-                    sleep(HABITICA_REQUEST_WAIT_TIME)
+                    time.sleep(HABITICA_REQUEST_WAIT_TIME)
             except HTTPError:
                 self._log.exception(f"Could not score task '{generic_task.content}'.")
 

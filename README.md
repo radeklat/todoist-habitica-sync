@@ -12,7 +12,7 @@ Tasks are not added immediately. Only when you finish a task in Todoist, new tas
 # Features
 
 * Scores points in Habitica when Todoist task is finished
-* Works for repeated tasks in Todoist, as long as the date string contains `every` 
+* Works for repeated tasks in Todoist, as long as the date string contains `every`
 
 # Installation
 
