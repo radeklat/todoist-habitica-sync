@@ -58,15 +58,13 @@ class TasksSync:  # pylint: disable=too-few-public-methods
             delay = max(0.0, Config.sync_delay_seconds - duration)
 
             try:
+                self._log.info(f"Next check in {delay:.0f} seconds.")
                 time.sleep(delay)
             except KeyboardInterrupt:
                 break
 
     def _sync_todoist(self):
         self._todoist.sync()
-        self._log.info(
-            f"{self._todoist.state['user']['full_name']}'s Todoist synchronised."
-        )
 
     def _next_state_with_existing_generic_task(
             self,
