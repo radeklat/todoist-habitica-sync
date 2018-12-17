@@ -26,4 +26,14 @@ Tasks are not added immediately. Only when you finish a task in Todoist, new tas
 
 ## As a docker container
 
-    docker run --rm --env-file .env --name toist-habitica-points-sync radeklat/todoist-habitica-points-sync
+TODO
+
+## As a service
+
+TODO
+
+# Planned work
+
+* Synchronise overdue task to cause damage in habitica
+* Parse difficulty from string (similar to p0-p4 in Todoist)
+* Use @ Todoist labels for difficulty
