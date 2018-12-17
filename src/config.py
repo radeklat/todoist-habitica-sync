@@ -27,8 +27,8 @@ class Config:
 TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY = MappingProxyType({
     1: 0.1,
     2: 1,
-    3: 1.5,
-    4: 2,
+    3: 2,
+    4: 1.5,
 })
 
 HABITICA_REQUEST_WAIT_TIME = 0.5  # time to pause between concurrent requests
