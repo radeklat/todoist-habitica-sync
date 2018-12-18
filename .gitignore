@@ -234,4 +234,4 @@ cover
 .hypothesis
 *_test_results.xml
 .todoist-sync/
-**/sync_cache.json
+sync_cache.json

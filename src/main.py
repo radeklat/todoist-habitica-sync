@@ -7,6 +7,7 @@ from os.path import (
 
 import todoist
 from requests import HTTPError
+from urllib3.exceptions import ConnectionError
 
 from src.config import (
     Config,
@@ -50,9 +51,13 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         while True:
             start_time = time.time()
 
-            self._sync_todoist()
-            self._next_tasks_state_based_on_todoist()
-            self._next_tasks_state_in_habitica()
+            try:
+                self._sync_todoist()
+                self._next_tasks_state_based_on_todoist()
+                self._next_tasks_state_in_habitica()
+            except ConnectionError as ex:
+                self._log.error(f"Unexpected network error: {str(ex)}")
+
 
             duration = time.time() - start_time
             delay = max(0.0, Config.sync_delay_seconds - duration)
