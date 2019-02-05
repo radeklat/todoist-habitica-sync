@@ -7,7 +7,6 @@ from os.path import (
 
 import todoist
 from requests import HTTPError
-from urllib3.exceptions import ConnectionError
 
 from src.config import (
     Config,
@@ -55,9 +54,8 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 self._sync_todoist()
                 self._next_tasks_state_based_on_todoist()
                 self._next_tasks_state_in_habitica()
-            except ConnectionError as ex:
+            except IOError as ex:
                 self._log.error(f"Unexpected network error: {str(ex)}")
-
 
             duration = time.time() - start_time
             delay = max(0.0, Config.sync_delay_seconds - duration)
@@ -181,8 +179,8 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
                     self._task_cache.set_task_state(generic_task, TaskState.HIDDEN)
                     time.sleep(HABITICA_REQUEST_WAIT_TIME)
-            except HTTPError:
-                self._log.exception(f"Could not score task '{generic_task.content}'.")
+            except IOError as ex:
+                self._log.error(f"Unexpected network error: {str(ex)}")
 
 
 if __name__ == '__main__':
