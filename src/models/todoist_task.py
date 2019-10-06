@@ -49,5 +49,5 @@ class TodoistTask(NamedTuple):
                 )
 
             return TodoistTask(**updated_task_data)
-        except TypeError as ex:
-            raise TypeError(str(ex) + f"\nOffending task: {task_data}")
+        except (KeyError, TypeError) as ex:
+            raise ex.__class__(str(ex) + f"\nOffending task: {task_data}") from ex
