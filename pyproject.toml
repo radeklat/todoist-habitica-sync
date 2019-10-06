@@ -1,0 +1,19 @@
+[tool.black]
+line-length = 92
+py36 = true
+include = '\.py$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv*
+  | _build
+  | buck-out
+  | build
+  | dist
+  | \.venv.*
+)/
+'''

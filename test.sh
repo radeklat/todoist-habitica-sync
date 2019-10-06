@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION=3.2.0
+VERSION=3.4.1
 
 ### PROJECT DEFAULTS ###
 # To override these values, use the --generate-rc-file switch and modify the generated file
@@ -8,40 +8,51 @@ VERSION=3.2.0
 ENABLE_UNITTESTS=true
 ENABLE_COVERAGE=true
 ENABLE_BDD=false
+ENABLE_FORMATTER=true
 ENABLE_TYPES=true
 ENABLE_TODOS=true
+ENABLE_SAFETY=true
 
-MIN_PYTHON_VERSION="3.6.5"
-MAX_PYTHON_VERSION="3.6.7"
+MIN_PYTHON_VERSION="3.5"
+MAX_PYTHON_VERSION="3.7"
+CHECK_PYTHON_PATCH_VERSION=false
 
 SOURCES_FOLDER='src'
 TESTS_FOLDER='tests'
 UNIT_TESTS_FOLDER="${TESTS_FOLDER}/unit"
 BDD_TESTS_FOLDER="${TESTS_FOLDER}/features"
+EXCLUDE_PATH_FROM_TESTS_REGEXP=""  # Used when searching for python files. See man of 'find -regex'.
 
 GITHUB_UPDATE_PERSONAL_ACCESS_TOKEN=''
-GITHUB_UPDATE_REPOSITORY='radeklat/python-before-push/master'  # <owner>/<repository>/<branch>
+GITHUB_UPDATE_REPOSITORY='radeklat/python-before-push'  # <owner>/<repository>
 GITHUB_UPDATE_TEST_SCRIPT='test.sh'
+
+# To skip a file, use: GITHUB_UPDATE_SOURCES_TARGETS["..."]="" (empty string as destination)
 declare -A GITHUB_UPDATE_SOURCES_TARGETS=(
     ["${GITHUB_UPDATE_TEST_SCRIPT}"]="$(basename "$0")"
     ["tests/.pylintrc"]="${TESTS_FOLDER}/.pylintrc"
     ["src/.pylintrc"]="${SOURCES_FOLDER}/.pylintrc"
+    ["pyproject.toml"]="pyproject.toml"
+    [".pre-commit-config.yaml"]=".pre-commit-config.yaml"
 )
 
 COVERAGE_MIN_PERCENTAGE=0
 TODOS_LIMIT_PER_PERSON=10
 
 ### DON'T CHANGE ANYTHING AFTER THIS POINT ###
+# Change offset here if you change the number of lines in previous section
+# Check if correct with `bash test.sh --generate-rc-file`
+declare -A TEST_RC_FILE_HEAD_OFFSET=( ["start"]=8 ["end"]=40 )
 
 ROOT_FOLDER="$( cd "$( dirname "$0" )" && pwd )"
 cd "${ROOT_FOLDER}"
 
 BRED='\033[1;31m'
 BGREEN='\033[1;32m'
+BYELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 TEST_RC_FILE=".testrc"
-declare -A TEST_RC_FILE_HEAD_OFFSET=( ["start"]=8 ["end"]=32 )
 COVERAGE_FILE="${COVERAGE_FILE:-coverage.xml}"
 
 if [[ -f ${TEST_RC_FILE} ]]; then
@@ -51,8 +62,36 @@ else
     echo "No '${TEST_RC_FILE}' found. Using global values. You can generate one with --generate-rc-file."
 fi
 
-[[ -n ${GITHUB_UPDATE_PERSONAL_ACCESS_TOKEN} ]] && TOKEN="${GITHUB_UPDATE_PERSONAL_ACCESS_TOKEN}@" || TOKEN=""
-GITHUB_UPDATE_BASE_URL="https://${TOKEN}raw.githubusercontent.com/${GITHUB_UPDATE_REPOSITORY}"
+# Will either produce URL that can be used as <URL>/<file> to fetch a file from Github
+# or empty string if no updates are needed. Assessed by latest version from Github
+# release tag vs. version in this file.
+get_update_url() {
+    local release_tag_prefix="releases/"
+    local authorization_header=""
+    local authorization_token=""
+
+    if [[ -n ${GITHUB_UPDATE_PERSONAL_ACCESS_TOKEN} ]]; then
+        authorization_header="Authorization: token ${GITHUB_UPDATE_PERSONAL_ACCESS_TOKEN}"
+        authorization_token="${GITHUB_UPDATE_PERSONAL_ACCESS_TOKEN}@"
+    fi
+
+    local latest_release_tag=$(\
+        curl -s -H "${authorization_header}" -X GET "https://api.github.com/repos/${GITHUB_UPDATE_REPOSITORY}/tags" \
+        | grep "\"name\": \"${release_tag_prefix}" \
+        | sed 's|.*\('"${release_tag_prefix}"'[^"]*\).*|\1|;/-/!{s/$/_/;}' \
+        | sort -V | sed 's/_$//' | tail -n 1
+    )
+
+    local latest_version=$(echo "${latest_release_tag}" | sed 's|'"${release_tag_prefix}"'||')
+
+    if [[ "${latest_version}" != "${VERSION}" ]]; then
+        >&2 echo "Latest version of '${GITHUB_UPDATE_REPOSITORY}' '${latest_version}' != local version '${VERSION}'. Will do an update."
+        echo "https://${authorization_token}raw.githubusercontent.com/${GITHUB_UPDATE_REPOSITORY}/${latest_release_tag}"
+    else
+        >&2 echo "Latest version of '${GITHUB_UPDATE_REPOSITORY}' '${latest_version}' is same as local. No update needed."
+        echo ""
+    fi
+}
 
 export PYTHONPATH="$(pwd)/${SOURCES_FOLDER}:$(pwd):${PYTHONPATH}"  # PYTHONPATH for imports
 
@@ -109,6 +148,8 @@ test_exit() {
     fi
 }
 
+TEST_FAILURES=""
+
 # Marks a test as failed/passed with a message base on return code.
 # $1 = exit code to test
 # $2 = test type (string)
@@ -118,6 +159,7 @@ test_failed() {
         failed=$(expr ${failed} + 1);
         [[ ${fail_strict} == true ]] && result_code=1
         echo -e "${BRED}$2 failed.${3:-}${NC}"
+        TEST_FAILURES="${TEST_FAILURES}\n  * $2"
         return 1
     fi
 
@@ -146,12 +188,16 @@ while [[ "$#" > 0 ]]; do
         -c|--coverage) use_coverage=true;;
         -b|--bdd) use_bdd=true;;
         --todo) use_todos=true;;
+        --safety) use_safety=true;;
+        -fmt|--format) use_formatter=true;;
         -np|--no-pylint) use_pylint=false;;
         -nt|--no-types) use_typecheck=false;;
         -nu|--no-unittests) use_unittests=false;;
         -nc|--no-coverage) use_coverage=false;;
+        -nfmt|--no-format) use_formatter=false;;
         -nb|--no-bdd) use_bdd=false;;
         --no-todo) use_todos=false;;
+        --no-safety) use_safety=false;;
         -f) use_file="$2"; shift;;
         -tf) use_testfile="$2"; shift;;
         -h|--help) show_help=true;;
@@ -180,8 +226,10 @@ if [[ -n ${show_help+x} ]]; then
     [[ ${ENABLE_UNITTESTS} == true ]] && echo -e "  -u, --unittests: Run unit tests. " \
         "You can pass additional parameters to pytests with the UNIT_TEST_EXTRA_PARAMS environment variable:\n" \
         "\texport UNIT_TEST_EXTRA_PARAMS='-m not database' ./$0 -u  # Will not run unit tests marked as 'database'"
+    [[ ${ENABLE_FORMATTER} == true ]] && echo -e "  -fmt, --format: Run code formatter. "
     [[ ${ENABLE_BDD} == true ]] && echo -e "  -b, --bdd: Run BDD tests with Behave."
     [[ ${ENABLE_TODOS} == true ]] && echo -e "  --todo: Run check of TODOs."
+    [[ ${ENABLE_SAFETY} == true ]] && echo -e "  --safety: Run security checks against requirements.txt file."
     echo -e "Will run run everything but selected tools:"
     echo -e "  -np, --no-pylint: Do not run PyLint."
     [[ ${ENABLE_TYPES} == true ]] && echo -e "  -nt, --no-types: Do not run Mypy for checking types usage."
@@ -189,12 +237,14 @@ if [[ -n ${show_help+x} ]]; then
     [[ ${ENABLE_COVERAGE} == true ]] && echo -e "  -nc, --no-coverage: Do not run coverage tests."
     [[ ${ENABLE_BDD} == true ]] && echo -e "  -nb, --no-bdd: Do not run BDD tests with Behave."
     [[ ${ENABLE_TODOS} == true ]] && echo -e "  --no-todo: Do not run check of TODOs."
+    [[ ${ENABLE_SAFETY} == true ]] && echo -e "  --no-safety: Do not run security checks against requirements.txt file."
     echo -e "  -f: Run PyLint and MyPy only on selected file.\n"
     echo -e "  -tf: Run unit tests only on selected files.\n"
     [[ ${ENABLE_COVERAGE} == true ]] && echo -e "  -o, --browser: Open coverage results in browser."
     echo -e "  --install: Only install requirements and dependencies, then exit."
     echo -e "  -ni, --noinstall: Do not install requirements and dependencies.\n"
     echo -e "  -nv, --novirtualenv: Do not create/use virtualenv."
+    [[ ${ENABLE_FORMATTER} == true ]] && echo -e "  -nfmt --no-format: Do not use formatter."
     echo -e "  --update: Only update team related files, then exit."
     echo -e "  --no-update: Don't update team related files."
     echo -e "  -pe, --python: Specify python executable to use for virtualenv."
@@ -208,7 +258,7 @@ if [[ -z "${PYTHON_EXE}" ]]; then
 fi
 
 PYTHON_EXE="${PYTHON_EXE/#\~/$HOME}"
-CURRENT_PYTHON_VERSION="$(${PYTHON_EXE} --version 2>&1 | cut -d ' ' -f 2)"
+CURRENT_PYTHON_VERSION="$(${PYTHON_EXE} --version 2>&1 | cut -d ' ' -f 2 | sed 's/\r//')"
 ${PYTHON_EXE} --version
 
 VENV=".venv_${CURRENT_OS}_${CURRENT_PYTHON_VERSION}"
@@ -216,15 +266,29 @@ VENV=".venv_${CURRENT_OS}_${CURRENT_PYTHON_VERSION}"
 
 # Check if discovered python version is within allowed range.
 check_supported_python_version() {
+    [[ "${CURRENT_OS}" =~ (CYGWIN|MINGW).* ]] && CURRENT_PYTHON_VERSION="$(echo ${CURRENT_PYTHON_VERSION} | tr --delete '\r')"
+
+    local max_version_number_to_check=2
+    [[ ${CHECK_PYTHON_PATCH_VERSION} == true ]] && max_version_number_to_check=3
+
+    strip_version_number() {
+        echo $1 | cut -d "." -f 1-${max_version_number_to_check}
+    }
+
+    local stripped_current_version=$(strip_version_number "${CURRENT_PYTHON_VERSION}")
+    local stripped_min_version=$(strip_version_number "${MIN_PYTHON_VERSION}")
+    local stripped_max_version=$(strip_version_number "${MAX_PYTHON_VERSION}")
+
     ver() {
         printf "%02d%02d%02d" $(echo "$1" | tr '.' ' ')
     }
-    [[ "${CURRENT_OS}" =~ (CYGWIN|MINGW).* ]] && CURRENT_PYTHON_VERSION="$(echo ${CURRENT_PYTHON_VERSION} | tr --delete '\r')"
-    local current_version=$(ver "${CURRENT_PYTHON_VERSION}")
-    local min_version=$(ver "${MIN_PYTHON_VERSION}")
-    local max_version=$(ver "${MAX_PYTHON_VERSION}")
+
+    local current_version=$(ver "${stripped_current_version}")
+    local min_version=$(ver "${stripped_min_version}")
+    local max_version=$(ver "${stripped_max_version}")
+
     [[ ${current_version#0} -ge ${min_version#0} && ${current_version#0} -le ${max_version#0} ]]
-    test_exit $? "Python version ${CURRENT_PYTHON_VERSION} is not supported. Supported versions range is <${MIN_PYTHON_VERSION}, ${MAX_PYTHON_VERSION}>.\nUse '-pe' option to specify different python executable."
+    test_exit $? "Python version ${stripped_current_version} is not supported. Supported versions range is <${stripped_min_version}, ${stripped_max_version}>.\nUse pyenv or the '-pe' option to specify different python executable."
 }
 
 # Sets default values to switches
@@ -237,12 +301,15 @@ set_default_values() {
     use_coverage=${use_coverage:-${default}}
     use_bdd=${use_bdd:-${default}}
     use_todos=${use_todos:-${default}}
+    use_safety=${use_safety:-${default}}
+    use_formatter=${use_formatter:-${default}}
 }
 
 # set everything to true by default, leave only explicitly disabled as false
 if [[ ${use_pylint:-false} == false && ${use_typecheck:-false} == false && \
       ${use_unittests:-false} == false && ${use_coverage:-false} == false && \
-      ${use_bdd:-false} == false && ${use_todos:-false} == false ]]
+      ${use_bdd:-false} == false && ${use_todos:-false} == false && \
+      ${use_safety:-false} == false && ${use_formatter:-false} == false ]]
 then
     set_default_values true
 else # only some tests selected, set the rest to false if not defined
@@ -255,6 +322,8 @@ fi
 [[ ${ENABLE_COVERAGE} == false ]] && use_coverage=false
 [[ ${ENABLE_BDD} == false ]] && use_bdd=false
 [[ ${ENABLE_TODOS} == false ]] && use_todos=false
+[[ ${ENABLE_SAFETY} == false ]] && use_safety=false
+[[ ${ENABLE_FORMATTER} == false ]] && use_formatter=false
 
 open_in_browser=${open_in_browser:-false}
 no_install_requirements=${no_install_requirements:-false}
@@ -264,8 +333,8 @@ do_update=${do_update:-false}
 no_update=${no_update:-false}
 generate_rc_file=${generate_rc_file:-false}
 
-source_files=$(find "${use_file:-${SOURCES_FOLDER}}" -name "*.py" ! -regex "\.\/\.venv_.*" 2>/dev/null)
-test_files=$(find "${use_testfile:-${TESTS_FOLDER}}" -name "*.py" ! -regex "\.\/\.venv_.*" 2>/dev/null)
+source_files=$(find "${use_file:-${SOURCES_FOLDER}}" -name "*.py" ! -regex "\.\/\.venv_.*" ! -regex "${EXCLUDE_PATH_FROM_TESTS_REGEXP:-^$}" 2>/dev/null)
+test_files=$(find "${use_testfile:-${TESTS_FOLDER}}" -name "*.py" ! -regex "\.\/\.venv_.*" ! -regex "${EXCLUDE_PATH_FROM_TESTS_REGEXP:-^$}" 2>/dev/null)
 
 if [[ ${generate_rc_file} == true ]]; then
     echo -e "# Uncomment only lines you need to change.\n" >${TEST_RC_FILE}
@@ -282,21 +351,27 @@ fi
 if [[ ${no_update} == false && -n ${GITHUB_UPDATE_REPOSITORY} && ${#GITHUB_UPDATE_SOURCES_TARGETS[@]} -gt 0 ]]; then
     echo -e "\n============================ Updating team files ==============================\n"
 
-    for source_file in "${!GITHUB_UPDATE_SOURCES_TARGETS[@]}"; do
-        url="${GITHUB_UPDATE_BASE_URL}/${source_file}"
-        target_file="${GITHUB_UPDATE_SOURCES_TARGETS[${source_file}]}"
-        target_path="$(dirname "${target_file}")"
-        success_msg="File '${target_file}' updated."
-        fail_msg="File '$source_file' from '${GITHUB_UPDATE_REPOSITORY}' repository could not be updated.\nCheck error output above."
-        downloaded_file=$(mktemp)
+    GITHUB_UPDATE_BASE_URL="$(get_update_url)"
 
-        # Download is faster than checking if file has been modified via API
-        curl_output=$(curl --fail -o "${downloaded_file}" "${url}" 2>&1)
-        test_exit $? "${curl_output}\n\n${fail_msg}" "${success_msg}"
+    if [[ -n ${GITHUB_UPDATE_BASE_URL} ]]; then
+        for source_file in "${!GITHUB_UPDATE_SOURCES_TARGETS[@]}"; do
+            url="${GITHUB_UPDATE_BASE_URL}/${source_file}"
+            target_file="${GITHUB_UPDATE_SOURCES_TARGETS[${source_file}]}"
+            [[ -z ${target_file} ]] && continue  # Skip files with no target location
 
-        mkdir -p "${target_path}"
-        mv "${downloaded_file}" "${target_file}"
-    done
+            target_path="$(dirname "${target_file}")"
+            success_msg="File '${target_file}' updated."
+            fail_msg="File '$source_file' from '${GITHUB_UPDATE_REPOSITORY}' repository could not be updated.\nCheck error output above."
+            downloaded_file=$(mktemp)
+
+            # Download is faster than checking if file has been modified via API
+            curl_output=$(curl --fail -o "${downloaded_file}" "${url}" 2>&1)
+            test_exit $? "${curl_output}\n\n${fail_msg}" "${success_msg}"
+
+            mkdir -p "${target_path}"
+            mv "${downloaded_file}" "${target_file}"
+        done
+    fi
 
     [[ ${do_update} == true ]] && exit 0
 fi
@@ -359,13 +434,24 @@ if [[ ${no_install_requirements} == false ]]; then
 
     fail_if_enabled_but_not_installed true pylint
     fail_if_enabled_but_not_installed ${ENABLE_TYPES} mypy
-    fail_if_enabled_but_not_installed ${ENABLE_UNITTESTS} pytest pytest-cov
+    fail_if_enabled_but_not_installed ${ENABLE_UNITTESTS} pytest
     fail_if_enabled_but_not_installed ${ENABLE_BDD} behave
-    fail_if_enabled_but_not_installed ${ENABLE_COVERAGE} coverage
+    fail_if_enabled_but_not_installed ${ENABLE_COVERAGE} coverage pytest-cov
+    fail_if_enabled_but_not_installed ${ENABLE_FORMATTER} pre-commit black
+    fail_if_enabled_but_not_installed ${ENABLE_SAFETY} safety
+
+    pre-commit install
 
     echo -e "\nUse '-ni' command line argument to prevent installing requirements."
 
     [[ ${do_install_requirements} == true ]] && exit 0
+fi
+
+if [[ ${use_formatter} == true ]]; then
+    echo -e "\n============================= Running formatter ===============================\n"
+
+    pre-commit run black --all-files
+    test_failed 0 "Formatter"  # Formatter always passes...
 fi
 
 if [[ ${use_bdd} == true ]]; then
@@ -376,14 +462,16 @@ if [[ ${use_bdd} == true ]]; then
     test_failed $? "Behave BDD tests"
 fi
 
+if [[ ${ENABLE_COVERAGE} == true && ${use_coverage} == true ]]; then
 coverage_pytest_args="--cov=""${SOURCES_FOLDER}"" --cov-append --cov-branch --cov-report= "
+fi
 
 if [[ ${ENABLE_UNITTESTS} == true && ${use_unittests} == true ]]; then
     echo -e "\n============================= Running unit tests ===============================\n"
 
-    env $(cat .env | xargs) pytest -v -s --junitxml=unit_test_results.xml ${coverage_pytest_args} ${UNIT_TEST_EXTRA_PARAMS} ${UNIT_TESTS_FOLDER}
+    env $(cat .env | xargs) pytest -v --junitxml=unit_test_results.xml ${coverage_pytest_args} ${UNIT_TEST_EXTRA_PARAMS} ${UNIT_TESTS_FOLDER}
 
-    test_failed $? "\nUnittests"
+    test_failed $? "Unit tests"
 fi
 
 if [[ ${ENABLE_COVERAGE} == true && ${use_coverage} == true ]]; then
@@ -391,7 +479,7 @@ if [[ ${ENABLE_COVERAGE} == true && ${use_coverage} == true ]]; then
 
     coverage report --skip-covered --fail-under=${COVERAGE_MIN_PERCENTAGE:-0}
 
-    test_failed $? "\nTest for minimum coverage of ${COVERAGE_MIN_PERCENTAGE:-0}%"
+    test_failed $? "Test for minimum coverage of ${COVERAGE_MIN_PERCENTAGE:-0}%"
 
     coverage html -d "${COVER_PATH}/cover"
     coverage xml -o "${COVER_PATH}/cover/coverage.xml"
@@ -401,7 +489,7 @@ if [[ ${ENABLE_COVERAGE} == true && ${use_coverage} == true ]]; then
 fi
 
 if [[ -z ${KEEP_COVERAGE_FILE} ]]; then
-    rm .coverage
+    rm -f .coverage
 fi
 
 if [[ ${ENABLE_TYPES} == true && ${use_typecheck} == true ]]; then
@@ -447,6 +535,7 @@ run_pylint() {
         logging-fstring-interpolation,
 
         apply-builtin,
+        bad-continuation,
         backtick,
         basestring-builtin,
         buffer-builtin,
@@ -496,7 +585,7 @@ run_pylint() {
         zip-builtin-not-iterating
         ' \
         --evaluation="10.0 - ((float(20 * fatal + 10 * error + 5 * warning + 2 * refactor + convention) / statement) * 10)" \
-        ${params[@]} --enable='suppressed-message,useless-suppression' ${files}
+        ${params[@]} --enable='useless-suppression' ${files}
 
     return $?
 }
@@ -525,7 +614,7 @@ fi
 if [[ ${use_todos} == true ]]; then
     echo -e "\n=========================== Running TODOs check ===============================\n"
 
-    todos="$(grep -Enr 'TODO *[(:]' ${SOURCES_FOLDER} ${TESTS_FOLDER} | tr -s ' ')"
+    todos="$(grep -Enr --exclude-dir=$EXCLUDE_PATH_FROM_TESTS_REGEXP --include=*.{py,sh,feature} --include={Docker,Jenkins}file 'TODO *[(:]' Dockerfile Jenkinsfile ${SOURCES_FOLDER} ${TESTS_FOLDER} | tr -s ' ')"
     unnamed_todos=$(echo "${todos}" | grep -E "TODO[^(]*:")
     named_todos=$(echo "${todos}" | grep -E "TODO *\([^)]*\):")
     name_counts="$(echo "${named_todos}" | sed 's/.*TODO *(\([^)]*\)).*/\1/' |
@@ -549,12 +638,37 @@ if [[ ${use_todos} == true ]]; then
     fi
 fi
 
+if [[ ${use_safety} == true ]]; then
+    echo -e "\n========================== Running Safety check ===============================\n"
+
+    if [[ "${CURRENT_OS}" =~ (CYGWIN|MINGW).* ]]; then
+        echo -e "${BYELLOW}Safety currently doesn't work on Windows. See https://github.com/pyupio/safety/issues/119${NC}"
+    else
+        results=$(safety check -r requirements.txt 2>&1)
+        error_code=$?
+
+        if [[ ${error_code} -ne 0 ]]; then
+            echo "${results}" | grep -v "unpinned requirement" | tail -n +15 | sed 's/╞/╒/;s/╡/╕/'
+        else
+            echo "${results}" | grep -q "unpinned requirement"
+
+            if [[ $? -eq 0 ]]; then
+                error_code=1
+                echo "${results}" | grep "unpinned requirement"
+                echo ""
+            fi
+        fi
+
+        test_failed ${error_code} "Safety checks on requirements.txt"
+    fi
+fi
+
 if [[ ${no_virtualenv} == false ]]; then
     deactivate
 fi
 
 if [[ ${failed} -ne 0 ]]; then
-    echo -e "\n${BRED}Some tests failed.${NC}"
+    echo -e "\n${BRED}Some tests failed:${TEST_FAILURES}${NC}"
 else
     echo -e "\n${BGREEN}All tests passed.${NC}"
 fi

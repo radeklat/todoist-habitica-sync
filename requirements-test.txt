@@ -3,3 +3,6 @@ pylint
 mypy
 pytest
 pytest-cov
+pre-commit
+black
+safety
