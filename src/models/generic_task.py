@@ -1,10 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass  # pylint: disable=wrong-import-order
-from enum import (
-    IntEnum,
-    auto,
-)
+from enum import IntEnum, auto
 from typing import Optional
 
 from src.models.todoist_task import TodoistTask

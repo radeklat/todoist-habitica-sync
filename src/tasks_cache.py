@@ -1,41 +1,32 @@
 import logging
 from dataclasses import asdict  # pylint: disable=wrong-import-order
-from typing import (
-    Iterator,
-    Optional,
-)
+from typing import Iterator, Optional
 
-from tinydb import (
-    Query,
-    TinyDB,
-    where,
-)
+from tinydb import Query, TinyDB, where
 
 from src.config import Config
-from src.models.generic_task import (
-    GenericTask,
-    TaskState,
-)
+from src.models.generic_task import GenericTask, TaskState
 
 
 class TasksCache:
     """
     TinyDB docs: https://tinydb.readthedocs.io/en/latest/usage.html
     """
-    HABITICA_DIRTY_STATES = frozenset([
-        TaskState.HABITICA_NEW, TaskState.HABITICA_CREATED, TaskState.HABITICA_FINISHED
-    ])
+
+    HABITICA_DIRTY_STATES = frozenset(
+        [TaskState.HABITICA_NEW, TaskState.HABITICA_CREATED, TaskState.HABITICA_FINISHED]
+    )
 
     def __init__(self):
         tiny_db = TinyDB(Config.database_file)
-        self._task_cache = tiny_db.table('tasks_cache')
+        self._task_cache = tiny_db.table("tasks_cache")
         self._log = logging.getLogger(self.__class__.__name__)
 
     def __len__(self):
         return len(self._task_cache)
 
     def get_task_by_todoist_task_id(self, todoist_task_id: int) -> Optional[GenericTask]:
-        task = self._task_cache.get(where('todoist_task_id') == todoist_task_id)
+        task = self._task_cache.get(where("todoist_task_id") == todoist_task_id)
         return GenericTask(**task) if task else task
 
     def set_task_state(self, generic_task: GenericTask, new_state: TaskState):
@@ -52,19 +43,17 @@ class TasksCache:
         self.save_task(generic_task, previous_habitica_id)
 
     def save_task(
-            self,
-            generic_task: GenericTask,
-            previous_habitica_id: Optional[str] = ''
+        self, generic_task: GenericTask, previous_habitica_id: Optional[str] = ""
     ):
-        if previous_habitica_id != '':
+        if previous_habitica_id != "":
             habitica_id = previous_habitica_id
         else:
             habitica_id = generic_task.habitica_task_id
 
         self._task_cache.upsert(
             asdict(generic_task),
-            (where('todoist_task_id') == generic_task.todoist_task_id) &
-            (where('habitica_task_id') == habitica_id)
+            (where("todoist_task_id") == generic_task.todoist_task_id)
+            & (where("habitica_task_id") == habitica_id),
         )
 
     def dirty_habitica_tasks(self) -> Iterator[GenericTask]:

@@ -2,15 +2,10 @@ from __future__ import annotations
 
 import copy
 import datetime
-from typing import (
-    NamedTuple,
-    Optional,
-    List,
-    Dict,
-)
+from typing import NamedTuple, Optional, List, Dict
 
 
-_TIME_FORMAT = '%a %d %b %Y %H:%M:%S %z'
+_TIME_FORMAT = "%a %d %b %Y %H:%M:%S %z"
 
 
 class TodoistTask(NamedTuple):
@@ -53,16 +48,16 @@ class TodoistTask(NamedTuple):
         try:
             updated_task_data = copy.deepcopy(task_data)
 
-            if updated_task_data['due_date_utc'] is not None:
-                updated_task_data['due_date_utc_timestamp'] = int(
+            if updated_task_data["due_date_utc"] is not None:
+                updated_task_data["due_date_utc_timestamp"] = int(
                     datetime.datetime.strptime(
-                        updated_task_data['due_date_utc'], _TIME_FORMAT
+                        updated_task_data["due_date_utc"], _TIME_FORMAT
                     ).timestamp()
                 )
 
-            updated_task_data['is_repeated'] = (
-                updated_task_data['date_string'] is not None
-                and "every" in updated_task_data['date_string']
+            updated_task_data["is_repeated"] = (
+                updated_task_data["date_string"] is not None
+                and "every" in updated_task_data["date_string"]
             )
 
             return TodoistTask(**updated_task_data)
