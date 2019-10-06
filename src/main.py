@@ -16,6 +16,9 @@ from src.models.habitica_task import HabiticaTask
 from src.models.todoist_task import TodoistTask
 from src.tasks_cache import TasksCache
 
+# Negligible performance degradation
+# pylint: disable=logging-format-interpolation
+
 
 class TasksSync:  # pylint: disable=too-few-public-methods
     """
@@ -99,7 +102,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
         for task in self._todoist.state["items"]:
             todoist_task = TodoistTask.from_task_data(task.data)
-            generic_task = self._task_cache.get_task_by_todoist_task_id(todoist_task.id)
+            generic_task = self._task_cache.get_task_by_todoist_task_id(todoist_task)
 
             if generic_task:
                 if generic_task.state in self.TODOIST_CONTINUE_STATES:
@@ -128,7 +131,8 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         return bool(
             todoist_task.checked
             or (
-                todoist_task.is_repeated
+                todoist_task.due is not None
+                and todoist_task.due["is_recurring"]
                 and generic_task
                 and generic_task.due_date_utc_timestamp
                 and todoist_task.due_date_utc_timestamp
@@ -158,18 +162,38 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                     time.sleep(HABITICA_REQUEST_WAIT_TIME)
 
                 if generic_task.state == TaskState.HABITICA_CREATED:
-                    self._habitica.user.tasks(
-                        _id=generic_task.habitica_task_id, _direction="up", _method="post"
-                    )
-                    self._task_cache.set_task_state(
-                        generic_task, TaskState.HABITICA_FINISHED
-                    )
+                    try:
+                        self._habitica.user.tasks(
+                            _id=generic_task.habitica_task_id,
+                            _direction="up",
+                            _method="post",
+                        )
+                        next_state = TaskState.HABITICA_FINISHED
+                    except HTTPError as ex:
+                        if ex.response.status_code == 404:
+                            next_state = TaskState.HABITICA_NEW
+                            self._log.warning(
+                                f"Habitica task '{generic_task.content}' not found. "
+                                f"Re-setting state."
+                            )
+                        else:
+                            raise ex
+
+                    self._task_cache.set_task_state(generic_task, next_state)
                     time.sleep(HABITICA_REQUEST_WAIT_TIME)
 
                 if generic_task.state == TaskState.HABITICA_FINISHED:
-                    self._habitica.user.tasks(
-                        _id=generic_task.habitica_task_id, _method="delete"
-                    )
+                    try:
+                        self._habitica.user.tasks(
+                            _id=generic_task.habitica_task_id, _method="delete"
+                        )
+                    except HTTPError as ex:
+                        if ex.response.status_code == 404:
+                            self._log.warning(
+                                f"Habitica task '{generic_task.content}' not found."
+                            )
+                        else:
+                            raise ex
 
                     self._task_cache.set_task_state(generic_task, TaskState.HIDDEN)
                     time.sleep(HABITICA_REQUEST_WAIT_TIME)

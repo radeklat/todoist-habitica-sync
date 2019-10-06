@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass  # pylint: disable=wrong-import-order
+from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any
 

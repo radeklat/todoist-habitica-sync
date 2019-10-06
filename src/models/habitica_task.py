@@ -7,23 +7,24 @@ from typing import NamedTuple, List, Dict
 class HabiticaTask(NamedTuple):
     """https://habitica.com/apidoc/#api-Task-CreateUserTasks"""
 
-    userId: str
-    text: str
-    type: str
-    notes: str
-    tags: List[str]
-    value: str
-    priority: str
     attribute: str
+    byHabitica: bool
     challenge: str
-    group: Dict
-    reminders: List
-    createdAt: str
-    updatedAt: str
     checklist: List
     collapseChecklist: bool
     completed: bool
+    createdAt: str
+    group: Dict
     id: str
+    notes: str
+    priority: str
+    reminders: List
+    tags: List[str]
+    text: str
+    type: str
+    updatedAt: str
+    userId: str
+    value: str
 
     alias: str = ""
 

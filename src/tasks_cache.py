@@ -1,11 +1,15 @@
 import logging
-from dataclasses import asdict  # pylint: disable=wrong-import-order
+from dataclasses import asdict
 from typing import Iterator, Optional
 
 from tinydb import Query, TinyDB, where
 
+from models.todoist_task import TodoistTask
 from src.config import Config
 from src.models.generic_task import GenericTask, TaskState
+
+# Negligible performance degradation
+# pylint: disable=logging-format-interpolation
 
 
 class TasksCache:
@@ -25,8 +29,13 @@ class TasksCache:
     def __len__(self):
         return len(self._task_cache)
 
-    def get_task_by_todoist_task_id(self, todoist_task_id: int) -> Optional[GenericTask]:
-        task = self._task_cache.get(where("todoist_task_id") == todoist_task_id)
+    def get_task_by_todoist_task_id(
+        self, todoist_task: TodoistTask
+    ) -> Optional[GenericTask]:
+        task = self._task_cache.get(where("todoist_task_id") == todoist_task.id)
+        if not task and todoist_task.legacy_id is not None:
+            task = self._task_cache.get(where("todoist_task_id") == todoist_task.legacy_id)
+
         return GenericTask(**task) if task else task
 
     def set_task_state(self, generic_task: GenericTask, new_state: TaskState):

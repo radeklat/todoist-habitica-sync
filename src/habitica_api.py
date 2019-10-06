@@ -23,7 +23,7 @@ class HabiticaAPI:
 
     def __getattr__(self, name):
         try:
-            return object.__getattr__(self, name)
+            return object.__getattribute__(self, name)
         except AttributeError:
             if not self.resource:
                 return HabiticaAPI(auth=self.auth, resource=name)
