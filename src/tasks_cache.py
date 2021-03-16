@@ -5,8 +5,8 @@ from typing import Iterator, Optional
 from tinydb import Query, TinyDB, where
 
 from models.todoist_task import TodoistTask
-from src.config import Config
-from src.models.generic_task import GenericTask, TaskState
+from config import get_settings
+from models.generic_task import GenericTask, TaskState
 
 # Negligible performance degradation
 # pylint: disable=logging-format-interpolation
@@ -22,7 +22,7 @@ class TasksCache:
     )
 
     def __init__(self):
-        tiny_db = TinyDB(Config.database_file)
+        tiny_db = TinyDB(get_settings().database_file)
         self._task_cache = tiny_db.table("tasks_cache")
         self._log = logging.getLogger(self.__class__.__name__)
 

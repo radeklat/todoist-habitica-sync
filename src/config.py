@@ -1,7 +1,8 @@
-import os
-from dataclasses import dataclass
+from functools import lru_cache
 from types import MappingProxyType
 from typing import Any
+
+from pydantic import BaseSettings, Field, validator
 
 
 def positive_int(value: Any) -> int:
@@ -13,13 +14,25 @@ def positive_int(value: Any) -> int:
     return result
 
 
-@dataclass(frozen=True)
-class Config:
-    todoist_api_key: str = os.environ["TODOIST_API_KEY"]
-    habitica_user_id = os.environ["HABITICA_USER_ID"]
-    habitica_api_key: str = os.environ["HABITICA_API_KEY"]
-    sync_delay_seconds: int = positive_int(os.environ["SYNC_DELAY_MINUTES"]) * 60
-    database_file: str = os.environ["DATABASE_FILE"]
+class Settings(BaseSettings):
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+    todoist_api_key: str
+    habitica_user_id: str
+    habitica_api_key: str
+    sync_delay_seconds: int = Field(1, gt=0, env="sync_delay_minutes")
+    database_file: str = "sync_cache.json"
+
+    @validator("sync_delay_seconds")
+    def minutes_to_seconds(cls, value: int):
+        return value * 60
+
+
+@lru_cache(maxsize=1)
+def get_settings():
+    return Settings()
 
 
 # https://habitica.com/apidoc/#api-Task-CreateUserTasks

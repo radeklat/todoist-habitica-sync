@@ -5,16 +5,17 @@ from os.path import dirname, join
 import todoist
 from requests import HTTPError
 
-from src.config import (
-    Config,
+from config import (
     HABITICA_REQUEST_WAIT_TIME,
     TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY,
+    get_settings,
 )
-from src.habitica_api import HabiticaAPI
-from src.models.generic_task import GenericTask, TaskState
-from src.models.habitica_task import HabiticaTask
-from src.models.todoist_task import TodoistTask
-from src.tasks_cache import TasksCache
+from habitica_api import HabiticaAPI
+from models.generic_task import GenericTask, TaskState
+from models.habitica_task import HabiticaTask
+from models.todoist_task import TodoistTask
+from tasks_cache import TasksCache
+
 
 # Negligible performance degradation
 # pylint: disable=logging-format-interpolation
@@ -34,14 +35,14 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         self._habitica = HabiticaAPI(
             {
                 "url": "https://habitica.com",
-                "x-api-user": Config.habitica_user_id,
-                "x-api-key": Config.habitica_api_key,
+                "x-api-user": get_settings().habitica_user_id,
+                "x-api-key": get_settings().habitica_api_key,
             }
         )
 
         self._log = logging.getLogger(self.__class__.__name__)
         self._todoist = todoist.TodoistAPI(
-            Config.todoist_api_key, cache=join(dirname(__file__), ".todoist-sync/")
+            get_settings().todoist_api_key, cache=join(dirname(__file__), ".todoist-sync/")
         )
 
         self._task_cache = TasksCache()
@@ -58,7 +59,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 self._log.error(f"Unexpected network error: {str(ex)}")
 
             duration = time.time() - start_time
-            delay = max(0.0, Config.sync_delay_seconds - duration)
+            delay = max(0.0, get_settings().sync_delay_seconds - duration)
 
             try:
                 self._log.info(f"Next check in {delay:.0f} seconds.")

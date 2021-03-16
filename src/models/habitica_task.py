@@ -1,32 +1,16 @@
 from __future__ import annotations
 
 import copy
-from typing import NamedTuple, List, Dict
+from typing import List, Dict
+
+from pydantic import BaseModel
 
 
-class HabiticaTask(NamedTuple):
+class HabiticaTask(BaseModel):
     """https://habitica.com/apidoc/#api-Task-CreateUserTasks"""
 
-    attribute: str
-    byHabitica: bool
-    challenge: str
-    checklist: List
-    collapseChecklist: bool
-    completed: bool
-    createdAt: str
-    group: Dict
     id: str
-    notes: str
-    priority: str
-    reminders: List
-    tags: List[str]
     text: str
-    type: str
-    updatedAt: str
-    userId: str
-    value: str
-
-    alias: str = ""
 
     @staticmethod
     def from_task_data(task_data: Dict) -> HabiticaTask:

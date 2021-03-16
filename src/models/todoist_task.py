@@ -1,38 +1,20 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, Dict, List, NamedTuple, Optional
+from typing import Any, Dict, Optional
 
 from dateutil.parser import parse
+from pydantic import BaseModel
 
 
-class TodoistTask(NamedTuple):
-    assigned_by_uid: int
+class TodoistTask(BaseModel):
     checked: int
-    child_order: int
-    collapsed: int
     content: str
-    date_added: str
-    date_completed: str
-    day_order: int
-    due: Dict[str, Any]  # date, is_recurring, lang, string, timezone
+    due: Optional[Dict[str, Any]]  # date, is_recurring, lang, string, timezone
     id: int
-    in_history: int
     is_deleted: int
-    labels: List[str]
-    parent_id: Optional[int]
     priority: int
-    project_id: int
-    responsible_uid: Optional[int]
-    section_id: Optional[int]
-    sync_id: Optional[int]
-    user_id: int
-
-    # Optional values
-    has_more_notes: bool = False
     legacy_id: Optional[int] = None
-    legacy_project_id: Optional[int] = None
-    legacy_parent_id: Optional[int] = None
 
     # custom fields with default value
     due_date_utc_timestamp: Optional[int] = None

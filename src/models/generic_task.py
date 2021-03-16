@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import IntEnum, auto
 from typing import Optional
 
-from src.models.todoist_task import TodoistTask
+from models.todoist_task import TodoistTask
 
 
 class TaskState(IntEnum):
