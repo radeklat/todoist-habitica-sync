@@ -101,6 +101,12 @@ TODO
    git pull
    ```
 
+4. Update application dependencies:
+   ```shell script
+   poetry install --no-dev
+   ```
+5. Run the application again.
+
 # Planned work
 
 * Synchronise overdue task to cause damage in habitica
