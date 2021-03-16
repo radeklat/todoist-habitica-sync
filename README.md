@@ -5,7 +5,7 @@
 
 **This project is a not-at-all-production-ready-dark-ages-hardcore-alpha. Please refrain from filing bug reports of complaints until this notice disappears.** 
 
-Compatible with Python 3.7+
+Compatible with Python 3.8+
 
 # Purpose
 
@@ -34,11 +34,55 @@ Tasks are not added immediately. Only when you finish a task in Todoist, new tas
 
 ## As a script
 
-1. Clone this repository
-1. Create a copy of _.env.template_ into _.env_ and fill your details.
-1. Run:
-
-        $(cat .env | xargs) python src/main.py
+1. Open terminal
+2. Make sure [`git`](https://github.com/git-guides/install-git) is installed:
+   ```shell script
+   git --version   
+   ```
+   The output should look something like:
+   ```text
+   git version 2.25.1
+   ```
+3. Make sure Python 3.8+ is installed:
+   ```shell script
+   python --version
+   ```
+   The output should look something like:
+   ```text
+   Python 3.8.6
+   ```
+   * If it shows `2.7.x` instead, try `python3` instead and use it in the rest of the guide.
+   * If it shows `3.7.x` or lower, use [`pyenv`](https://github.com/pyenv/pyenv#installation) to install a higher version of Python on your system.
+4. Make sure `poetry` is installed:
+   ```shell script
+   poetry --version
+   ```
+   The output should look something like:
+   ```
+   Poetry version 1.1.5
+   ```
+   If it is not installed, install it with:
+   ```shell script
+   pip install poetry
+   ```
+5. Clone this repository:
+   ```shell script
+   git clone https://github.com/radeklat/todoist-habitica-sync.git
+   cd todoist-habitica-sync
+   ```
+6. Copy the `.env.template` file into `.env` file:
+   ```shell script
+   cp .env.template .env
+   ```
+7. Edit the `.env` file, fill all missing values and/or change existing ones to suit your needs.
+8. Install all application dependencies:
+   ```shell script
+   poetry install --no-dev
+   ```
+9. Run the app:
+    ```shell script
+    poetry run python src/main.py
+    ```
 
 ## As a docker container
 
