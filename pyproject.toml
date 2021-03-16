@@ -33,10 +33,7 @@ ujson = "^1.35"
 dotmap = "^1.3"
 requests = "^2.22"
 python-dateutil = "^2.8"
-pydantic = "^1.8"
-
-[tool.poetry.extras]
-pydantic = ["dotenv"]
+pydantic = {version = "^1.8", extras = ["dotenv"]}
 
 [tool.poetry.dev-dependencies]
 coverage = "*"

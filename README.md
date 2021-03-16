@@ -53,18 +53,13 @@ Tasks are not added immediately. Only when you finish a task in Todoist, new tas
    ```
    * If it shows `2.7.x` instead, try `python3` instead and use it in the rest of the guide.
    * If it shows `3.7.x` or lower, use [`pyenv`](https://github.com/pyenv/pyenv#installation) to install a higher version of Python on your system.
-4. Make sure `poetry` is installed:
+4. Make sure [`poetry`](https://python-poetry.org/docs/#installation) is installed:
    ```shell script
    poetry --version
    ```
    The output should look something like:
    ```
    Poetry version 1.1.5
-   ```
-   If it is not installed, install it with:
-   ```shell script
-   pip install poetry
-   ```
 5. Clone this repository:
    ```shell script
    git clone https://github.com/radeklat/todoist-habitica-sync.git
@@ -91,6 +86,20 @@ TODO
 ## As a service
 
 TODO
+
+# Update
+
+## As a script
+
+1. Open terminal
+2. Navigate to the project repository:
+   ```shell script
+   cd todoist-habitica-sync
+   ```
+3. Update the source code:
+   ```shell script
+   git pull
+   ```
 
 # Planned work
 
