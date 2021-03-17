@@ -1,0 +1,100 @@
+version: 2.1
+
+parameters:
+  project_name:
+    type: string
+    default: todoist-habitica-sync
+  working_directory:
+    type: string
+    default: ~/todoist-habitica-sync
+  python_version:
+    type: string
+    default: "3.8"
+
+jobs: # A basic unit of work in a run
+  test:
+    working_directory: << pipeline.parameters.working_directory >>
+    parameters:
+      version:
+        type: string
+    docker:
+      - image: circleci/python:<< pipeline.parameters.python_version >>
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+    steps:
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python<< pipeline.parameters.python_version >>/site-packages
+      - restore_cache:
+          key: << pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "Pipfile.lock" }}
+      - run:
+          name: Install dev libraries
+          command: pip install --upgrade pip poetry && poetry install --dev
+      - run:
+          name: Format check
+          command: poetry run inv format --check
+      - run:
+          name: Type check
+          command: poetry run inv typecheck
+      - run:
+          name: Linters
+          command: poetry run inv lint
+      - save_cache:
+          key: << pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "Pipfile.lock" }}
+          paths:
+            - ".venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python<< pipeline.parameters.python_version >>/site-packages"
+      - run:
+          name: Unit tests
+          command: poetry run inv test-unit
+      - run:
+          name: Integration tests
+          command: poetry run inv test-integration
+      - run:
+          name: Build coverage report
+          command: poetry run inv coverage-report
+      - run:
+          name: Upload coverage reports to Codecov
+          command: |
+            [[ "${CIRCLE_BRANCH}" == "master" ]] && BASE_COMMIT_SHA=$(git rev-parse HEAD~1) || BASE_COMMIT_SHA=$(git merge-base ${CIRCLE_BRANCH} origin/master)
+            bash <(curl -s https://codecov.io/bash) -N ${BASE_COMMIT_SHA} -f reports/unit-test-report.xml -f reports/integration-test-report.xml | tr "." "_")
+      - store_artifacts:
+          path: reports/coverage-report
+      - store_test_results:
+          path: reports
+  build_and_push:
+    machine:
+      image: ubuntu-1604:202004-01
+      # We use docker layer caching on the machine executor to speed up build time
+      docker_layer_caching: true
+    steps:
+      - checkout
+      - run:
+          name: Install dev libraries
+          command: pip install --upgrade pip poetry
+      - run:
+          name: Build docker image
+          command: |
+              docker build \
+                --tag << pipeline.parameters.project_name >>:latest \
+                --tag << pipeline.parameters.project_name >>:$(poetry version -s) \
+                .
+      - run:
+          name: Push docker image
+          command: docker push --all-tags
+
+workflows:
+  version: 2
+  all_pipelines:
+    jobs:
+      - test:
+          name: Tests
+      - build_and_push:
+          name: Build and push docker image
+          context: todoist habitica sync
+          requires:
+            - Tests
+          filters:
+            branches:
+              only: master

@@ -1,4 +1,4 @@
-__pycache__/
+**/__pycache__
 *.py[cod]
 *$py.class
 pip-log.txt
@@ -31,3 +31,22 @@ CHANGELOG.md
 tests/
 documentation/
 .github/
+.pre-commit-config.yaml
+.run
+**/.pylintrc
+**/.todoist-sync
+.python-version
+.circleci
+**/sync_cache.json
+.git
+tasks
+
+## Check list of included files with:
+#docker image build -t build-context -f - . <<EOF
+#FROM busybox
+#COPY . /build-context
+#WORKDIR /build-context
+#CMD find . | sed 's/^.\///' | grep -v '^\.$'
+#EOF
+#docker container run --rm build-context
+## (from https://stackoverflow.com/questions/38946683/how-to-test-dockerignore-file)
