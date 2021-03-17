@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import copy
-from typing import Dict, List
+from typing import Dict
 
 from pydantic import BaseModel
 
 
 class HabiticaTask(BaseModel):
-    """https://habitica.com/apidoc/#api-Task-CreateUserTasks"""
+    """Single Habitica task.
+
+    See:
+        https://habitica.com/apidoc/#api-Task-CreateUserTasks
+    """
 
     id: str
     text: str
@@ -20,4 +24,4 @@ class HabiticaTask(BaseModel):
 
             return HabiticaTask(**updated_task_data)
         except TypeError as ex:
-            raise TypeError(str(ex) + f"\nOffending task: {task_data}")
+            raise TypeError(str(ex) + f"\nOffending task: {task_data}") from ex

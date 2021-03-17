@@ -242,3 +242,4 @@ cover
 *_test_results.xml
 .todoist-sync/
 sync_cache.json
+reports

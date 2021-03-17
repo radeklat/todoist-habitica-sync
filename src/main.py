@@ -17,7 +17,8 @@ from tasks_cache import TasksCache
 
 
 class TasksSync:  # pylint: disable=too-few-public-methods
-    """
+    """Class managing tasks synchronisation.
+
     Todoist API: https://developer.todoist.com/sync/v7/?python#overview
     Habitica API: https://habitica.com/apidoc
     """

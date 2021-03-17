@@ -8,7 +8,8 @@ SUCCESS_CODES = frozenset([requests.codes.ok, requests.codes.created])  # pylint
 
 
 class HabiticaAPI:
-    """
+    """Access to Habitica API.
+
     Based on https://github.com/philadams/habitica/blob/master/habitica/api.py
     """
 

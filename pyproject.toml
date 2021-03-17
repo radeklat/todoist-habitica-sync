@@ -25,6 +25,25 @@ exclude = '''
 )/
 '''
 
+[tool.pytest.ini_options]
+testpaths = "tests/unit tests/integration"
+python_functions = "should_*"
+junit_family = "xunit2"
+# pytest-dotenv settings
+env_override_existing_values = 1
+env_files = ".env.test"
+
+# Structure: https://docs.pytest.org/en/stable/warnings.html
+# Values:    https://docs.python.org/3/library/warnings.html#describing-warning-filters
+#            action:message:category:module:line
+filterwarnings = [
+
+]
+
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+
 [tool.poetry]
 name = "todoist-habitica-sync"
 version = "1.0.0"
@@ -53,6 +72,8 @@ black = "^20.8b1"
 invoke = "^1.5.0"
 termcolor = "^1.1.0"
 poetry = "^1.1.5"
+pycodestyle = "^2.7.0"
+pydocstyle = "^5.1.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
