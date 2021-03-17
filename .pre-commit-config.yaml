@@ -1,6 +1,12 @@
+# See https://pre-commit.com/ for usage and config
+default_language_version:
+  python: python3.8
 repos:
--   repo: https://github.com/psf/black
-    rev: 19.3b0
-    hooks:
-    - id: black
-      language_version: python3
+- repo: local
+  hooks:
+  - id: formatting
+    name: formatting
+    stages: [commit]
+    language: system
+    entry: poetry run inv format
+    pass_filenames: false
