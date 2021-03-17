@@ -14,9 +14,6 @@ parameters:
 jobs: # A basic unit of work in a run
   test:
     working_directory: << pipeline.parameters.working_directory >>
-    parameters:
-      version:
-        type: string
     docker:
       - image: circleci/python:<< pipeline.parameters.python_version >>
         environment:
@@ -26,10 +23,10 @@ jobs: # A basic unit of work in a run
       - run: sudo chown -R circleci:circleci /usr/local/bin
       - run: sudo chown -R circleci:circleci /usr/local/lib/python<< pipeline.parameters.python_version >>/site-packages
       - restore_cache:
-          key: << pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "Pipfile.lock" }}
+          key: << pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install dev libraries
-          command: pip install --upgrade pip poetry && poetry install --dev
+          command: pip install --upgrade pip poetry && poetry install
       - run:
           name: Format check
           command: poetry run inv format --check
@@ -40,7 +37,7 @@ jobs: # A basic unit of work in a run
           name: Linters
           command: poetry run inv lint
       - save_cache:
-          key: << pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "Pipfile.lock" }}
+          key: << pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
           paths:
             - ".venv"
             - "/usr/local/bin"
