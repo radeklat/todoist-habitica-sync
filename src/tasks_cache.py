@@ -4,9 +4,9 @@ from typing import Iterator, Optional
 
 from tinydb import Query, TinyDB, where
 
-from models.todoist_task import TodoistTask
 from config import get_settings
 from models.generic_task import GenericTask, TaskState
+from models.todoist_task import TodoistTask
 
 # Negligible performance degradation
 # pylint: disable=logging-format-interpolation
@@ -17,9 +17,7 @@ class TasksCache:
     TinyDB docs: https://tinydb.readthedocs.io/en/latest/usage.html
     """
 
-    HABITICA_DIRTY_STATES = frozenset(
-        [TaskState.HABITICA_NEW, TaskState.HABITICA_CREATED, TaskState.HABITICA_FINISHED]
-    )
+    HABITICA_DIRTY_STATES = frozenset([TaskState.HABITICA_NEW, TaskState.HABITICA_CREATED, TaskState.HABITICA_FINISHED])
 
     def __init__(self):
         tiny_db = TinyDB(get_settings().database_file)
@@ -29,9 +27,7 @@ class TasksCache:
     def __len__(self):
         return len(self._task_cache)
 
-    def get_task_by_todoist_task_id(
-        self, todoist_task: TodoistTask
-    ) -> Optional[GenericTask]:
+    def get_task_by_todoist_task_id(self, todoist_task: TodoistTask) -> Optional[GenericTask]:
         task = self._task_cache.get(where("todoist_task_id") == todoist_task.id)
         if not task and todoist_task.legacy_id is not None:
             task = self._task_cache.get(where("todoist_task_id") == todoist_task.legacy_id)
@@ -40,9 +36,7 @@ class TasksCache:
 
     def set_task_state(self, generic_task: GenericTask, new_state: TaskState):
         if generic_task.state != new_state:
-            self._log.info(
-                f"'{generic_task.content}' {generic_task.state.name} -> {new_state.name}"
-            )
+            self._log.info(f"'{generic_task.content}' {generic_task.state.name} -> {new_state.name}")
             generic_task.state = new_state
             self.save_task(generic_task)
 
@@ -51,9 +45,7 @@ class TasksCache:
         generic_task.habitica_task_id = new_habitica_task_id
         self.save_task(generic_task, previous_habitica_id)
 
-    def save_task(
-        self, generic_task: GenericTask, previous_habitica_id: Optional[str] = ""
-    ):
+    def save_task(self, generic_task: GenericTask, previous_habitica_id: Optional[str] = ""):
         if previous_habitica_id != "":
             habitica_id = previous_habitica_id
         else:
@@ -61,8 +53,7 @@ class TasksCache:
 
         self._task_cache.upsert(
             asdict(generic_task),
-            (where("todoist_task_id") == generic_task.todoist_task_id)
-            & (where("habitica_task_id") == habitica_id),
+            (where("todoist_task_id") == generic_task.todoist_task_id) & (where("habitica_task_id") == habitica_id),
         )
 
     def dirty_habitica_tasks(self) -> Iterator[GenericTask]:

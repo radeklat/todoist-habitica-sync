@@ -4,9 +4,7 @@ import requests
 
 API_URI_BASE = "api/v3"
 API_CONTENT_TYPE = "application/json"
-SUCCESS_CODES = frozenset(
-    [requests.codes.ok, requests.codes.created]  # pylint: disable=no-member
-)
+SUCCESS_CODES = frozenset([requests.codes.ok, requests.codes.created])  # pylint: disable=no-member
 
 
 class HabiticaAPI:
@@ -53,9 +51,7 @@ class HabiticaAPI:
 
         # actually make the request of the API
         if method in ["put", "post", "delete"]:
-            res = getattr(requests, method)(
-                uri, headers=self.headers, data=json.dumps(kwargs)
-            )
+            res = getattr(requests, method)(uri, headers=self.headers, data=json.dumps(kwargs))
         else:
             res = getattr(requests, method)(uri, headers=self.headers, params=kwargs)
 

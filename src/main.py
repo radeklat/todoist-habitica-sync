@@ -5,17 +5,12 @@ from os.path import dirname, join
 import todoist
 from requests import HTTPError
 
-from config import (
-    HABITICA_REQUEST_WAIT_TIME,
-    TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY,
-    get_settings,
-)
+from config import HABITICA_REQUEST_WAIT_TIME, TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY, get_settings
 from habitica_api import HabiticaAPI
 from models.generic_task import GenericTask, TaskState
 from models.habitica_task import HabiticaTask
 from models.todoist_task import TodoistTask
 from tasks_cache import TasksCache
-
 
 # Negligible performance degradation
 # pylint: disable=logging-format-interpolation
@@ -27,9 +22,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
     Habitica API: https://habitica.com/apidoc
     """
 
-    TODOIST_CONTINUE_STATES = frozenset(
-        [TaskState.HIDDEN, *TasksCache.HABITICA_DIRTY_STATES]
-    )
+    TODOIST_CONTINUE_STATES = frozenset([TaskState.HIDDEN, *TasksCache.HABITICA_DIRTY_STATES])
 
     def __init__(self):
         self._habitica = HabiticaAPI(
@@ -70,9 +63,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
     def _sync_todoist(self):
         self._todoist.sync()
 
-    def _next_state_with_existing_generic_task(
-        self, todoist_task: TodoistTask, generic_task: GenericTask
-    ) -> TaskState:
+    def _next_state_with_existing_generic_task(self, todoist_task: TodoistTask, generic_task: GenericTask) -> TaskState:
         if todoist_task.is_deleted:
             return TaskState.HIDDEN
 
@@ -81,9 +72,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
         return TaskState.TODOIST_ACTIVE
 
-    def _next_state_with_new_generic_task(
-        self, todoist_task: TodoistTask, initial_sync: bool
-    ) -> TaskState:
+    def _next_state_with_new_generic_task(self, todoist_task: TodoistTask, initial_sync: bool) -> TaskState:
         if todoist_task.is_deleted:
             return TaskState.HIDDEN
 
@@ -109,9 +98,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 if generic_task.state in self.TODOIST_CONTINUE_STATES:
                     continue
 
-                generic_task.state = self._next_state_with_existing_generic_task(
-                    todoist_task, generic_task
-                )
+                generic_task.state = self._next_state_with_existing_generic_task(todoist_task, generic_task)
                 generic_task.content = todoist_task.content
                 generic_task.priority = todoist_task.priority
             else:
@@ -119,16 +106,12 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                     todoist_task,
                     self._next_state_with_new_generic_task(todoist_task, initial_sync),
                 )
-                self._log.info(
-                    f"New task {generic_task.content}, {generic_task.state.name}"
-                )
+                self._log.info(f"New task {generic_task.content}, {generic_task.state.name}")
 
             self._task_cache.save_task(generic_task)
 
     @staticmethod
-    def _should_task_score_points(
-        todoist_task: TodoistTask, generic_task: GenericTask = None
-    ) -> bool:
+    def _should_task_score_points(todoist_task: TodoistTask, generic_task: GenericTask = None) -> bool:
         return bool(
             todoist_task.checked
             or (
@@ -137,8 +120,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 and generic_task
                 and generic_task.due_date_utc_timestamp
                 and todoist_task.due_date_utc_timestamp
-                and generic_task.due_date_utc_timestamp
-                < todoist_task.due_date_utc_timestamp
+                and generic_task.due_date_utc_timestamp < todoist_task.due_date_utc_timestamp
             )
         )
 
@@ -150,16 +132,12 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                         self._habitica.user.tasks(
                             type="todo",
                             text=generic_task.content,
-                            priority=TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY[
-                                generic_task.priority
-                            ],
+                            priority=TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY[generic_task.priority],
                             _method="post",
                         )
                     )
                     self._task_cache.set_habitica_id(generic_task, habitica_task.id)
-                    self._task_cache.set_task_state(
-                        generic_task, TaskState.HABITICA_CREATED
-                    )
+                    self._task_cache.set_task_state(generic_task, TaskState.HABITICA_CREATED)
                     time.sleep(HABITICA_REQUEST_WAIT_TIME)
 
                 if generic_task.state == TaskState.HABITICA_CREATED:
@@ -174,8 +152,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                         if ex.response.status_code == 404:
                             next_state = TaskState.HABITICA_NEW
                             self._log.warning(
-                                f"Habitica task '{generic_task.content}' not found. "
-                                f"Re-setting state."
+                                f"Habitica task '{generic_task.content}' not found. " f"Re-setting state."
                             )
                         else:
                             raise ex
@@ -185,14 +162,10 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
                 if generic_task.state == TaskState.HABITICA_FINISHED:
                     try:
-                        self._habitica.user.tasks(
-                            _id=generic_task.habitica_task_id, _method="delete"
-                        )
+                        self._habitica.user.tasks(_id=generic_task.habitica_task_id, _method="delete")
                     except HTTPError as ex:
                         if ex.response.status_code == 404:
-                            self._log.warning(
-                                f"Habitica task '{generic_task.content}' not found."
-                            )
+                            self._log.warning(f"Habitica task '{generic_task.content}' not found.")
                         else:
                             raise ex
 
@@ -203,8 +176,6 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s (%(name)s) [%(levelname)s]: %(message)s"
-    )
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s (%(name)s) [%(levelname)s]: %(message)s")
 
     TasksSync().run_forever()

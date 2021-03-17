@@ -26,9 +26,7 @@ class TodoistTask(BaseModel):
             due = updated_task_data["due"]
 
             if due is not None:
-                updated_task_data["due_date_utc_timestamp"] = int(
-                    parse(due["date"]).timestamp()
-                )
+                updated_task_data["due_date_utc_timestamp"] = int(parse(due["date"]).timestamp())
 
             return TodoistTask(**updated_task_data)
         except (KeyError, TypeError) as ex:

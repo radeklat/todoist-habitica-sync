@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import List, Dict
+from typing import Dict, List
 
 from pydantic import BaseModel
 
