@@ -36,9 +36,9 @@ jobs: # A basic unit of work in a run
       - run:
           name: Type check
           command: poetry run inv typecheck
-#      - run:
-#          name: Linters
-#          command: poetry run inv lint
+      - run:
+          name: Linters
+          command: poetry run inv lint
       - save_cache:
           key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
           paths:
