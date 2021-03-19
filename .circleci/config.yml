@@ -74,7 +74,7 @@ jobs: # A basic unit of work in a run
       - checkout
       - run:
           name: Install dev libraries
-          command: pip install --upgrade pip poetry
+          command: pip3 install --upgrade pip poetry
       - run:
           name: Build docker image
           command: |
@@ -87,7 +87,7 @@ jobs: # A basic unit of work in a run
           command: docker login --username << pipeline.parameters.dockerhub_username >> --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
       - run:
           name: Push docker image
-          command: docker push << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$(poetry version -s)
+          command: docker push << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >> --all-tags
 
 workflows:
   version: 2
