@@ -1,0 +1,7 @@
+*
+!.gitignore
+
+# We must keep the .venv directory to ensure that pipenv will
+# keep its installation in this directory
+# We only keep this .gitignore in version control. We should not
+# check in all the .venv files
