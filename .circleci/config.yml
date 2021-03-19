@@ -10,13 +10,13 @@ parameters:
   python_version:
     type: string
     default: "3.8"
+  cache_version:
+    type: string
+    default: "1"
 
 jobs: # A basic unit of work in a run
   test:
     working_directory: << pipeline.parameters.working_directory >>
-    parameters:
-      version:
-        type: string
     docker:
       - image: circleci/python:<< pipeline.parameters.python_version >>
         environment:
@@ -26,10 +26,10 @@ jobs: # A basic unit of work in a run
       - run: sudo chown -R circleci:circleci /usr/local/bin
       - run: sudo chown -R circleci:circleci /usr/local/lib/python<< pipeline.parameters.python_version >>/site-packages
       - restore_cache:
-          key: << pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "Pipfile.lock" }}
+          key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install dev libraries
-          command: pip install --upgrade pip poetry && poetry install --dev
+          command: pip install --upgrade pip poetry && poetry install
       - run:
           name: Format check
           command: poetry run inv format --check
@@ -40,7 +40,7 @@ jobs: # A basic unit of work in a run
           name: Linters
           command: poetry run inv lint
       - save_cache:
-          key: << pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "Pipfile.lock" }}
+          key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
           paths:
             - ".venv"
             - "/usr/local/bin"
@@ -58,7 +58,8 @@ jobs: # A basic unit of work in a run
           name: Upload coverage reports to Codecov
           command: |
             [[ "${CIRCLE_BRANCH}" == "master" ]] && BASE_COMMIT_SHA=$(git rev-parse HEAD~1) || BASE_COMMIT_SHA=$(git merge-base ${CIRCLE_BRANCH} origin/master)
-            bash <(curl -s https://codecov.io/bash) -N ${BASE_COMMIT_SHA} -f reports/unit-test-report.xml -f reports/integration-test-report.xml | tr "." "_")
+            bash <(curl -s https://codecov.io/bash) -N ${BASE_COMMIT_SHA} -f reports/coverage-unit.xml -F total,unit_tests &&
+            bash <(curl -s https://codecov.io/bash) -N ${BASE_COMMIT_SHA} -f reports/coverage-integration.xml -F total,integration_tests
       - store_artifacts:
           path: reports/coverage-report
       - store_test_results:
@@ -81,6 +82,9 @@ jobs: # A basic unit of work in a run
                 --tag << pipeline.parameters.project_name >>:$(poetry version -s) \
                 .
       - run:
+          name: Login to dockerhub
+          command: docker login --username radeklat --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
+      - run:
           name: Push docker image
           command: docker push --all-tags
 
@@ -89,10 +93,11 @@ workflows:
   all_pipelines:
     jobs:
       - test:
+          context: todoist-habitica-sync
           name: Tests
       - build_and_push:
           name: Build and push docker image
-          context: todoist habitica sync
+          context: todoist-habitica-sync
           requires:
             - Tests
           filters:

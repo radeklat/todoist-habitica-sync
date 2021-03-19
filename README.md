@@ -1,5 +1,8 @@
-[![Master Build Status](https://travis-ci.org/radeklat/todoist-habitica-points-sync.svg?branch=master)](https://travis-ci.org/radeklat/todoist-habitica-points-sync)
-[![Develop Build Status](https://travis-ci.org/radeklat/todoist-habitica-points-sync.svg?branch=develop)](https://travis-ci.org/radeklat/todoist-habitica-points-sync)
+![CircleCI](https://img.shields.io/circleci/build/github/radeklat/todoist-habitica-sync)
+![Codecov](https://img.shields.io/codecov/c/github/radeklat/todoist-habitica-sync)
+![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/radeklat/todoist-habitica-sync)
+![Maintenance](https://img.shields.io/maintenance/yes/2021)
+![GitHub last commit](https://img.shields.io/github/last-commit/radeklat/todoist-habitica-sync)
 
 # NOTE FOR PEOPLE ACCIDENTALLY FINDING THIS REPOSITORY
 

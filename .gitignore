@@ -150,7 +150,6 @@ celerybeat-schedule
 
 # Environments
 .env
-.venv*
 env/
 venv/
 ENV/
@@ -242,3 +241,4 @@ cover
 *_test_results.xml
 .todoist-sync/
 sync_cache.json
+reports

@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     database_file: str = "sync_cache.json"
 
     @validator("sync_delay_seconds")
-    def minutes_to_seconds(cls, value: int):
+    def minutes_to_seconds(cls, value: int):  # pylint: disable=no-self-argument,no-self-use
         return value * 60
 
 

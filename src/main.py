@@ -12,12 +12,10 @@ from models.habitica_task import HabiticaTask
 from models.todoist_task import TodoistTask
 from tasks_cache import TasksCache
 
-# Negligible performance degradation
-# pylint: disable=logging-format-interpolation
-
 
 class TasksSync:  # pylint: disable=too-few-public-methods
-    """
+    """Class managing tasks synchronisation.
+
     Todoist API: https://developer.todoist.com/sync/v7/?python#overview
     Habitica API: https://habitica.com/apidoc
     """
@@ -49,7 +47,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 self._next_tasks_state_based_on_todoist()
                 self._next_tasks_state_in_habitica()
             except IOError as ex:
-                self._log.error(f"Unexpected network error: {str(ex)}")
+                self._log.error(f"Unexpected network error: {ex}")
 
             duration = time.time() - start_time
             delay = max(0.0, get_settings().sync_delay_seconds - duration)
@@ -124,7 +122,8 @@ class TasksSync:  # pylint: disable=too-few-public-methods
             )
         )
 
-    def _next_tasks_state_in_habitica(self):
+    # TODO: Improve FSM algorithm
+    def _next_tasks_state_in_habitica(self):  # pylint: disable=too-complex
         for generic_task in self._task_cache.dirty_habitica_tasks():
             try:
                 if generic_task.state == TaskState.HABITICA_NEW:

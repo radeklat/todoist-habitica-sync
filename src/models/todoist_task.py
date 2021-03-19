@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import copy
 from typing import Any, Dict, Optional
 
@@ -20,7 +18,7 @@ class TodoistTask(BaseModel):
     due_date_utc_timestamp: Optional[int] = None
 
     @staticmethod
-    def from_task_data(task_data: Dict) -> TodoistTask:
+    def from_task_data(task_data: Dict) -> "TodoistTask":
         try:
             updated_task_data = copy.deepcopy(task_data)
             due = updated_task_data["due"]

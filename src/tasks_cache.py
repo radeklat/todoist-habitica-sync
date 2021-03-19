@@ -13,7 +13,8 @@ from models.todoist_task import TodoistTask
 
 
 class TasksCache:
-    """
+    """Tasks cache on disk.
+
     TinyDB docs: https://tinydb.readthedocs.io/en/latest/usage.html
     """
 

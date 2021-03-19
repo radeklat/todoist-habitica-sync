@@ -1,0 +1,12 @@
+[pydocstyle]
+convention = pep257
+match = ^(?!test_)(.*)(?<!config_parser)\.py$
+add-ignore = D100,D101,D102,D103,D104,D105,D106,D107,D202,D204,D401,D413
+
+# Ignores explained:
+# http://www.pydocstyle.org/en/latest/error_codes.html
+
+# - D1XX: Missing docstrings. We rely on code reviews.
+#   Names are often descriptive enough and don't need additional docstring.
+# - D202: "No blank lines allowed after function docstring" is false positive caused by
+#   black formatter.
