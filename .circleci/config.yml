@@ -13,6 +13,9 @@ parameters:
   cache_version:
     type: string
     default: "1"
+  dockerhub_username:
+    type: string
+    default: "radeklat"
 
 jobs: # A basic unit of work in a run
   test:
@@ -81,10 +84,10 @@ jobs: # A basic unit of work in a run
                 .
       - run:
           name: Login to dockerhub
-          command: docker login --username radeklat --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
+          command: docker login --username << pipeline.parameters.dockerhub_username >> --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
       - run:
           name: Push docker image
-          command: docker push --all-tags
+          command: docker push << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$(poetry version -s)
 
 workflows:
   version: 2
