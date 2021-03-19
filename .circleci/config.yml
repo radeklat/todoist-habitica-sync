@@ -67,8 +67,6 @@ jobs: # A basic unit of work in a run
   build_and_push:
     machine:
       image: ubuntu-1604:202004-01
-      # We use docker layer caching on the machine executor to speed up build time
-      docker_layer_caching: true
     steps:
       - checkout
       - run:
