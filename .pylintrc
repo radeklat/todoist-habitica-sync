@@ -128,7 +128,9 @@ disable=apply-builtin,
         using-cmp-argument,
         wildcard-import,
         xrange-builtin,
-        zip-builtin-not-iterating
+        zip-builtin-not-iterating,
+        logging-fstring-interpolation,
+        logging-string-interpolation,
 
 
 [REPORTS]
