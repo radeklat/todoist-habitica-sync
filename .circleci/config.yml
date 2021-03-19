@@ -90,6 +90,7 @@ workflows:
   all_pipelines:
     jobs:
       - test:
+          context: todoist-habitica-sync
           name: Tests
       - build_and_push:
           name: Build and push docker image
