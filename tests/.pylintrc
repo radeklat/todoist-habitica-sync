@@ -1,9 +1,16 @@
+# Pylint rules specifically for tests.
+# This is a duplicate of the root .pylintrc file, with some rule changes to accommodate test code.
+
+
 [MASTER]
+
+# Specify a configuration file.
+#rcfile=
 
 # A comma-separated list of package or module names from where C extensions may
 # be loaded. Extensions are loading into the active Python interpreter and may
 # run arbitrary code
-extension-pkg-whitelist=pycurl,win32event,win32service,servicemanager,socket,ujson
+extension-pkg-whitelist=pydantic,ujson,Stemmer
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
@@ -26,9 +33,6 @@ load-plugins=pylint.extensions.docparams,pylint.extensions.mccabe
 
 # Pickle collected data for later comparisons.
 persistent=yes
-
-# Specify a configuration file.
-#rcfile=
 
 # When enabled, pylint would attempt to guess common misconfiguration and emit
 # user-friendly hints instead of false-positive error messages
@@ -54,17 +58,10 @@ confidence=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-
-# By default are disabled error not possible in Python > 3.0
-disable=missing-docstring,
-        missing-type-doc,
-        missing-returns-doc,
-        missing-return-type-doc,
-        missing-yield-doc,
-        missing-yield-type-doc,
-        apply-builtin,
-        logging-fstring-interpolation,
+disable=apply-builtin,
+        arguments-differ,
         backtick,
+        bad-continuation,
         basestring-builtin,
         buffer-builtin,
         cmp-builtin,
@@ -74,19 +71,27 @@ disable=missing-docstring,
         delslice-method,
         dict-iter-method,
         dict-view-method,
+        duplicate-code,
         execfile-builtin,
         file-builtin,
         filter-builtin-not-iterating,
         getslice-method,
         hex-method,
         import-star-module-level,
+        inconsistent-return-statements,
         indexing-exception,
         input-builtin,
         intern-builtin,
+        locally-disabled,
         long-builtin,
         long-suffix,
         map-builtin-not-iterating,
         metaclass-assignment,
+        missing-class-docstring,
+        missing-docstring,
+        missing-function-docstring,
+        missing-raises-doc,
+        missing-return-doc,
         next-method-called,
         no-absolute-import,
         nonzero-method,
@@ -97,28 +102,30 @@ disable=missing-docstring,
         old-raise-syntax,
         parameter-unpacking,
         print-statement,
-        raising-string,
+        protected-access,
         range-builtin-not-iterating,
         raw_input-builtin,
+        redefined-outer-name,
         reduce-builtin,
         reload-builtin,
         round-builtin,
         setslice-method,
         standarderror-builtin,
+        suppressed-message,
+        too-many-instance-attributes,
         unichr-builtin,
         unicode-builtin,
         unpacking-in-except,
+        useless-suppression,
         using-cmp-argument,
         xrange-builtin,
-        zip-builtin-not-iterating,
-        protected-access,
-        too-few-public-methods,
+        zip-builtin-not-iterating
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once). See also the "--disable" option for examples.
-enable=
+enable=c-extension-no-member
 
 
 [REPORTS]
@@ -132,10 +139,10 @@ evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / stateme
 
 # Template used to display messages. This is a python new-style format string
 # used to format the message information. See doc for all details
-#msg-template=
+msg-template={path}:{line}:{column} : {msg} ({symbol}, {msg_id})
 
-# Set the output format. Available formats are text, parseable, colorized, json
-# and msvs (visual studio).You can also give a reporter class, eg
+# Set the output format. Available formats are text, parseable, colorized, msvs
+# (visual studio) and html. You can also give a reporter class, eg
 # mypackage.mymodule.MyReporterClass.
 output-format=colorized
 
@@ -158,176 +165,11 @@ max-nested-blocks=5
 never-returning-functions=optparse.Values,sys.exit
 
 
-[BASIC]
-
-# Naming style matching correct argument names
-argument-naming-style=snake_case
-
-# Regular expression matching correct argument names. Overrides argument-
-# naming-style
-#argument-rgx=
-
-# Naming style matching correct attribute names
-attr-naming-style=snake_case
-
-# Regular expression matching correct attribute names. Overrides attr-naming-
-# style
-#attr-rgx=
-
-# Bad variable names which should always be refused, separated by a comma
-bad-names=foo,
-          bar,
-          baz,
-          toto,
-          tutu,
-          tata
-
-# Naming style matching correct class attribute names
-class-attribute-naming-style=any
-
-# Regular expression matching correct class attribute names. Overrides class-
-# attribute-naming-style
-#class-attribute-rgx=
-
-# Naming style matching correct class names
-class-naming-style=PascalCase
-
-# Regular expression matching correct class names. Overrides class-naming-style
-#class-rgx=
-
-# Naming style matching correct constant names
-const-naming-style=UPPER_CASE
-
-# Regular expression matching correct constant names. Overrides const-naming-
-# style
-#const-rgx=
-
-# Minimum line length for functions/classes that require docstrings, shorter
-# ones are exempt.
-docstring-min-length=-1
-
-# Naming style matching correct function names
-function-naming-style=snake_case
-
-# Regular expression matching correct function names. Overrides function-
-# naming-style
-#function-rgx=
-
-# Good variable names which should always be accepted, separated by a comma
-good-names=i,
-           j,
-           k,
-           ex,
-           fd,
-           Run,
-           _
-
-# Include a hint for the correct naming format with invalid-name
-include-naming-hint=no
-
-# Naming style matching correct inline iteration names
-inlinevar-naming-style=any
-
-# Regular expression matching correct inline iteration names. Overrides
-# inlinevar-naming-style
-#inlinevar-rgx=
-
-# Naming style matching correct method names
-method-naming-style=snake_case
-
-# Regular expression matching correct method names. Overrides method-naming-
-# style
-method-rgx=[a-z_][a-z0-9_]{2,72}
-
-# Naming style matching correct module names
-module-naming-style=snake_case
-
-# Regular expression matching correct module names. Overrides module-naming-
-# style
-#module-rgx=
-
-# Colon-delimited sets of names that determine each other's naming style when
-# the name regexes allow several styles.
-name-group=
-
-# Regular expression which should only match function or class names that do
-# not require a docstring.
-no-docstring-rgx=^_
-
-# List of decorators that produce properties, such as abc.abstractproperty. Add
-# to this list to register other decorators that produce valid properties.
-property-classes=abc.abstractproperty
-
-# Naming style matching correct variable names
-variable-naming-style=snake_case
-
-# Regular expression matching correct variable names. Overrides variable-
-# naming-style
-#variable-rgx=
-
-
-[FORMAT]
-
-# Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
-expected-line-ending-format=
-
-# Regexp for a line that is allowed to be longer than the limit.
-ignore-long-lines=^\s*(# )?<?https?://\S+>?$
-
-# Number of spaces of indent required inside a hanging  or continued line.
-indent-after-paren=4
-
-# String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1
-# tab).
-indent-string='    '
-
-# Maximum number of characters on a single line.
-max-line-length=120
-
-# Maximum number of lines in a module
-max-module-lines=500
-
-# List of optional constructs for which whitespace checking is disabled. `dict-
-# separator` is used to allow tabulation in dicts, etc.: {1  : 1,\n222: 2}.
-# `trailing-comma` allows a space between comma and closing bracket: (a, ).
-# `empty-line` allows space-only lines.
-no-space-check=trailing-comma,
-               dict-separator
-
-# Allow the body of a class to be on the same line as the declaration if body
-# contains single statement.
-single-line-class-stmt=no
-
-# Allow the body of an if to be on the same line as the test if there is no
-# else.
-single-line-if-stmt=no
-
-
 [LOGGING]
 
 # Logging modules to check that the string format arguments are in logging
 # function parameter format
 logging-modules=logging
-
-
-[MISCELLANEOUS]
-
-# List of note tags to take in consideration, separated by a comma.
-notes=
-
-[SIMILARITIES]
-
-# Ignore comments when computing similarities.
-ignore-comments=yes
-
-# Ignore docstrings when computing similarities.
-ignore-docstrings=yes
-
-# Ignore imports when computing similarities.
-ignore-imports=yes
-
-# Minimum lines number of a similarity.
-min-similarity-lines=50
 
 
 [SPELLING]
@@ -348,6 +190,28 @@ spelling-private-dict-file=
 # Tells whether to store unknown words to indicated private dictionary in
 # --spelling-private-dict-file option instead of raising a message.
 spelling-store-unknown-words=no
+
+
+[MISCELLANEOUS]
+
+# List of note tags to take in consideration, separated by a comma.
+notes=FIXME,
+      XXX
+
+
+[SIMILARITIES]
+
+# Ignore comments when computing similarities.
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities.
+ignore-docstrings=yes
+
+# Ignore imports when computing similarities.
+ignore-imports=no
+
+# Minimum lines number of a similarity.
+min-similarity-lines=4
 
 
 [TYPECHECK]
@@ -383,7 +247,7 @@ ignored-classes=optparse.Values,thread._local,_thread._local
 # (useful for modules/projects where namespaces are manipulated during runtime
 # and thus existing member attributes cannot be deduced by static analysis. It
 # supports qualified module names, as well as Unix pattern matching.
-ignored-modules=behave
+ignored-modules=
 
 # Show a hint with possible names when a member name was not found. The aspect
 # of finding the hint is based on edit distance.
@@ -414,19 +278,205 @@ callbacks=cb_,
 
 # A regular expression matching the name of dummy variables (i.e. expectedly
 # not used).
-dummy-variables-rgx=(_+[a-zA-Z0-9_]*?$)
+dummy-variables-rgx=_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^unused_
 
 # Argument names that match this expression will be ignored. Default to name
 # with leading underscore
-ignored-argument-names=_.*|^ignored_|^unused_|^(kw)?args$
+ignored-argument-names=_.*|^unused_
 
 # Tells whether we should check for unused import in __init__ files.
 init-import=no
 
 # List of qualified module names which can have objects that can redefine
 # builtins.
-redefining-builtins-modules=six.moves,past.builtins,future.builtins
+redefining-builtins-modules=six.moves,past.builtins,future.builtins,io,builtins
 
+
+[FORMAT]
+
+# Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
+expected-line-ending-format=
+
+# Regexp for a line that is allowed to be longer than the limit.
+ignore-long-lines=^\s*(# )?<?https?://\S+>?$
+
+# Number of spaces of indent required inside a hanging  or continued line.
+indent-after-paren=4
+
+# String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1
+# tab).
+indent-string='    '
+
+# Maximum number of characters on a single line.
+max-line-length=120
+
+# Maximum number of lines in a module
+max-module-lines=1000
+
+# List of optional constructs for which whitespace checking is disabled. `dict-
+# separator` is used to allow tabulation in dicts, etc.: {1  : 1,\n222: 2}.
+# `trailing-comma` allows a space between comma and closing bracket: (a, ).
+# `empty-line` allows space-only lines.
+no-space-check=trailing-comma,
+               dict-separator
+
+# Allow the body of a class to be on the same line as the declaration if body
+# contains single statement.
+single-line-class-stmt=no
+
+# Allow the body of an if to be on the same line as the test if there is no
+# else.
+single-line-if-stmt=no
+
+
+[BASIC]
+
+# Naming style matching correct argument names
+argument-naming-style=snake_case
+
+# Regular expression matching correct argument names. Overrides argument-
+# naming-style
+#argument-rgx=[a-z_][a-z0-9_]{2,35}$
+
+# Naming style matching correct attribute names
+attr-naming-style=snake_case
+
+# Regular expression matching correct attribute names. Overrides attribute-
+# naming-style
+#attr-rgx=[a-z_][a-z0-9_]{2,35}$
+
+# Bad variable names which should always be refused, separated by a comma
+bad-names=foo,
+          bar,
+          baz,
+          toto,
+          tutu,
+          tata
+
+# Naming style matching correct class attribute names
+#class-attribute-naming-style=any
+
+# Regular expression matching correct class attribute names
+# This allows `snake_case` XOR `UPPER_CASE`
+class-attribute-rgx=(([a-z_][a-z0-9_]+)|([A-Z_][A-Z0-9_]+)|(__.*__))$
+
+# Naming style matching correct class names
+class-naming-style=PascalCase
+
+# Regular expression matching correct class names. Overrides class-naming-style
+#class-rgx=[A-Z_][a-zA-Z0-9]+$
+
+# Naming style matching correct constant names
+const-naming-style=UPPER_CASE
+
+# Regular expression matching correct constant names. Overrides const-naming-
+# style
+#const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$
+
+# Minimum line length for functions/classes that require docstrings, shorter
+# ones are exempt.
+docstring-min-length=-1
+
+# Naming style matching correct function names
+function-naming-style=snake_case
+
+# Regular expression matching correct function names. Overrides function-
+# naming-style
+#function-rgx=[a-z_][a-z0-9_]+$
+
+# Good variable names which should always be accepted, separated by a comma
+good-names=i,
+           j,
+           k,
+           ex,
+           Run,
+           _
+
+# Include a hint for the correct naming format with invalid-name
+include-naming-hint=no
+
+# Naming style matching correct inline iteration names
+#inlinevar-naming-style=any
+
+# Regular expression matching correct inline iteration names. Overrides
+# inlinevar-naming-style
+inlinevar-rgx=[A-Za-z_][A-Za-z0-9_]*$
+
+# Naming style matching correct method names
+method-naming-style=snake_case
+
+# Regular expression matching correct method names. Overrides method-naming-
+# style
+#method-rgx=[a-z_][a-z0-9_]+$
+
+# Naming style matching correct module names
+module-naming-style=snake_case
+
+# Regular expression matching correct module names
+#module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
+
+# Colon-delimited sets of names that determine each other's naming style when
+# the name regexes allow several styles.
+name-group=
+
+# Regular expression which should only match function or class names that do
+# not require a docstring.
+no-docstring-rgx=^_
+
+# List of decorators that produce properties, such as abc.abstractproperty. Add
+# to this list to register other decorators that produce valid properties.
+property-classes=abc.abstractproperty
+
+# Naming style matching correct variable names
+variable-naming-style=snake_case
+
+# Regular expression matching correct variable names. Overrides variable-
+# naming-style
+#variable-rgx=[a-z_][a-z0-9_]+$
+
+# Docstring-vs-method-signature inspection. See `pylint.extensions.docparams` plugin. Note
+# that we also disable "missing-raises-doc" in `disables=`
+accept-no-param-doc=yes
+accept-no-raise-doc=yes
+accept-no-return-doc=yes
+accept-no-yields-doc=yes
+default-docstring-type=google
+
+
+[DESIGN]
+
+# Maximum number of arguments for function / method
+max-args=99
+
+# Maximum number of attributes for a class (see R0902).
+max-attributes=99
+
+# Maximum number of boolean expressions in a if statement
+max-bool-expr=99
+
+# Maximum number of branch for function / method body
+max-branches=99
+
+# Maximum number of locals for function / method body
+max-locals=99
+
+# Maximum number of parents for a class (see R0901).
+max-parents=99
+
+# Maximum number of public method for a class (see R0904).
+max-public-methods=99
+
+# Maximum number of return / yield for function / method body
+max-returns=99
+
+# Maximum number of statements in function / method body
+max-statements=99
+
+# Minimum number of public method for a class (see R0903).
+min-public-methods=0
+
+# Maximum cyclomatic complexity of the code
+max-complexity=10
 
 [CLASSES]
 
@@ -450,42 +500,6 @@ valid-classmethod-first-arg=cls
 valid-metaclass-classmethod-first-arg=mcs
 
 
-[DESIGN]
-
-# Maximum number of arguments for function / method
-max-args=5
-
-# Maximum number of attributes for a class (see R0902).
-max-attributes=7
-
-# Maximum number of boolean expressions in a if statement
-max-bool-expr=5
-
-# Maximum number of branch for function / method body
-max-branches=12
-
-# Maximum number of locals for function / method body
-max-locals=15
-
-# Maximum number of parents for a class (see R0901).
-max-parents=7
-
-# Maximum number of public methods for a class (see R0904).
-max-public-methods=20
-
-# Maximum number of return / yield for function / method body
-max-returns=6
-
-# Maximum number of statements in function / method body
-max-statements=50
-
-# Minimum number of public methods for a class (see R0903).
-min-public-methods=2
-
-# Maximum cyclomatic complexity
-max-complexity=15
-
-
 [IMPORTS]
 
 # Allow wildcard imports from modules that define __all__.
@@ -497,7 +511,11 @@ allow-wildcard-with-all=no
 analyse-fallback-blocks=no
 
 # Deprecated modules which should not be used, separated by a comma
-deprecated-modules=optparse,tkinter.tix,six
+deprecated-modules=regsub,
+                   TERMIOS,
+                   Bastion,
+                   rexec,
+                   optparse
 
 # Create a graph of external dependencies in the given file (report RP0402 must
 # not be disabled)
