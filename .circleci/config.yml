@@ -26,7 +26,7 @@ jobs: # A basic unit of work in a run
           key: << pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install dev libraries
-          command: pip install --upgrade pip poetry && poetry install --ansi
+          command: pip install --upgrade pip poetry && poetry install
       - run:
           name: Format check
           command: poetry run inv format --check
@@ -55,7 +55,8 @@ jobs: # A basic unit of work in a run
           name: Upload coverage reports to Codecov
           command: |
             [[ "${CIRCLE_BRANCH}" == "master" ]] && BASE_COMMIT_SHA=$(git rev-parse HEAD~1) || BASE_COMMIT_SHA=$(git merge-base ${CIRCLE_BRANCH} origin/master)
-            bash <(curl -s https://codecov.io/bash) -N ${BASE_COMMIT_SHA} -f reports/unit-test-report.xml -f reports/integration-test-report.xml | tr "." "_")
+            bash <(curl -s https://codecov.io/bash) -N ${BASE_COMMIT_SHA} -f reports/coverage-unit.xml -F total,unit_tests &&
+            bash <(curl -s https://codecov.io/bash) -N ${BASE_COMMIT_SHA} -f reports/coverage-integration.xml -F total,integration_tests
       - store_artifacts:
           path: reports/coverage-report
       - store_test_results:
