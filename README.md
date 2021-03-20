@@ -3,6 +3,9 @@
 ![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/radeklat/todoist-habitica-sync)
 ![Maintenance](https://img.shields.io/maintenance/yes/2021)
 ![GitHub last commit](https://img.shields.io/github/last-commit/radeklat/todoist-habitica-sync)
+![Docker Pulls](https://img.shields.io/docker/pulls/radeklat/todoist-habitica-sync)
+![Docker Image Version (latest semver)](https://img.shields.io/docker/v/radeklat/todoist-habitica-sync?label=image%20version)
+![Docker Image Size (latest semver)](https://img.shields.io/docker/image-size/radeklat/todoist-habitica-sync)
 
 # NOTE FOR PEOPLE ACCIDENTALLY FINDING THIS REPOSITORY
 
