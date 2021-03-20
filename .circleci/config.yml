@@ -78,6 +78,7 @@ jobs: # A basic unit of work in a run
       - run:
           name: Check if build needed
           command: |
+            export DOCKER_CLI_EXPERIMENTAL=enabled
             IMAGE_VERSION="$(poetry version -s)"
             docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_VERSION >/dev/null
             if [[ $? -eq 0 ]]; then
