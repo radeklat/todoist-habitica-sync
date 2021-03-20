@@ -79,15 +79,15 @@ jobs: # A basic unit of work in a run
           name: Build docker image
           command: |
               docker build \
-                --tag << pipeline.parameters.project_name >>:latest \
-                --tag << pipeline.parameters.project_name >>:$(poetry version -s) \
+                --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest \
+                --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$(poetry version -s) \
                 .
       - run:
           name: Login to dockerhub
           command: docker login --username << pipeline.parameters.dockerhub_username >> --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
       - run:
           name: Push docker image
-          command: docker push << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >> --all-tags
+          command: docker push << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>
 
 workflows:
   version: 2
