@@ -21,7 +21,9 @@ class TasksCache:
     HABITICA_DIRTY_STATES = frozenset([TaskState.HABITICA_NEW, TaskState.HABITICA_CREATED, TaskState.HABITICA_FINISHED])
 
     def __init__(self):
-        tiny_db = TinyDB(get_settings().database_file)
+        db_file = get_settings().database_file
+        db_file.parent.mkdir(parents=True, exist_ok=True)
+        tiny_db = TinyDB(get_settings().database_file.resolve())
         self._task_cache = tiny_db.table("tasks_cache")
         self._log = logging.getLogger(self.__class__.__name__)
 

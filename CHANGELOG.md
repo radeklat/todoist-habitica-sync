@@ -12,6 +12,28 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 * **Security** in case of vulnerabilities.
 
-## Unreleased
+## [Unreleased]
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/initial...HEAD
+## [1.1.0] - 2021-03-20
+
+### Added
+
+* Automatically create nested path for sync cache.
+* Guide for running from a docker image.
+* Guide for running via docker-compose and a compose file.
+
+### Fixed
+
+* Virtualenv creation in docker image.
+
+### Changed
+
+* Move sync cache file into a folder to allow easier mounting in docker images.
+
+## [1.0.0] - 2019-10-06
+
+* Initial release
+
+[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.0.0...1.1.0
+[1.0.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/initial...1.0.0

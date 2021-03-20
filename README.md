@@ -87,11 +87,74 @@ Tasks are not added immediately. Only when you finish a task in Todoist, new tas
 
 ## As a docker container
 
-TODO
+1. Open terminal
+2. Make sure [`docker`](https://docs.docker.com/get-docker/) is installed:
+   ```shell script
+   docker --version   
+   ```
+   The output should look something like:
+   ```text
+   Docker version 20.10.5, build 55c4c88
+   ```
+3. Create a base folder structure for the service:
+   ```shell script
+   mkdir -p todoist-habitica-sync/.sync_cache
+   cd todoist-habitica-sync
+   chmod 0777 .sync_cache
+   # Download .env file template
+   curl https://raw.githubusercontent.com/radeklat/todoist-habitica-sync/master/.env.template --output .env
+   ```
+4. Edit the `.env` file and fill the missing details.
+5. Run the container:
+   ```shell script
+   docker run \
+      --pull always --rm --name todoist-habitica-sync \
+      --env-file=.env \
+      -v $(pwd)/.sync_cache:/usr/src/app/.sync_cache \
+      radeklat/todoist-habitica-sync:latest
+   ```
+   This configuration will run the service in the foreground (you need to keep the terminal open) and always use the latest version.
+   * Change `latest` to [a specific version](https://hub.docker.com/repository/registry-1.docker.io/radeklat/todoist-habitica-sync/tags) if you don't always want the latest version or remove the `--pull always` flag to not update.
+
+
+Add `--detach` flag to run in the background. You can close the terminal, but it will not start on system start up.
+* To see the log of the service running in the background, run `docker logs todoist-habitica-sync`
+* To stop the service, run `docker container stop todoist-habitica-sync`
 
 ## As a service
 
-TODO
+You can use the above mentioned docker image to run the sync as a service on server or even your local machine. The simples way is to use docker compose:
+
+1. Make sure you have [`docker`](https://docs.docker.com/get-docker/) and [`docker-compose`](https://docs.docker.com/compose/install/) installed:
+   ```shell script
+   docker --version
+   docker-compose --version
+   ```
+   The output should look something like:
+   ```text
+   Docker version 20.10.5, build 55c4c88
+   docker-compose version 1.28.5, build unknown
+   docker-py version: 4.4.4
+   CPython version: 3.8.5
+   OpenSSL version: OpenSSL 1.1.1f  31 Mar 2020
+   ```
+2. Download the example compose file:
+   ```shell script
+   mkdir -m 0777 .sync_cache
+   curl https://raw.githubusercontent.com/radeklat/todoist-habitica-sync/master/docker-compose.yml
+   ```
+4. Edit the `docker-compose.yml` file and fill the missing details in the `environment` section.
+5. Run the service:
+   ```shell script
+   docker-compose up
+   ```
+   This command will run the service in the foreground (you need to keep the terminal open) and always use the latest version.
+   * Change `latest` to [a specific version](https://hub.docker.com/repository/registry-1.docker.io/radeklat/todoist-habitica-sync/tags) if you don't always want the latest version.
+
+
+Add `--detach` flag to run in the background. You can close the terminal. The service should start on system start up.
+* To see the log of the service running in the background, run `docker-compose logs todoist-habitica-sync`
+* To stop the service, run `docker-compose stop todoist-habitica-sync`
 
 # Update
 
@@ -112,6 +175,10 @@ TODO
    poetry install --no-dev
    ```
 5. Run the application again.
+
+## From docker-compose
+
+If you used the `latest` tag, run `docker-compose pull todoist-habitica-sync`.
 
 # Planned work
 

@@ -46,7 +46,7 @@ markers = [
 
 [tool.poetry]
 name = "todoist-habitica-sync"
-version = "1.0.0"
+version = "1.1.0"
 description = "One way synchronisation from Todoist to Habitica."
 authors = ["Radek Lát <radek.lat@gmail.com>"]
 license = "MIT License"

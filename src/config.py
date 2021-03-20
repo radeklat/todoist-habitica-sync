@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 from types import MappingProxyType
 from typing import Any
 
@@ -23,7 +24,7 @@ class Settings(BaseSettings):
     habitica_user_id: str
     habitica_api_key: str
     sync_delay_seconds: int = Field(1, gt=0, env="sync_delay_minutes")
-    database_file: str = "sync_cache.json"
+    database_file: Path = Path(".sync_cache/sync_cache.json")
 
     @validator("sync_delay_seconds")
     def minutes_to_seconds(cls, value: int):  # pylint: disable=no-self-argument,no-self-use
