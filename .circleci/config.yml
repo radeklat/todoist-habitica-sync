@@ -80,8 +80,8 @@ jobs: # A basic unit of work in a run
           command: |
             export DOCKER_CLI_EXPERIMENTAL=enabled
             IMAGE_VERSION="$(poetry version -s)"
-            docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_VERSION >/dev/null
-            if [[ $? -eq 0 ]]; then
+            tag_exists="$(docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_VERSION >/dev/null 2>&1)"
+            if [[ $tag_exists -eq 0 ]]; then
               echo "Image tag '$IMAGE_VERSION' already exists in the repository. Skipping job."
               circleci-agent step halt
             else
