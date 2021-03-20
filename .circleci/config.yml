@@ -69,7 +69,7 @@ jobs: # A basic unit of work in a run
           path: reports
   build_and_push:
     machine:
-      image: ubuntu-1604:202004-01
+      image: ubuntu-2004:202010-01
     steps:
       - checkout
       - run:
