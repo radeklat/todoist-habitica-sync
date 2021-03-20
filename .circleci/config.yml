@@ -76,6 +76,17 @@ jobs: # A basic unit of work in a run
           name: Install dev libraries
           command: pip3 install --upgrade pip poetry
       - run:
+          name: Check if build needed
+          command: |
+            IMAGE_VERSION="$(poetry version -s)"
+            docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_VERSION >/dev/null
+            if [[ $? -eq 0 ]]; then
+              echo "Image tag '$IMAGE_VERSION' already exists in the repository. Skipping job."
+              circleci-agent step halt
+            else
+              echo "Image tag '$IMAGE_VERSION' doesn't exist in the repository. Running build."
+            fi
+      - run:
           name: Build docker image
           command: |
               docker build \
