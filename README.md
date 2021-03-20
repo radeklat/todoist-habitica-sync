@@ -1,23 +1,18 @@
-![CircleCI](https://img.shields.io/circleci/build/github/radeklat/todoist-habitica-sync)
-![Codecov](https://img.shields.io/codecov/c/github/radeklat/todoist-habitica-sync)
-![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/radeklat/todoist-habitica-sync)
-![Maintenance](https://img.shields.io/maintenance/yes/2021)
-![GitHub last commit](https://img.shields.io/github/last-commit/radeklat/todoist-habitica-sync)
-![Docker Pulls](https://img.shields.io/docker/pulls/radeklat/todoist-habitica-sync)
-![Docker Image Version (latest semver)](https://img.shields.io/docker/v/radeklat/todoist-habitica-sync?label=image%20version)
-![Docker Image Size (latest semver)](https://img.shields.io/docker/image-size/radeklat/todoist-habitica-sync)
+<h1 align="center" style="border-bottom: none;">:ballot_box_with_check::crossed_swords:&nbsp;&nbsp; Todoist ⇒ Habitica Sync &nbsp;&nbsp;:crossed_swords::ballot_box_with_check:</h1>
+<h3 align="center">One way synchronisation from Todoist to Habitica</h3>
 
-# NOTE FOR PEOPLE ACCIDENTALLY FINDING THIS REPOSITORY
+<p align="center">
+    <img alt="CircleCI" src="https://img.shields.io/circleci/build/github/radeklat/todoist-habitica-sync">
+    <img alt="Codecov" src="https://img.shields.io/codecov/c/github/radeklat/todoist-habitica-sync">
+    <img alt="GitHub tag (latest SemVer)" src="https://img.shields.io/github/tag/radeklat/todoist-habitica-sync">
+    <img alt="Maintenance" src="https://img.shields.io/maintenance/yes/2021">
+    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/radeklat/todoist-habitica-sync">
+    <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/radeklat/todoist-habitica-sync">
+    <img alt="Docker Image Version (latest semver)" src="https://img.shields.io/docker/v/radeklat/todoist-habitica-sync?label=image%20version">
+    <img alt="Docker Image Size (latest semver)" src="https://img.shields.io/docker/image-size/radeklat/todoist-habitica-sync">
+</p>
 
-**This project is a not-at-all-production-ready-dark-ages-hardcore-alpha. Please refrain from filing bug reports of complaints until this notice disappears.** 
-
-Compatible with Python 3.8+
-
-# Purpose
-
-One way synchronisation from Todoist to Habitica.
-
-Why? Because if you want to be productive, you probably should not use two track tasks in two places. Habitica is great for tracking habits, Todoist for tracking TODOs. Now you can use the best of both.
+Because if you want to be productive, you should not track tasks in two places. Habitica is great for tracking habits, Todoist for tracking TODOs. Now you can get the best of both.
 
 ## How it works
 
