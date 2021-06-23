@@ -1,4 +1,6 @@
-FROM python:3.8.8-alpine
+FROM python:3.9-alpine3.12
+
+RUN python3 -m pip install --upgrade pip
 
 ARG unprivileged_user=app
 ARG sources_root=/usr/src/${unprivileged_user}
