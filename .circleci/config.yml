@@ -83,7 +83,7 @@ jobs: # A basic unit of work in a run
           name: Check if build needed
           command: |
             export DOCKER_CLI_EXPERIMENTAL=enabled
-            IMAGE_TAG="$(poetry version -s)-$([[ "<< parameters.resource_class >>" =~ arm ]] && echo "arm64" || echo "amd64")"
+            IMAGE_TAG="$(poetry version -s)-$([[ "<< parameters.resource_class >>" =~ arm ]] && echo "arm/v7" || echo "amd64")"
             tag_exists="$(docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG >/dev/null 2>&1; echo $?)"
             if [[ $tag_exists -eq 0 ]]; then
               echo "Image tag '$IMAGE_TAG' already exists in the repository. Skipping job."
@@ -94,7 +94,7 @@ jobs: # A basic unit of work in a run
       - run:
           name: Build docker image
           command: |
-            IMAGE_TAG="$(poetry version -s)-$([[ "<< parameters.resource_class >>" =~ arm ]] && echo "arm64" || echo "amd64")"
+            IMAGE_TAG="$(poetry version -s)-$([[ "<< parameters.resource_class >>" =~ arm ]] && echo "arm/v7" || echo "amd64")"
             docker build --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG .
       - run:
           name: Login to dockerhub
@@ -102,7 +102,7 @@ jobs: # A basic unit of work in a run
       - run:
           name: Push docker image
           command: |
-            IMAGE_TAG="$(poetry version -s)-$([[ "<< parameters.resource_class >>" =~ arm ]] && echo "arm64" || echo "amd64")"
+            IMAGE_TAG="$(poetry version -s)-$([[ "<< parameters.resource_class >>" =~ arm ]] && echo "arm/v7" || echo "amd64")"
             docker push << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:${IMAGE_TAG}
   build_and_push_docker_manifest:
     machine:
@@ -118,7 +118,7 @@ jobs: # A basic unit of work in a run
             IMAGE_VERSION="$(poetry version -s)"
             docker manifest create \
               << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest \
-              << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:${IMAGE_VERSION}-arm64 \
+              << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:${IMAGE_VERSION}-arm/v7 \
               << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:${IMAGE_VERSION}-amd64
       - run:
           name: Login to dockerhub
