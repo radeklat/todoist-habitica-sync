@@ -133,7 +133,7 @@ workflows:
           context: todoist-habitica-sync
           name: Tests
       - build_and_push:
-          name: Build and push docker image
+          name: Build and push docker image on << matrix.resource_class >>
           context: todoist-habitica-sync
           requires:
             - Tests
@@ -144,7 +144,8 @@ workflows:
             parameters:
               resource_class: [ "arm.medium", "medium" ]
       - build_and_push_docker_manifest:
-          name: Build and push docker manifest
+          name: Create and push docker manifest
           context: todoist-habitica-sync
           requires:
-            - Build and push docker image
+            - Build and push docker image on arm.medium
+            - Build and push docker image on medium
