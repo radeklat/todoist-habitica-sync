@@ -68,8 +68,12 @@ jobs: # A basic unit of work in a run
       - store_test_results:
           path: reports
   build_and_push:
+    parameters:
+      resource_class:
+        type: string
     machine:
-      image: ubuntu-2004:202010-01
+      image: ubuntu-2004:202101-01
+    resource_class: << parameters.resource_class >>
     steps:
       - checkout
       - run:
@@ -116,3 +120,6 @@ workflows:
           filters:
             branches:
               only: master
+          matrix:
+            parameters:
+              resource_class: [ "arm.medium", "medium" ]
