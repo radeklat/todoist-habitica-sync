@@ -88,21 +88,19 @@ jobs: # A basic unit of work in a run
               echo "Image tag '$IMAGE_TAG' doesn't exist in the repository. Running build."
             fi
       - run:
-          name: Build docker image
-          command: |
-            IMAGE_TAG="$(poetry version -s)"
-            docker buildx build \
-              --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest \
-              --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG \
-              --platform linux/amd64,linux/arm/v7,linux/arm64 \
-              .
-      - run:
           name: Login to dockerhub
           command: docker login --username << pipeline.parameters.dockerhub_username >> --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
       - run:
-          name: Push docker image
+          name: Build and push docker images
           command: |
-            docker push << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>
+            IMAGE_TAG="$(poetry version -s)"
+            docker buildx create --use
+            docker buildx build \
+              --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest \
+              --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG \
+              --platform linux/amd64 \
+              --push \
+              .
 
 workflows:
   version: 2
