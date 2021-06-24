@@ -68,12 +68,8 @@ jobs: # A basic unit of work in a run
       - store_test_results:
           path: reports
   build_and_push:
-    parameters:
-      resource_class:
-        type: string
     machine:
       image: ubuntu-2004:202101-01
-    resource_class: << parameters.resource_class >>
     steps:
       - checkout
       - run:
@@ -83,7 +79,7 @@ jobs: # A basic unit of work in a run
           name: Check if build needed
           command: |
             export DOCKER_CLI_EXPERIMENTAL=enabled
-            IMAGE_TAG="$(poetry version -s)-$([[ "<< parameters.resource_class >>" =~ arm ]] && echo "arm/v7" || echo "amd64")"
+            IMAGE_TAG="$(poetry version -s)"
             tag_exists="$(docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG >/dev/null 2>&1; echo $?)"
             if [[ $tag_exists -eq 0 ]]; then
               echo "Image tag '$IMAGE_TAG' already exists in the repository. Skipping job."
@@ -94,38 +90,19 @@ jobs: # A basic unit of work in a run
       - run:
           name: Build docker image
           command: |
-            IMAGE_TAG="$(poetry version -s)-$([[ "<< parameters.resource_class >>" =~ arm ]] && echo "arm/v7" || echo "amd64")"
-            docker build --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG .
+            IMAGE_TAG="$(poetry version -s)"
+            docker buildx build \
+              --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest \
+              --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG \
+              --platform linux/amd64,linux/arm/v7,linux/arm64 \
+              .
       - run:
           name: Login to dockerhub
           command: docker login --username << pipeline.parameters.dockerhub_username >> --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
       - run:
           name: Push docker image
           command: |
-            IMAGE_TAG="$(poetry version -s)-$([[ "<< parameters.resource_class >>" =~ arm ]] && echo "arm/v7" || echo "amd64")"
-            docker push << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:${IMAGE_TAG}
-  build_and_push_docker_manifest:
-    machine:
-      image: ubuntu-2004:202101-01
-    steps:
-      - checkout
-      - run:
-          name: Install dev libraries
-          command: pip3 install --upgrade pip poetry
-      - run:
-          name: Create multi-architecture docker manifest
-          command: |
-            IMAGE_VERSION="$(poetry version -s)"
-            docker manifest create \
-              << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest \
-              << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:${IMAGE_VERSION}-arm/v7 \
-              << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:${IMAGE_VERSION}-amd64
-      - run:
-          name: Login to dockerhub
-          command: docker login --username << pipeline.parameters.dockerhub_username >> --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
-      - run:
-          name: Push docker manifest
-          command: docker manifest push --purge << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest
+            docker push << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>
 
 workflows:
   version: 2
@@ -135,19 +112,10 @@ workflows:
           context: todoist-habitica-sync
           name: Tests
       - build_and_push:
-          name: Build and push docker image on << matrix.resource_class >>
+          name: Build and push docker image
           context: todoist-habitica-sync
           requires:
             - Tests
 #          filters:
 #            branches:
 #              only: master
-          matrix:
-            parameters:
-              resource_class: [ "arm.medium", "medium" ]
-      - build_and_push_docker_manifest:
-          name: Create and push docker manifest
-          context: todoist-habitica-sync
-          requires:
-            - Build and push docker image on arm.medium
-            - Build and push docker image on medium
