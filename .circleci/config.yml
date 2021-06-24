@@ -117,9 +117,9 @@ workflows:
           context: todoist-habitica-sync
           requires:
             - Tests
-          filters:
-            branches:
-              only: master
+#          filters:
+#            branches:
+#              only: master
           matrix:
             parameters:
               resource_class: [ "arm.medium", "medium" ]
