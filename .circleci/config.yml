@@ -69,7 +69,7 @@ jobs: # A basic unit of work in a run
           path: reports
   build_and_push:
     machine:
-      image: ubuntu-2004:202010-01
+      image: ubuntu-2004:202101-01
     steps:
       - checkout
       - run:
@@ -79,27 +79,28 @@ jobs: # A basic unit of work in a run
           name: Check if build needed
           command: |
             export DOCKER_CLI_EXPERIMENTAL=enabled
-            IMAGE_VERSION="$(poetry version -s)"
-            tag_exists="$(docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_VERSION >/dev/null 2>&1; echo $?)"
+            IMAGE_TAG="$(poetry version -s)"
+            tag_exists="$(docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG >/dev/null 2>&1; echo $?)"
             if [[ $tag_exists -eq 0 ]]; then
-              echo "Image tag '$IMAGE_VERSION' already exists in the repository. Skipping job."
+              echo "Image tag '$IMAGE_TAG' already exists in the repository. Skipping job."
               circleci-agent step halt
             else
-              echo "Image tag '$IMAGE_VERSION' doesn't exist in the repository. Running build."
+              echo "Image tag '$IMAGE_TAG' doesn't exist in the repository. Running build."
             fi
-      - run:
-          name: Build docker image
-          command: |
-              docker build \
-                --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest \
-                --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$(poetry version -s) \
-                .
       - run:
           name: Login to dockerhub
           command: docker login --username << pipeline.parameters.dockerhub_username >> --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
       - run:
-          name: Push docker image
-          command: docker push << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>
+          name: Build and push docker images
+          command: |
+            IMAGE_TAG="$(poetry version -s)"
+            docker buildx create --use
+            docker buildx build \
+              --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest \
+              --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG \
+              --platform linux/amd64 \
+              --push \
+              .
 
 workflows:
   version: 2
