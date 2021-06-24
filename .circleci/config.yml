@@ -83,7 +83,7 @@ jobs: # A basic unit of work in a run
             tag_exists="$(docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG >/dev/null 2>&1; echo $?)"
             if [[ $tag_exists -eq 0 ]]; then
               echo "Image tag '$IMAGE_TAG' already exists in the repository. Skipping job."
-              # circleci-agent step halt
+              circleci-agent step halt
             else
               echo "Image tag '$IMAGE_TAG' doesn't exist in the repository. Running build."
             fi
@@ -114,6 +114,6 @@ workflows:
           context: todoist-habitica-sync
           requires:
             - Tests
-#          filters:
-#            branches:
-#              only: master
+          filters:
+            branches:
+              only: master
