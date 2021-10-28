@@ -29,7 +29,7 @@ def ensure_reports_dir() -> None:
 
 def read_contents(fpath: str, strip_newline=True) -> str:
     """Read plain text file contents as string."""
-    with open(fpath) as f_in:
+    with open(fpath, encoding="utf-8") as f_in:
         contents = "".join(f_in.readlines())
         if strip_newline:
             contents = contents.rstrip("\n")

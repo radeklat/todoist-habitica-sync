@@ -38,17 +38,17 @@ class HabiticaAPI:
         if self.aspect:
             aspect_id = kwargs.pop("_id", None)
             direction = kwargs.pop("_direction", None)
-            uri = "%s/%s" % (self.auth["url"], API_URI_BASE)
+            uri = f"{self.auth['url']}/{API_URI_BASE}"
             if aspect_id is not None:
-                uri = "%s/%s/%s" % (uri, self.aspect, str(aspect_id))
+                uri = f"{uri}/{self.aspect}/{aspect_id}"
             elif self.aspect == "tasks":
-                uri = "%s/%s/%s" % (uri, self.aspect, self.resource)
+                uri = f"{uri}/{self.aspect}/{self.resource}"
             else:
-                uri = "%s/%s/%s" % (uri, self.resource, self.aspect)
+                uri = f"{uri}/{self.resource}/{self.aspect}"
             if direction is not None:
-                uri = "%s/score/%s" % (uri, direction)
+                uri = f"{uri}/score/{direction}"
         else:
-            uri = "%s/%s/%s" % (self.auth["url"], API_URI_BASE, self.resource)
+            uri = f"{self.auth['url']}/{API_URI_BASE}/{self.resource}"
 
         # actually make the request of the API
         if method in ["put", "post", "delete"]:
