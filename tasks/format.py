@@ -36,9 +36,7 @@ def run_format(ctx, check=False, quiet=False):
     print_header("Sorting imports", icon="ℹ")
 
     _check_result(
-        ctx.run(f"isort {dirs} " + " ".join(flags), pty=True, warn=True),
-        check,
-        "Import were not sorted",
+        ctx.run(f"isort {dirs} " + " ".join(flags), pty=True, warn=True), check, "Import were not sorted",
     )
 
     print_header("Formatting code", icon="🖤")
@@ -47,7 +45,5 @@ def run_format(ctx, check=False, quiet=False):
         flags.append("--quiet")
 
     _check_result(
-        ctx.run(f"black {dirs} " + " ".join(flags), pty=True, warn=True),
-        check,
-        "Code was not formatted",
+        ctx.run(f"black {dirs} " + " ".join(flags), pty=True, warn=True), check, "Code was not formatted",
     )

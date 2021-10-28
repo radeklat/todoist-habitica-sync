@@ -14,8 +14,7 @@ def upload(ctx):
     pypi_api_token = os.getenv("PYPI_API_TOKEN")
     if not pypi_api_token:
         cprint(
-            "PYPI_API_TOKEN environment variable to authenticate with PyPI is not set.",
-            color="red",
+            "PYPI_API_TOKEN environment variable to authenticate with PyPI is not set.", color="red",
         )
         raise RuntimeError()
 
