@@ -101,7 +101,8 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 generic_task.priority = todoist_task.priority
             else:
                 generic_task = GenericTask.from_todoist_task(
-                    todoist_task, self._next_state_with_new_generic_task(todoist_task, initial_sync),
+                    todoist_task,
+                    self._next_state_with_new_generic_task(todoist_task, initial_sync),
                 )
                 self._log.info(f"New task {generic_task.content}, {generic_task.state.name}")
 
@@ -141,7 +142,9 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 if generic_task.state == TaskState.HABITICA_CREATED:
                     try:
                         self._habitica.user.tasks(
-                            _id=generic_task.habitica_task_id, _direction="up", _method="post",
+                            _id=generic_task.habitica_task_id,
+                            _direction="up",
+                            _method="post",
                         )
                         next_state = TaskState.HABITICA_FINISHED
                     except HTTPError as ex:

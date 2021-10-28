@@ -88,7 +88,10 @@ def lint_pylint(ctx):
     print_header("pylint", level=2)
 
     run_pylint(
-        ctx, [PROJECT_INFO.source_directory], REPORT_PYLINT_SOURCE_FPATH, PYLINT_CONFIG_SOURCE_FPATH,
+        ctx,
+        [PROJECT_INFO.source_directory],
+        REPORT_PYLINT_SOURCE_FPATH,
+        PYLINT_CONFIG_SOURCE_FPATH,
     )
     run_pylint(
         ctx,
