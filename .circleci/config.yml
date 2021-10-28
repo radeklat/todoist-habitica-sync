@@ -32,7 +32,7 @@ jobs: # A basic unit of work in a run
           key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install dev libraries
-          command: pip install --upgrade pip poetry && poetry install
+          command: pip install --upgrade pip poetry && poetry install --no-ansi
       - run:
           name: Format check
           command: poetry run inv format --check
@@ -69,7 +69,7 @@ jobs: # A basic unit of work in a run
           path: reports
   build_and_push:
     machine:
-      image: ubuntu-2004:202010-01
+      image: ubuntu-2004:202107-02
     steps:
       - checkout
       - run:
@@ -99,7 +99,8 @@ jobs: # A basic unit of work in a run
           command: docker login --username << pipeline.parameters.dockerhub_username >> --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
       - run:
           name: Push docker image
-          command: docker push << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>
+          command: |
+            docker push --all-tags << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>
 
 workflows:
   version: 2

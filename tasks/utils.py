@@ -84,5 +84,6 @@ def switch_python_version(ctx, version):
     """
     print_header(f"Switching to Python {version}", icon="🐍")
     ctx.run(
-        f"source deactivate; git clean -fxd .venv && pipenv sync --python {version} -d", pty=True,
+        f"source deactivate; git clean -fxd .venv && pipenv sync --python {version} -d",
+        pty=True,
     )
