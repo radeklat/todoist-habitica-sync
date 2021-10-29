@@ -91,6 +91,10 @@ jobs: # A basic unit of work in a run
           name: Login to dockerhub
           command: docker login --username << pipeline.parameters.dockerhub_username >> --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
       - run:
+          name: Install emulators
+          command: |
+            docker run --privileged --rm tonistiigi/binfmt --install arm64,arm
+      - run:
           name: Build and push docker images
           command: |
             IMAGE_TAG="$(poetry version -s)"
