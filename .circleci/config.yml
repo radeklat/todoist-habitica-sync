@@ -75,18 +75,18 @@ jobs: # A basic unit of work in a run
       - run:
           name: Install dev libraries
           command: pip3 install --upgrade pip poetry
-      - run:
-          name: Check if build needed
-          command: |
-            export DOCKER_CLI_EXPERIMENTAL=enabled
-            IMAGE_TAG="$(poetry version -s)"
-            tag_exists="$(docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG >/dev/null 2>&1; echo $?)"
-            if [[ $tag_exists -eq 0 ]]; then
-              echo "Image tag '$IMAGE_TAG' already exists in the repository. Skipping job."
-              circleci-agent step halt
-            else
-              echo "Image tag '$IMAGE_TAG' doesn't exist in the repository. Running build."
-            fi
+#      - run:
+#          name: Check if build needed
+#          command: |
+#            export DOCKER_CLI_EXPERIMENTAL=enabled
+#            IMAGE_TAG="$(poetry version -s)"
+#            tag_exists="$(docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG >/dev/null 2>&1; echo $?)"
+#            if [[ $tag_exists -eq 0 ]]; then
+#              echo "Image tag '$IMAGE_TAG' already exists in the repository. Skipping job."
+#              circleci-agent step halt
+#            else
+#              echo "Image tag '$IMAGE_TAG' doesn't exist in the repository. Running build."
+#            fi
       - run:
           name: Login to dockerhub
           command: docker login --username << pipeline.parameters.dockerhub_username >> --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
@@ -102,7 +102,7 @@ jobs: # A basic unit of work in a run
             docker buildx build \
               --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest \
               --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG \
-              --platform linux/amd64 \
+              --platform linux/amd64,linux/arm64,linux/arm/v7 \
               --push \
               .
 
@@ -110,14 +110,14 @@ workflows:
   version: 2
   all_pipelines:
     jobs:
-      - test:
-          context: todoist-habitica-sync
-          name: Tests
+#      - test:
+#          context: todoist-habitica-sync
+#          name: Tests
       - build_and_push:
           name: Build and push docker image
           context: dockerhub
-          requires:
-            - Tests
-          filters:
-            branches:
-              only: master
+#          requires:
+#            - Tests
+#          filters:
+#            branches:
+#              only: master
