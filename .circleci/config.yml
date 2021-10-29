@@ -103,6 +103,7 @@ jobs: # A basic unit of work in a run
               --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest \
               --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG \
               --platform linux/amd64,linux/arm64,linux/arm/v7 \
+              --progress plain \
               --push \
               .
 
