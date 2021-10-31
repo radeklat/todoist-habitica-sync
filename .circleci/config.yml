@@ -81,12 +81,12 @@ jobs: # A basic unit of work in a run
             export DOCKER_CLI_EXPERIMENTAL=enabled
             IMAGE_VERSION="$(poetry version -s)"
             tag_exists="$(docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_VERSION >/dev/null 2>&1; echo $?)"
-#            if [[ $tag_exists -eq 0 ]]; then
-#              echo "Image tag '$IMAGE_VERSION' already exists in the repository. Skipping job."
-#              circleci-agent step halt
-#            else
-#              echo "Image tag '$IMAGE_VERSION' doesn't exist in the repository. Running build."
-#            fi
+            if [[ $tag_exists -eq 0 ]]; then
+              echo "Image tag '$IMAGE_VERSION' already exists in the repository. Skipping job."
+              circleci-agent step halt
+            else
+              echo "Image tag '$IMAGE_VERSION' doesn't exist in the repository. Running build."
+            fi
       - restore_cache:
           key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - run:
@@ -113,14 +113,14 @@ workflows:
   version: 2
   all_pipelines:
     jobs:
-#      - test:
-#          context: todoist-habitica-sync
-#          name: Tests
+      - test:
+          context: todoist-habitica-sync
+          name: Tests
       - build_and_push:
           name: Build and push docker image
           context: dockerhub
-#          requires:
-#            - Tests
-#          filters:
-#            branches:
-#              only: master
+          requires:
+            - Tests
+          filters:
+            branches:
+              only: master
