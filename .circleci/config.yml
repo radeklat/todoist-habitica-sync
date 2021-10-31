@@ -87,20 +87,27 @@ jobs: # A basic unit of work in a run
             else
               echo "Image tag '$IMAGE_VERSION' doesn't exist in the repository. Running build."
             fi
+      - restore_cache:
+          key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - run:
-          name: Build docker image
+          name: Install dev libraries
+          command: poetry install --no-ansi
+      - save_cache:
+          key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
+          paths:
+            - ".venv"
+      - run:
+          name: Install emulators
           command: |
-              docker build \
-                --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest \
-                --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$(poetry version -s) \
-                .
+            docker run --privileged --rm tonistiigi/binfmt --install arm64,arm
       - run:
-          name: Login to dockerhub
-          command: docker login --username << pipeline.parameters.dockerhub_username >> --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
-      - run:
-          name: Push docker image
+          name: Create and use a new docker build driver
           command: |
-            docker push --all-tags << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>
+            docker buildx create --use
+      - run:
+          name: Build and push docker image
+          command: |
+            poetry run inv docker-build
 
 workflows:
   version: 2

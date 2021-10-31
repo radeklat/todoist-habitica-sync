@@ -1,28 +1,10 @@
 version: '3.8'
 services:
   todoist-habitica-sync:
-    image: "radeklat/todoist-habitica-sync:latest"
+    image: "radeklat/todoist-habitica-sync:1.1.1"
     container_name: todoist-habitica-sync
-    environment:
-      # https://todoist.com/prefs/integrations under "API token"
-      TODOIST_API_KEY: "REPLACE WITH API TOKEN"
-
-      # https://habitica.com/user/settings/api
-      # Under "User ID"
-      HABITICA_USER_ID: "REPLACE WITH USER ID"
-
-      # Under "API Token", the "Show API Token" button
-      HABITICA_API_KEY: "REPLACE WITH API TOKEN"
-
-      # Uncomment (remove '#') on lines to change default values
-      # Ignore Todoist tasks finished before this date. Date format is YYYY-MM-DD
-      #IGNORE_TASKS_OLDER_THAN: "2021-03-17"
-
-      # Repeat sync automatically after N minutes
-      #SYNC_DELAY_MINUTES: "1"
-
-      # Where to store synchronisation details. No need to change.
-      #DATABASE_FILE: ".sync_cache/sync_cache.json"
+    env_file:
+      - .env
     volumes:
     - ./.sync_cache:/usr/src/app/.sync_cache
     restart: always
