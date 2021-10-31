@@ -57,24 +57,29 @@ def docker_build(ctx, push=True):
             dockerhub_password = getpass("Dockerhub Personal Access Token: ")
         ctx.run(f"docker login --username {dockerhub_username} --password {dockerhub_password}")
 
-        flags.append(f"--cache-to type=registry,ref={dockerhub_username}/{project_name}")
-        flags.append("--push")
+        flags.append("--output type=image,push=true")
 
     if getenv("CI"):  # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
         flags.append("--progress plain")
 
-    ctx.run(
-        f"""
-            docker buildx build \
-            --cache-from type=registry,ref={dockerhub_username}/{project_name} \
-            --tag {dockerhub_username}/{project_name}:latest \
-            --tag {dockerhub_username}/{project_name}:{project_version} \
-            {" ".join(flags)} \
-            .
-        """,
-        echo=True,
-        pty=True,
-    )
+    # While `docker buildx build` supports multiple `--tag` flags, push of them fails to expose
+    # all architectures in `latest`. Multiple pushes fix this.
+    for tag in [project_version, "latest"]:
+        flags_for_tag = list(flags)
+        if tag != "latest" and push:
+            flags_for_tag.append(f"--cache-to type=registry,ref={dockerhub_username}/{project_name}")
+
+        ctx.run(
+            f"""
+                docker buildx build \
+                --cache-from type=registry,ref={dockerhub_username}/{project_name} \
+                --tag {dockerhub_username}/{project_name}:{tag} \
+                {" ".join(flags_for_tag)} \
+                .
+            """,
+            echo=True,
+            pty=True,
+        )
 
     if push:
         ctx.run("docker logout")
