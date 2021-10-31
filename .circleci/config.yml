@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  gh: circleci/github-cli@1.0.4
+
 parameters:
   project_name:
     type: string
@@ -108,6 +111,11 @@ jobs: # A basic unit of work in a run
           name: Build and push docker image
           command: |
             poetry run inv docker-build
+      - gh/setup
+      - run:
+          name: Tag release
+          command: |
+            gh release create $(poetry version -s) -F CHANGELOG.md
 
 workflows:
   version: 2
