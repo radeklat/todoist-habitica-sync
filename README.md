@@ -135,10 +135,17 @@ You can use the above mentioned docker image to run the sync as a service on ser
    ```
 2. Download the example compose file:
    ```shell script
-   mkdir -m 0777 .sync_cache
-   curl https://raw.githubusercontent.com/radeklat/todoist-habitica-sync/master/docker-compose.yml
+   mkdir -p todoist-habitica-sync/.sync_cache
+   cd todoist-habitica-sync
+   chmod 0777 .sync_cache
    ```
-4. Edit the `docker-compose.yml` file and fill the missing details in the `environment` section.
+3. Download a compose file and an example .env file:
+   ```shell script
+   BASE_URL=https://raw.githubusercontent.com/radeklat/todoist-habitica-sync/master
+   curl $BASE_URL/.env.template --output .env
+   curl $BASE_URL/docker-compose.yml -O
+   ```
+4. Edit the `.env` file and fill the missing details.
 5. Run the service:
    ```shell script
    docker-compose up

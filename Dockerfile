@@ -1,30 +1,20 @@
-FROM python:3.8.8-alpine
+ARG PYTHON_VERSION
+FROM python:${PYTHON_VERSION}-slim
 
-ARG unprivileged_user=app
-ARG sources_root=/usr/src/${unprivileged_user}
+WORKDIR /app
 
-RUN apk update \
-  && apk add --no-cache bash openssl-dev gcc libffi-dev cargo \
-  && rm -rf /var/lib/apt/lists/*
+RUN apt-get --allow-releaseinfo-change update
+RUN apt-get install gcc g++ libssl-dev libffi-dev rustc -y
+RUN python -m pip install --upgrade pip
+RUN pip install poetry
 
-RUN adduser -u 1001 -D ${unprivileged_user}
+COPY pyproject.toml poetry.lock ./
 
-WORKDIR ${sources_root}
+RUN poetry install --no-dev --no-root
 
-COPY poetry.lock pyproject.toml poetry.toml ./
-
-RUN apk add --virtual build-deps gcc python3-dev build-base musl-dev \
-    && pip install -U pip poetry --no-cache-dir \
-    && poetry install --no-dev --no-root \
-    && apk del build-deps \
-    && rm -rf /var/lib/apt/lists/*
+# PYTHONPATH set after install to prevent bugs
+ENV PYTHONPATH="src"
 
 COPY . .
 
-RUN chown -R ${unprivileged_user} ${sources_root}
-
-ENV PYTHONPATH="${sources_root}"
-
-USER ${unprivileged_user}
-
-CMD poetry run python src/main.py
+ENTRYPOINT ["poetry", "run", "python", "src/main.py"]

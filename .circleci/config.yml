@@ -75,37 +75,39 @@ jobs: # A basic unit of work in a run
       - run:
           name: Install dev libraries
           command: pip3 install --upgrade pip poetry
-#      - run:
-#          name: Check if build needed
-#          command: |
-#            export DOCKER_CLI_EXPERIMENTAL=enabled
-#            IMAGE_TAG="$(poetry version -s)"
-#            tag_exists="$(docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG >/dev/null 2>&1; echo $?)"
+      - run:
+          name: Check if build needed
+          command: |
+            export DOCKER_CLI_EXPERIMENTAL=enabled
+            IMAGE_VERSION="$(poetry version -s)"
+            tag_exists="$(docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_VERSION >/dev/null 2>&1; echo $?)"
 #            if [[ $tag_exists -eq 0 ]]; then
-#              echo "Image tag '$IMAGE_TAG' already exists in the repository. Skipping job."
+#              echo "Image tag '$IMAGE_VERSION' already exists in the repository. Skipping job."
 #              circleci-agent step halt
 #            else
-#              echo "Image tag '$IMAGE_TAG' doesn't exist in the repository. Running build."
+#              echo "Image tag '$IMAGE_VERSION' doesn't exist in the repository. Running build."
 #            fi
+      - restore_cache:
+          key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - run:
-          name: Login to dockerhub
-          command: docker login --username << pipeline.parameters.dockerhub_username >> --password $DOCKERHUB_PERSONAL_ACCESS_TOKEN
+          name: Install dev libraries
+          command: poetry install --no-ansi
+      - save_cache:
+          key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
+          paths:
+            - ".venv"
       - run:
           name: Install emulators
           command: |
             docker run --privileged --rm tonistiigi/binfmt --install arm64,arm
       - run:
-          name: Build and push docker images
+          name: Create and use a new docker build driver
           command: |
-            IMAGE_TAG="$(poetry version -s)"
             docker buildx create --use
-            docker buildx build \
-              --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:latest \
-              --tag << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_TAG \
-              --platform linux/amd64,linux/arm64,linux/arm/v7 \
-              --progress plain \
-              --push \
-              .
+      - run:
+          name: Build and push docker image
+          command: |
+            poetry run inv docker-build
 
 workflows:
   version: 2
