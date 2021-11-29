@@ -8,5 +8,5 @@ repos:
     name: formatting
     stages: [commit]
     language: system
-    entry: poetry run inv format
+    entry: poetry run delfino format
     pass_filenames: false

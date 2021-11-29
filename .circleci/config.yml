@@ -16,17 +16,23 @@ parameters:
   cache_version:
     type: string
     default: "1"
+  git_trunk_branch:
+    type: string
+    default: "master"
+  command_prefix:
+    type: string
+    default: "poetry run delfino"
   dockerhub_username:
     type: string
     default: "radeklat"
 
 jobs: # A basic unit of work in a run
   test:
-    working_directory: << pipeline.parameters.working_directory >>
     docker:
-      - image: circleci/python:<< pipeline.parameters.python_version >>
-        environment:
-          PIPENV_VENV_IN_PROJECT: true
+    - image: circleci/python:<< pipeline.parameters.python_version >>
+    environment:
+      PIPENV_VENV_IN_PROJECT: "true"
+    working_directory: << pipeline.parameters.working_directory >>
     steps:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
@@ -35,16 +41,16 @@ jobs: # A basic unit of work in a run
           key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install dev libraries
-          command: pip install --upgrade pip poetry && poetry install --no-ansi
+          command: pip install --upgrade pip poetry && poetry install --no-ansi --no-root
       - run:
           name: Format check
-          command: poetry run inv format --check
+          command: << pipeline.parameters.command_prefix >> format --check
       - run:
           name: Type check
-          command: poetry run inv typecheck
+          command: << pipeline.parameters.command_prefix >> typecheck
       - run:
           name: Linters
-          command: poetry run inv lint
+          command: << pipeline.parameters.command_prefix >> lint
       - save_cache:
           key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
           paths:
@@ -53,23 +59,81 @@ jobs: # A basic unit of work in a run
             - "/usr/local/lib/python<< pipeline.parameters.python_version >>/site-packages"
       - run:
           name: Unit tests
-          command: poetry run inv test-unit
+          command: << pipeline.parameters.command_prefix >> test-unit
       - run:
           name: Integration tests
-          command: poetry run inv test-integration
+          command: << pipeline.parameters.command_prefix >> test-integration
       - run:
           name: Build coverage report
-          command: poetry run inv coverage-report
+          command: << pipeline.parameters.command_prefix >> coverage-report
       - run:
           name: Upload coverage reports to Codecov
           command: |
-            [[ "${CIRCLE_BRANCH}" == "master" ]] && BASE_COMMIT_SHA=$(git rev-parse HEAD~1) || BASE_COMMIT_SHA=$(git merge-base ${CIRCLE_BRANCH} origin/master)
+            [[ "${CIRCLE_BRANCH}" == "<< pipeline.parameters.git_trunk_branch >>" ]] && BASE_COMMIT_SHA=$(git rev-parse HEAD~1) || BASE_COMMIT_SHA=$(git merge-base ${CIRCLE_BRANCH} origin/<< pipeline.parameters.git_trunk_branch >>)
             bash <(curl -s https://codecov.io/bash) -N ${BASE_COMMIT_SHA} -f reports/coverage-unit.xml -F total,unit_tests &&
             bash <(curl -s https://codecov.io/bash) -N ${BASE_COMMIT_SHA} -f reports/coverage-integration.xml -F total,integration_tests
       - store_artifacts:
           path: reports/coverage-report
       - store_test_results:
           path: reports
+  generate_documentation:
+    docker:
+      - image: circleci/python:<< pipeline.parameters.python_version >>
+    environment:
+      PIPENV_VENV_IN_PROJECT: "true"
+      PYTHONPATH: "src"
+    working_directory: << pipeline.parameters.working_directory >>
+    steps:
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python<< pipeline.parameters.python_version >>/site-packages
+      - restore_cache:
+          key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
+      - run:
+          name: Update README.md
+          command: |
+            poetry run \
+              settings-doc generate \
+                --class config.Settings \
+                --output-format markdown \
+                --heading-offset 1 \
+                --update README.md \
+                --between '<!-- settings-doc start -->' '<!-- settings-doc end -->'
+      - run:
+          name: Update .env.template
+          command: |
+            poetry run \
+              settings-doc generate \
+                --class config.Settings \
+                --output-format dotenv \
+                --update .env.template \
+                --between '# Auto-generated content start' '# Auto-generated content end'
+      - run:
+          name: Check if any changes were made
+          command: |
+            if [[ -z "$(git status -s README.md .env.template)" ]]; then
+              echo "No changes detected. Skipping."
+              circleci-agent step halt
+            fi
+      # See https://circleci.com/docs/2.0/gh-bb-integration/#creating-a-github-deploy-key
+      - add_ssh_keys:
+          fingerprints:
+            - "41:8b:95:c3:06:c6:2e:f8:24:14:c3:2c:9e:98:e2:bf"
+      - run:
+          name: Set name and email
+          command: |
+            git config --local user.email "$(git log -1 --pretty=%ce)"
+            git config --local user.name "$(git log -1 --pretty=%cn)"
+      - run:
+          name: Add changes
+          command: git add README.md .env.template
+      - run:
+          name: Commit changes
+          command: git commit -m "Update generated content" -m "[skip ci]"
+      - run:
+          name: Push changes
+          command: git push origin ${CIRCLE_BRANCH}
+
   build_and_push:
     machine:
       image: ubuntu-2004:202107-02
@@ -77,7 +141,7 @@ jobs: # A basic unit of work in a run
       - checkout
       - run:
           name: Install dev libraries
-          command: pip3 install --upgrade pip poetry
+          command: pip3 install poetry
       - run:
           name: Check if build needed
           command: |
@@ -94,41 +158,66 @@ jobs: # A basic unit of work in a run
           key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install dev libraries
-          command: poetry install --no-ansi
+          command: poetry install --no-ansi --no-root
       - save_cache:
           key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
           paths:
             - ".venv"
-      - run:
-          name: Install emulators
-          command: |
-            docker run --privileged --rm tonistiigi/binfmt --install arm64,arm
       - run:
           name: Create and use a new docker build driver
           command: |
             docker buildx create --use
       - run:
           name: Build and push docker image
-          command: |
-            poetry run inv docker-build
+          command: << pipeline.parameters.command_prefix >> build-docker
+  release:
+    working_directory: << pipeline.parameters.working_directory >>
+    docker:
+      - image: circleci/python:<< pipeline.parameters.python_version >>
+    steps:
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python<< pipeline.parameters.python_version >>/site-packages
+      - restore_cache:
+          key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - gh/setup
       - run:
-          name: Tag release
+          name: Check if current version has been released
           command: |
-            gh release create $(poetry version -s) -F CHANGELOG.md
+            VERSION=$(poetry version -s)
+            if [[ $(gh release view $VERSION >/dev/null 2>&1; echo $?) -eq 0 ]]; then
+              echo "Tag '$VERSION' already exists. Skipping."
+              circleci-agent step halt
+            fi
+      - run:
+          name: Create a release
+          command: gh release create $(poetry version -s) -F CHANGELOG.md
 
 workflows:
   version: 2
   all_pipelines:
     jobs:
       - test:
-          context: todoist-habitica-sync
+          context: << pipeline.parameters.project_name >>
           name: Tests
+      - generate_documentation:
+          name: Generate documentation
+          requires:
+            - Tests
       - build_and_push:
           name: Build and push docker image
-          context: dockerhub
+          context:
+            - dockerhub
           requires:
             - Tests
           filters:
             branches:
-              only: master
+              only: << pipeline.parameters.git_trunk_branch >>
+      - release:
+          context:
+            - github
+          requires:
+            - Build and push docker image
+          filters:
+            branches:
+              only: << pipeline.parameters.git_trunk_branch >>

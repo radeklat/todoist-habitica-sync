@@ -20,11 +20,17 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
 
-    todoist_api_key: str
-    habitica_user_id: str
-    habitica_api_key: str
-    sync_delay_seconds: int = Field(1, gt=0, env="sync_delay_minutes")
-    database_file: Path = Path(".sync_cache/sync_cache.json")
+    todoist_api_key: str = Field(..., description='See https://todoist.com/prefs/integrations under "API token".')
+    habitica_user_id: str = Field(..., description='See https://habitica.com/user/settings/api under "User ID".')
+    habitica_api_key: str = Field(
+        ..., description='See https://habitica.com/user/settings/api under "API Token", the "Show API Token" button.'
+    )
+    sync_delay_seconds: int = Field(
+        1, gt=0, env="sync_delay_minutes", description="Repeat sync automatically after N minutes."
+    )
+    database_file: Path = Field(
+        Path(".sync_cache/sync_cache.json"), description="Where to store synchronisation details. No need to change."
+    )
 
     @validator("sync_delay_seconds")
     def minutes_to_seconds(cls, value: int):  # pylint: disable=no-self-argument,no-self-use

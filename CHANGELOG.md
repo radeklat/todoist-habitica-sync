@@ -14,6 +14,12 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [1.1.2] - 2021-11-29
+
+### Fix
+
+- Update library dependencies.
+
 ## [1.1.1] - 2021-10-31
 
 - Change `Dockerfile` to use Python version from `pyproject.toml`.
@@ -40,9 +46,8 @@ Types of changes are:
 
 * Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.1...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.2...HEAD
+[1.1.2]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/initial...1.0.0
-
-[0.1.1]: https://github.com/radeklat/mqtt_influxdb_gateway/compare/0.1.0...0.1.1
