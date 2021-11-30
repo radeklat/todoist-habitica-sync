@@ -182,6 +182,35 @@ Add `--detach` flag to run in the background. You can close the terminal. The se
 
 If you used the `latest` tag, run `docker-compose pull todoist-habitica-sync`.
 
+# Environment variables
+<!-- settings-doc start -->
+## `TODOIST_API_KEY`
+
+**Required**
+
+See https://todoist.com/prefs/integrations under "API token".
+## `HABITICA_USER_ID`
+
+**Required**
+
+See https://habitica.com/user/settings/api under "User ID".
+## `HABITICA_API_KEY`
+
+**Required**
+
+See https://habitica.com/user/settings/api under "API Token", the "Show API Token" button.
+## `SYNC_DELAY_MINUTES`
+
+*Optional*, default value: `1`
+
+Repeat sync automatically after N minutes.
+## `DATABASE_FILE`
+
+*Optional*, default value: `.sync_cache/sync_cache.json`
+
+Where to store synchronisation details. No need to change.
+<!-- settings-doc end -->
+
 # Planned work
 
 * Synchronise overdue task to cause damage in habitica
