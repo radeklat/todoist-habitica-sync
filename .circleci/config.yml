@@ -18,7 +18,7 @@ parameters:
     default: "1"
   git_trunk_branch:
     type: string
-    default: "master"
+    default: "main"
   command_prefix:
     type: string
     default: "poetry run delfino"
