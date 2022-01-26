@@ -14,6 +14,12 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [1.1.3] - 2022-01-25
+
+### Fix
+
+- Update library dependencies.
+
 ## [1.1.2] - 2021-11-29
 
 ### Fix
@@ -46,7 +52,8 @@ Types of changes are:
 
 * Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.2...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.3...HEAD
+[1.1.3]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.2...1.1.3
 [1.1.2]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.0.0...1.1.0
