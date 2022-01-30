@@ -44,16 +44,16 @@ Tasks are not added immediately. Only when you finish a task in Todoist, new tas
    ```text
    git version 2.25.1
    ```
-3. Make sure Python 3.8+ is installed:
+3. Make sure Python 3.10+ is installed:
    ```shell script
    python --version
    ```
    The output should look something like:
    ```text
-   Python 3.8.6
+   Python 3.10.1
    ```
    * If it shows `2.7.x` instead, try `python3` instead and use it in the rest of the guide.
-   * If it shows `3.7.x` or lower, use [`pyenv`](https://github.com/pyenv/pyenv#installation) to install a higher version of Python on your system.
+   * If it shows `3.9.x` or lower, use [`pyenv`](https://github.com/pyenv/pyenv#installation) to install a higher version of Python on your system.
 4. Make sure [`poetry`](https://python-poetry.org/docs/#installation) is installed:
    ```shell script
    poetry --version
