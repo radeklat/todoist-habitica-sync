@@ -14,6 +14,16 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [1.2.0] - 2022-01-30
+
+### Changed
+
+- Upgrade to Python 3.10
+
+### Fix
+
+- Update library dependencies.
+
 ## [1.1.3] - 2022-01-25
 
 ### Fix
@@ -52,7 +62,8 @@ Types of changes are:
 
 * Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.3...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.2.0...HEAD
+[1.2.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.3...1.2.0
 [1.1.3]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.2...1.1.3
 [1.1.2]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.0...1.1.1

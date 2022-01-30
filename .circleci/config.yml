@@ -12,7 +12,7 @@ parameters:
     default: ~/todoist-habitica-sync
   python_version:
     type: string
-    default: "3.8"
+    default: "3.10"
   cache_version:
     type: string
     default: "1"
@@ -169,7 +169,7 @@ jobs: # A basic unit of work in a run
             docker buildx create --use
       - run:
           name: Build and push docker image
-          command: << pipeline.parameters.command_prefix >> build-docker
+          command: << pipeline.parameters.command_prefix >> build-docker --serialized --push
   release:
     working_directory: << pipeline.parameters.working_directory >>
     docker:
