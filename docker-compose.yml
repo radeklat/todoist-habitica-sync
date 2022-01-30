@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   todoist-habitica-sync:
-    image: "radeklat/todoist-habitica-sync:1.1.1"
+    image: "radeklat/todoist-habitica-sync:latest"
     container_name: todoist-habitica-sync
     env_file:
       - .env
