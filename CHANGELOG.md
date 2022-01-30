@@ -14,6 +14,12 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [2.0.0] - 2022-01-30
+
+## Fixed
+
+- **BREAKING CHANGE:** Recurring Todoist tasks are counted on every completion, not just the fist one. Please [reset the cache](README.md#resetting-sync-cache) as this fix doesn't work for already cached tasks.
+
 ## [1.2.0] - 2022-01-30
 
 ### Changed
@@ -62,7 +68,8 @@ Types of changes are:
 
 * Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.2.0...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.2.0...2.0.0
 [1.2.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.3...1.2.0
 [1.1.3]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.2...1.1.3
 [1.1.2]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.1...1.1.2
