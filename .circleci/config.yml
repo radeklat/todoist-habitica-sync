@@ -13,6 +13,9 @@ parameters:
   python_version:
     type: string
     default: "3.10"
+  python_version_full:
+    type: string
+    default: "3.10.2"
   cache_version:
     type: string
     default: "1"
@@ -139,6 +142,17 @@ jobs: # A basic unit of work in a run
       image: ubuntu-2004:202111-02
     steps:
       - checkout
+      - run:
+          name: Install and activate required Python version
+          command: |
+            export VERSION="<< pipeline.parameters.python_version_full >>"
+            pyenv versions --bare | grep -q "${VERSION}"
+            if [[ $? -ne 0 ]]; then
+              pyenv install ${VERSION}
+            else
+              echo "Python ${VERSION} already installed."
+            fi
+            pyenv global ${VERSION}
       - run:
           name: Install dev libraries
           command: pip3 install poetry
