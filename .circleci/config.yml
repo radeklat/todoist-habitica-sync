@@ -136,7 +136,7 @@ jobs: # A basic unit of work in a run
 
   build_and_push:
     machine:
-      image: ubuntu-2004:202107-02
+      image: ubuntu-2004:202111-02
     steps:
       - checkout
       - run:
