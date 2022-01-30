@@ -110,17 +110,23 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _should_task_score_points(todoist_task: TodoistTask, generic_task: GenericTask = None) -> bool:
-        return bool(
-            todoist_task.checked
-            or (
+        if todoist_task.checked:
+            return True
+
+        if generic_task:
+            recurring_task_checked = bool(
                 todoist_task.due is not None
                 and todoist_task.due["is_recurring"]
-                and generic_task
                 and generic_task.due_date_utc_timestamp
                 and todoist_task.due_date_utc_timestamp
                 and generic_task.due_date_utc_timestamp < todoist_task.due_date_utc_timestamp
             )
-        )
+
+            if recurring_task_checked:
+                generic_task.due_date_utc_timestamp = todoist_task.due_date_utc_timestamp
+                return True
+
+        return False
 
     # TODO: Improve FSM algorithm
     def _next_tasks_state_in_habitica(self):  # pylint: disable=too-complex
@@ -168,7 +174,8 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                         else:
                             raise ex
 
-                    self._task_cache.set_task_state(generic_task, TaskState.HIDDEN)
+                    next_state = TaskState.TODOIST_ACTIVE if generic_task.is_recurring else TaskState.HIDDEN
+                    self._task_cache.set_task_state(generic_task, next_state)
                     time.sleep(HABITICA_REQUEST_WAIT_TIME)
             except IOError as ex:
                 self._log.error(f"Unexpected network error: {str(ex)}")

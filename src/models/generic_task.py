@@ -21,6 +21,7 @@ class GenericTask:
     content: str
     priority: int
     state: TaskState
+    is_recurring: bool
     due_date_utc_timestamp: Optional[int]
     habitica_task_id: Optional[str] = None
 
@@ -36,4 +37,5 @@ class GenericTask:
             priority=todoist_task.priority,
             state=task_state,
             due_date_utc_timestamp=todoist_task.due_date_utc_timestamp,
+            is_recurring=bool(todoist_task.due and todoist_task.due["is_recurring"]),
         )
