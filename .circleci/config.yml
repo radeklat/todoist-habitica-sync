@@ -142,19 +142,26 @@ jobs: # A basic unit of work in a run
       image: ubuntu-2004:202111-02
     steps:
       - checkout
+      - restore_cache:
+          key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install and activate required Python version
           command: |
             export VERSION="<< pipeline.parameters.python_version_full >>"
-            pyenv versions --bare | grep -q "${VERSION}"
-            if [[ $? -ne 0 ]]; then
+            if [[ ! -d "/opt/circleci/.pyenv/versions/${VERSION}" ]]; then
+              echo "Python ${VERSION} not installed."
+            
+              if [[ -z "$(pyenv install --list | grep -q ${VERSION})" ]]; then
+                echo "Python ${VERSION} not available. Trying a pyenv update ..."            
+                cd /opt/circleci/.pyenv/plugins/python-build/../.. && git checkout master && git pull && cd -
+              fi
               pyenv install ${VERSION}
             else
               echo "Python ${VERSION} already installed."
             fi
             pyenv global ${VERSION}
       - run:
-          name: Install dev libraries
+          name: Install poetry
           command: pip3 install poetry
       - run:
           name: Check if build needed
@@ -168,15 +175,14 @@ jobs: # A basic unit of work in a run
             else
               echo "Image tag '$IMAGE_VERSION' doesn't exist in the repository. Running build."
             fi
-      - restore_cache:
-          key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install dev libraries
           command: poetry install --no-ansi --no-root
       - save_cache:
-          key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
+          key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
           paths:
             - ".venv"
+            - "/opt/circleci/.pyenv"
       - run:
           name: Create and use a new docker build driver
           command: |
