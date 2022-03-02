@@ -21,6 +21,7 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
 
     todoist_api_key: str = Field(..., description='See https://todoist.com/prefs/integrations under "API token".')
+    todoist_user_id: int = Field(..., description='Todoist user_id')
     habitica_user_id: str = Field(..., description='See https://habitica.com/user/settings/api under "User ID".')
     habitica_api_key: str = Field(
         ..., description='See https://habitica.com/user/settings/api under "API Token", the "Show API Token" button.'

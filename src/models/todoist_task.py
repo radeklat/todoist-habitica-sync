@@ -10,7 +10,9 @@ class TodoistTask(BaseModel):
     content: str
     due: Optional[Dict[str, Any]]  # date, is_recurring, lang, string, timezone
     id: int
+    user_id: int
     is_deleted: int
+    responsible_uid: int
     priority: int
     legacy_id: Optional[int] = None
 
@@ -22,6 +24,12 @@ class TodoistTask(BaseModel):
         try:
             updated_task_data = copy.deepcopy(task_data)
             due = updated_task_data["due"]
+            responsible_uid = updated_task_data["responsible_uid"]
+
+            if responsible_uid is not None:
+                updated_task_data["responsible_uid"] = int(responsible_uid)
+            else:
+                updated_task_data["responsible_uid"] = -1
 
             if due is not None:
                 updated_task_data["due_date_utc_timestamp"] = int(parse(due["date"]).timestamp())

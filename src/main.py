@@ -104,12 +104,16 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                     todoist_task,
                     self._next_state_with_new_generic_task(todoist_task, initial_sync),
                 )
-                self._log.info(f"New task {generic_task.content}, {generic_task.state.name}")
+                self._log.info(f"New task {generic_task.content}, {generic_task.state.name}, user_id : {generic_task.user_id},")
 
             self._task_cache.save_task(generic_task)
 
     @staticmethod
     def _should_task_score_points(todoist_task: TodoistTask, generic_task: GenericTask = None) -> bool:
+
+        if (todoist_task.responsible_uid!=-1) and (todoist_task.responsible_uid != get_settings().habitica_user_id):
+            return False
+
         if todoist_task.checked:
             return True
 
