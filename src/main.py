@@ -111,7 +111,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
     @staticmethod
     def _should_task_score_points(todoist_task: TodoistTask, generic_task: GenericTask = None) -> bool:
 
-        if (todoist_task.responsible_uid!=-1) and (todoist_task.responsible_uid != get_settings().habitica_user_id):
+        if todoist_task.responsible_uid and (todoist_task.responsible_uid != get_settings().habitica_user_id):
             return False
 
         if todoist_task.checked:

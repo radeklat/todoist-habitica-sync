@@ -10,9 +10,9 @@ class TodoistTask(BaseModel):
     content: str
     due: Optional[Dict[str, Any]]  # date, is_recurring, lang, string, timezone
     id: int
-    user_id: int
+    user_id: Optional[int]
     is_deleted: int
-    responsible_uid: int
+    responsible_uid: Optional[int]
     priority: int
     legacy_id: Optional[int] = None
 
@@ -28,8 +28,8 @@ class TodoistTask(BaseModel):
 
             if responsible_uid is not None:
                 updated_task_data["responsible_uid"] = int(responsible_uid)
-            else:
-                updated_task_data["responsible_uid"] = -1
+            # else:
+            #     updated_task_data["responsible_uid"] = -1
 
             if due is not None:
                 updated_task_data["due_date_utc_timestamp"] = int(parse(due["date"]).timestamp())
