@@ -28,8 +28,6 @@ class TodoistTask(BaseModel):
 
             if responsible_uid is not None:
                 updated_task_data["responsible_uid"] = int(responsible_uid)
-            # else:
-            #     updated_task_data["responsible_uid"] = -1
 
             if due is not None:
                 updated_task_data["due_date_utc_timestamp"] = int(parse(due["date"]).timestamp())
