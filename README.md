@@ -184,26 +184,36 @@ If you used the `latest` tag, run `docker-compose pull todoist-habitica-sync`.
 
 # Environment variables
 <!-- settings-doc start -->
+## `TODOIST_USER_ID`
+
+*Optional*
+
+See "user_id" mentioned in a link under "Calendar Subscription URL" at https://todoist.com/prefs/integrations. Needed only for shared projects to score points for tasks owned by you.
+
 ## `TODOIST_API_KEY`
 
 **Required**
 
 See https://todoist.com/prefs/integrations under "API token".
+
 ## `HABITICA_USER_ID`
 
 **Required**
 
 See https://habitica.com/user/settings/api under "User ID".
+
 ## `HABITICA_API_KEY`
 
 **Required**
 
 See https://habitica.com/user/settings/api under "API Token", the "Show API Token" button.
+
 ## `SYNC_DELAY_MINUTES`
 
 *Optional*, default value: `1`
 
 Repeat sync automatically after N minutes.
+
 ## `DATABASE_FILE`
 
 *Optional*, default value: `.sync_cache/sync_cache.json`
