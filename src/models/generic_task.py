@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import IntEnum, auto
-from typing import Optional
 
 from models.todoist_task import TodoistTask
 
@@ -22,8 +21,8 @@ class GenericTask:
     priority: int
     state: TaskState
     is_recurring: bool
-    due_date_utc_timestamp: Optional[int]
-    habitica_task_id: Optional[str] = None
+    due_date_utc_timestamp: int | None
+    habitica_task_id: str | None = None
 
     def __post_init__(self):
         if not isinstance(self.state, TaskState):

@@ -20,6 +20,14 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
 
+    todoist_user_id: int | None = Field(
+        None,
+        description=(
+            'See "user_id" mentioned in a link under "Calendar Subscription URL" at '
+            "https://todoist.com/prefs/integrations. Needed only for shared projects to "
+            "score points for tasks owned by you."
+        ),
+    )
     todoist_api_key: str = Field(..., description='See https://todoist.com/prefs/integrations under "API token".')
     habitica_user_id: str = Field(..., description='See https://habitica.com/user/settings/api under "User ID".')
     habitica_api_key: str = Field(
@@ -45,5 +53,3 @@ def get_settings():
 # https://habitica.com/apidoc/#api-Task-CreateUserTasks
 # https://developer.todoist.com/sync/v7/?python#items
 TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY = MappingProxyType({1: 0.1, 2: 1, 3: 2, 4: 1.5})
-
-HABITICA_REQUEST_WAIT_TIME = 0.5  # time to pause between concurrent requests

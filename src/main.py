@@ -1,12 +1,13 @@
 import logging
-import time
 from os.path import dirname, join
+from typing import Final
 
 import todoist
 from requests import HTTPError
 
-from config import HABITICA_REQUEST_WAIT_TIME, TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY, get_settings
-from habitica_api import HabiticaAPI
+from config import TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY, get_settings
+from delay import DelayTimer
+from habitica_api import HabiticaAPI, HabiticaAPIHeaders
 from models.generic_task import GenericTask, TaskState
 from models.habitica_task import HabiticaTask
 from models.todoist_task import TodoistTask
@@ -23,25 +24,23 @@ class TasksSync:  # pylint: disable=too-few-public-methods
     TODOIST_CONTINUE_STATES = frozenset([TaskState.HIDDEN, *TasksCache.HABITICA_DIRTY_STATES])
 
     def __init__(self):
+        settings = get_settings()
+
         self._habitica = HabiticaAPI(
-            {
-                "url": "https://habitica.com",
-                "x-api-user": get_settings().habitica_user_id,
-                "x-api-key": get_settings().habitica_api_key,
-            }
+            HabiticaAPIHeaders(user_id=settings.habitica_user_id, api_key=settings.habitica_api_key)
         )
 
         self._log = logging.getLogger(self.__class__.__name__)
-        self._todoist = todoist.TodoistAPI(
-            get_settings().todoist_api_key, cache=join(dirname(__file__), ".todoist-sync/")
-        )
+        self._todoist = todoist.TodoistAPI(settings.todoist_api_key, cache=join(dirname(__file__), ".todoist-sync/"))
+        self._todoist_user_id = settings.todoist_user_id
 
         self._task_cache = TasksCache()
+        self._sync_sleep: Final[DelayTimer] = DelayTimer(
+            settings.sync_delay_seconds, "Next check in {delay:.0f} seconds."
+        )
 
     def run_forever(self):
         while True:
-            start_time = time.time()
-
             try:
                 self._sync_todoist()
                 self._next_tasks_state_based_on_todoist()
@@ -49,12 +48,8 @@ class TasksSync:  # pylint: disable=too-few-public-methods
             except IOError as ex:
                 self._log.error(f"Unexpected network error: {ex}")
 
-            duration = time.time() - start_time
-            delay = max(0.0, get_settings().sync_delay_seconds - duration)
-
             try:
-                self._log.info(f"Next check in {delay:.0f} seconds.")
-                time.sleep(delay)
+                self._sync_sleep()
             except KeyboardInterrupt:
                 break
 
@@ -66,7 +61,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
             return TaskState.HIDDEN
 
         if self._should_task_score_points(todoist_task, generic_task):
-            return TaskState.HABITICA_NEW
+            return TaskState.HABITICA_NEW if self._owned_by_me(todoist_task) else TaskState.HIDDEN
 
         return TaskState.TODOIST_ACTIVE
 
@@ -81,7 +76,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
             return TaskState.HIDDEN
 
         if self._should_task_score_points(todoist_task):
-            return TaskState.HABITICA_NEW
+            return TaskState.HABITICA_NEW if self._owned_by_me(todoist_task) else TaskState.HIDDEN
 
         return TaskState.TODOIST_ACTIVE
 
@@ -96,7 +91,9 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 if generic_task.state in self.TODOIST_CONTINUE_STATES:
                     continue
 
-                generic_task.state = self._next_state_with_existing_generic_task(todoist_task, generic_task)
+                self._task_cache.set_task_state(
+                    generic_task, self._next_state_with_existing_generic_task(todoist_task, generic_task)
+                )
                 generic_task.content = todoist_task.content
                 generic_task.priority = todoist_task.priority
             else:
@@ -128,6 +125,11 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
         return False
 
+    def _owned_by_me(self, todoist_task: TodoistTask) -> bool:
+        if self._todoist_user_id is None or todoist_task.responsible_uid is None:
+            return True
+        return todoist_task.responsible_uid == self._todoist_user_id
+
     # TODO: Improve FSM algorithm
     def _next_tasks_state_in_habitica(self):  # pylint: disable=too-complex
         for generic_task in self._task_cache.dirty_habitica_tasks():
@@ -143,7 +145,6 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                     )
                     self._task_cache.set_habitica_id(generic_task, habitica_task.id)
                     self._task_cache.set_task_state(generic_task, TaskState.HABITICA_CREATED)
-                    time.sleep(HABITICA_REQUEST_WAIT_TIME)
 
                 if generic_task.state == TaskState.HABITICA_CREATED:
                     try:
@@ -163,7 +164,6 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                             raise ex
 
                     self._task_cache.set_task_state(generic_task, next_state)
-                    time.sleep(HABITICA_REQUEST_WAIT_TIME)
 
                 if generic_task.state == TaskState.HABITICA_FINISHED:
                     try:
@@ -176,7 +176,6 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
                     next_state = TaskState.TODOIST_ACTIVE if generic_task.is_recurring else TaskState.HIDDEN
                     self._task_cache.set_task_state(generic_task, next_state)
-                    time.sleep(HABITICA_REQUEST_WAIT_TIME)
             except IOError as ex:
                 self._log.error(f"Unexpected network error: {str(ex)}")
 
