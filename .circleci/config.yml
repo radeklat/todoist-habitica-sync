@@ -121,7 +121,7 @@ jobs: # A basic unit of work in a run
       # See https://circleci.com/docs/2.0/gh-bb-integration/#creating-a-github-deploy-key
       - add_ssh_keys:
           fingerprints:
-            - "41:8b:95:c3:06:c6:2e:f8:24:14:c3:2c:9e:98:e2:bf"
+            - "79:fb:6e:3a:97:35:33:ef:3a:dc:3e:fe:bf:6b:54:3e"
       - run:
           name: Set name and email
           command: |
