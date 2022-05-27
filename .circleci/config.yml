@@ -15,7 +15,7 @@ parameters:
     default: "3.10"
   python_version_full:
     type: string
-    default: "3.10.2"
+    default: "3.10.4"
   cache_version:
     type: string
     default: "1"
@@ -32,16 +32,14 @@ parameters:
 jobs: # A basic unit of work in a run
   test:
     docker:
-    - image: circleci/python:<< pipeline.parameters.python_version >>
+    - image: cimg/python:<< pipeline.parameters.python_version_full >>
     environment:
       PIPENV_VENV_IN_PROJECT: "true"
     working_directory: << pipeline.parameters.working_directory >>
     steps:
       - checkout
-      - run: sudo chown -R circleci:circleci /usr/local/bin
-      - run: sudo chown -R circleci:circleci /usr/local/lib/python<< pipeline.parameters.python_version >>/site-packages
       - restore_cache:
-          key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
+          key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install dev libraries
           command: pip install --upgrade pip poetry && poetry install --no-ansi --no-root
@@ -55,11 +53,10 @@ jobs: # A basic unit of work in a run
           name: Linters
           command: << pipeline.parameters.command_prefix >> lint
       - save_cache:
-          key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
+          key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
           paths:
             - ".venv"
-            - "/usr/local/bin"
-            - "/usr/local/lib/python<< pipeline.parameters.python_version >>/site-packages"
+            - "~/.pyenv/versions/<< pipeline.parameters.python_version_full >>/lib/python<< pipeline.parameters.python_version >>/site-packages"
       - run:
           name: Unit tests
           command: << pipeline.parameters.command_prefix >> test-unit
@@ -81,17 +78,15 @@ jobs: # A basic unit of work in a run
           path: reports
   generate_documentation:
     docker:
-      - image: circleci/python:<< pipeline.parameters.python_version >>
+      - image: cimg/python:<< pipeline.parameters.python_version_full >>
     environment:
       PIPENV_VENV_IN_PROJECT: "true"
       PYTHONPATH: "src"
     working_directory: << pipeline.parameters.working_directory >>
     steps:
       - checkout
-      - run: sudo chown -R circleci:circleci /usr/local/bin
-      - run: sudo chown -R circleci:circleci /usr/local/lib/python<< pipeline.parameters.python_version >>/site-packages
       - restore_cache:
-          key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
+          key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
       - run:
           name: Update README.md
           command: |
@@ -193,13 +188,11 @@ jobs: # A basic unit of work in a run
   release:
     working_directory: << pipeline.parameters.working_directory >>
     docker:
-      - image: circleci/python:<< pipeline.parameters.python_version >>
+      - image: cimg/python:<< pipeline.parameters.python_version_full >>
     steps:
       - checkout
-      - run: sudo chown -R circleci:circleci /usr/local/bin
-      - run: sudo chown -R circleci:circleci /usr/local/lib/python<< pipeline.parameters.python_version >>/site-packages
       - restore_cache:
-          key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
+          key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
       - gh/setup
       - run:
           name: Check if current version has been released
