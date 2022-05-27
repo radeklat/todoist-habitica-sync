@@ -9,7 +9,7 @@ line_length = 120
 
 [tool.black]
 line-length = 120
-target-version = ['py38']
+target-version = ['py310']
 exclude = '''
 /(
     \.eggs
@@ -46,13 +46,13 @@ markers = [
 
 [tool.poetry]
 name = "todoist-habitica-sync"
-version = "2.1.0"
+version = "2.1.1"
 description = "One way synchronisation from Todoist to Habitica."
 authors = ["Radek Lát <radek.lat@gmail.com>"]
 license = "MIT License"
 
 [tool.poetry.dependencies]
-python = "^3.10.1"
+python = "^3.10.4"
 todoist-python = "^8.0"
 tinydb = "^4.5.2"
 ujson = "^5.1.0"
@@ -83,7 +83,7 @@ disable_commands = ["upload-to-pypi"]
 [tool.delfino.dockerhub]
 username = "radeklat"
 build_for_platforms = [
-    "linux/amd64",
-    "linux/arm64",
+#    "linux/amd64",
+#    "linux/arm64",
     "linux/arm/v7",
 ]
