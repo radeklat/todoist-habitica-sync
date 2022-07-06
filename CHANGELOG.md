@@ -12,6 +12,12 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [2.1.2] - 2022-07-06
+
+### Fixes
+
+- Dependencies update, including an upgrade from Python 3.10.4 to 3.10.5
+
 ## [2.1.1] - 2022-03-06
 
 ### Fixes
@@ -84,7 +90,8 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.1...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.2...HEAD
+[2.1.2]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.1...2.1.2
 [2.1.1]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.2.0...2.0.0

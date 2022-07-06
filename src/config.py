@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     )
 
     @validator("sync_delay_seconds")
-    def minutes_to_seconds(cls, value: int):  # pylint: disable=no-self-argument,no-self-use
+    def minutes_to_seconds(cls, value: int):  # pylint: disable=no-self-argument
         return value * 60
 
 
