@@ -15,7 +15,7 @@ parameters:
     default: "3.10"
   python_version_full:
     type: string
-    default: "3.10.4"
+    default: "3.10.5"
   cache_version:
     type: string
     default: "1"

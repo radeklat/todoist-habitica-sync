@@ -58,70 +58,21 @@ confidence=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-disable=apply-builtin,
-        arguments-differ,
-        backtick,
-        bad-continuation,
-        basestring-builtin,
-        buffer-builtin,
-        cmp-builtin,
-        cmp-method,
-        coerce-builtin,
-        coerce-method,
-        delslice-method,
-        dict-iter-method,
-        dict-view-method,
+disable=arguments-differ,
         duplicate-code,
-        execfile-builtin,
-        file-builtin,
-        filter-builtin-not-iterating,
-        getslice-method,
-        hex-method,
-        import-star-module-level,
         inconsistent-return-statements,
-        indexing-exception,
-        input-builtin,
-        intern-builtin,
         locally-disabled,
-        long-builtin,
-        long-suffix,
-        map-builtin-not-iterating,
-        metaclass-assignment,
         missing-class-docstring,
         missing-docstring,
         missing-function-docstring,
         missing-raises-doc,
         missing-return-doc,
-        next-method-called,
-        no-absolute-import,
-        nonzero-method,
-        oct-method,
-        old-division,
-        old-ne-operator,
-        old-octal-literal,
-        old-raise-syntax,
-        parameter-unpacking,
-        print-statement,
         protected-access,
-        range-builtin-not-iterating,
-        raw_input-builtin,
         redefined-outer-name,
-        reduce-builtin,
-        reload-builtin,
-        round-builtin,
-        setslice-method,
-        standarderror-builtin,
         suppressed-message,
         too-many-instance-attributes,
-        unichr-builtin,
-        unicode-builtin,
-        unpacking-in-except,
         useless-suppression,
-        using-cmp-argument,
-        xrange-builtin,
-        zip-builtin-not-iterating,
         logging-fstring-interpolation,
-        logging-string-interpolation,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -314,13 +265,6 @@ max-line-length=120
 
 # Maximum number of lines in a module
 max-module-lines=1000
-
-# List of optional constructs for which whitespace checking is disabled. `dict-
-# separator` is used to allow tabulation in dicts, etc.: {1  : 1,\n222: 2}.
-# `trailing-comma` allows a space between comma and closing bracket: (a, ).
-# `empty-line` allows space-only lines.
-no-space-check=trailing-comma,
-               dict-separator
 
 # Allow the body of a class to be on the same line as the declaration if body
 # contains single statement.
