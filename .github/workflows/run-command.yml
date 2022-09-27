@@ -1,6 +1,6 @@
 # This is a basic workflow that is manually triggered
 
-name: Manual workflow
+name: Sync to Habitica
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
@@ -27,4 +27,4 @@ jobs:
     steps:
     # Runs a single command using the runners shell
     - name: Run program
-      run: echo "poetry run python src/main.py"
+      run: poetry run python src/main.py
