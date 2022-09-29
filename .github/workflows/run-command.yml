@@ -40,10 +40,10 @@ jobs:
 
     - name: Environment variables
       env:
-        DEV_ENV: ${{ secrets.DEV_ENV_FILE }}
-      run: |
-        echo "$DEV_ENV" | base64 --decode > source/db_api/aws.env
-        # head -n 1 source/db_api/aws.env
+        TODOIST_USER_ID: ${{ secrets.TODOIST_USER_ID }}
+        TODOIST_API_KEY: ${{ secrets.TODOIST_API_KEY }}
+        HABITICA_USER_ID: ${{ secrets.HABITICA_USER_ID }}
+        HABITICA_API_KEY: ${{ secrets.HABITICA_API_KEY }}
 
     - name: run sync
       run: |
