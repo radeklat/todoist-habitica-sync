@@ -1,16 +1,7 @@
 <h1 align="center" style="border-bottom: none;">:ballot_box_with_check::crossed_swords:&nbsp;&nbsp; Todoist ⇒ Habitica Sync &nbsp;&nbsp;:crossed_swords::ballot_box_with_check:</h1>
 <h3 align="center">One way synchronisation from Todoist to Habitica</h3>
 
-<p align="center">
-    <img alt="CircleCI" src="https://img.shields.io/circleci/build/github/radeklat/todoist-habitica-sync">
-    <img alt="Codecov" src="https://img.shields.io/codecov/c/github/radeklat/todoist-habitica-sync">
-    <img alt="GitHub tag (latest SemVer)" src="https://img.shields.io/github/tag/radeklat/todoist-habitica-sync">
-    <img alt="Maintenance" src="https://img.shields.io/maintenance/yes/2022">
-    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/radeklat/todoist-habitica-sync">
-    <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/radeklat/todoist-habitica-sync">
-    <img alt="Docker Image Version (latest semver)" src="https://img.shields.io/docker/v/radeklat/todoist-habitica-sync?label=image%20version">
-    <img alt="Docker Image Size (latest semver)" src="https://img.shields.io/docker/image-size/radeklat/todoist-habitica-sync">
-</p>
+[![Sync to Habitica](https://github.com/junefish/todoist-habitica-sync/actions/workflows/run-command.yml/badge.svg?branch=main)](https://github.com/junefish/todoist-habitica-sync/actions/workflows/run-command.yml)
 
 Because if you want to be productive, you should not track tasks in two places. Habitica is great for tracking habits, Todoist for tracking TODOs. Now you can get the best of both.
 
