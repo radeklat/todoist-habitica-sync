@@ -2,29 +2,49 @@
 
 name: Sync to Habitica
 
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
 on:
-  workflow_dispatch:
-    # Inputs the workflow accepts.
-#     inputs:
-#       name:
-#         # Friendly description to be shown in the UI instead of 'name'
-#         description: 'Person to greet'
-#         # Default value if no value is explicitly provided
-#         default: 'World'
-#         # Input has to be provided for the workflow to run
-#         required: true
+  schedule:
+    - cron:  '0 * * * *'
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "greet"
-  python:
-    # The type of runner that the job will run on
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.8] # [3.8, 3.9]
+        poetry-version: [1.1.5]
+
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Runs a single command using the runners shell
-    - name: Run program
-      run: poetry run python src/main.py
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install poetry ${{ matrix.poetry-version }}
+      run: |
+        python -m ensurepip
+        python -m pip install --upgrade pip
+        python -m pip install poetry==${{ matrix.poetry-version }}
+
+    - name: View poetry --help
+      run: poetry --help
+
+    - name: Install dependencies
+      shell: bash
+      run: python -m poetry install --no-root
+
+    - name: Environment variables
+      env:
+        DEV_ENV: ${{ secrets.DEV_ENV_FILE }}
+      run: |
+        echo "$DEV_ENV" | base64 --decode > source/db_api/aws.env
+        # head -n 1 source/db_api/aws.env
+
+    - name: run sync
+      run: |
+        cd source
+        poetry run python src/main.py
