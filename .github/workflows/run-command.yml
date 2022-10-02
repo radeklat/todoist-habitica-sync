@@ -38,13 +38,11 @@ jobs:
       shell: bash
       run: python -m poetry install --no-root
 
-    - name: Environment variables
+    - name: run sync
+      run: |
+        python -m poetry run python -m src/main.py
       env:
         TODOIST_USER_ID: ${{ secrets.TODOIST_USER_ID }}
         TODOIST_API_KEY: ${{ secrets.TODOIST_API_KEY }}
         HABITICA_USER_ID: ${{ secrets.HABITICA_USER_ID }}
         HABITICA_API_KEY: ${{ secrets.HABITICA_API_KEY }}
-
-    - name: run sync
-      run: |
-        python -m poetry run python -m src/main.py
