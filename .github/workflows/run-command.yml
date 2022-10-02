@@ -1,8 +1,8 @@
 name: Sync to Habitica
 
 on:
-  workflow_dispatch:
   # manually triggered
+  workflow_dispatch:
   schedule:
   # run every hour on the hour
     - cron:  '0 * * * *'
