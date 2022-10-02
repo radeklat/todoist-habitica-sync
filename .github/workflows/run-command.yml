@@ -6,6 +6,8 @@ on:
   schedule:
   # run every hour on the hour
     - cron:  '0 * * * *'
+  push:
+    "autosync"
 
 jobs:
   build:
