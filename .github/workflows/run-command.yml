@@ -32,14 +32,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
-        run: poetry install
 
       - name: Check Poetry installation
         run: poetry --version
 
       - name: Install dependencies
         shell: bash
-        run: python -m poetry install --no-root
+        run: poetry install
 
       - name: run sync
         run: |
