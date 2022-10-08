@@ -6,7 +6,7 @@ import todoist
 from requests import HTTPError
 
 from src.config import TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY, get_settings
-from delay import DelayTimer
+from src.delay import DelayTimer
 from src.habitica_api import HabiticaAPI, HabiticaAPIHeaders
 from models.generic_task import GenericTask, TaskState
 from models.habitica_task import HabiticaTask
