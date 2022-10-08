@@ -42,7 +42,7 @@ jobs:
 
       - name: run sync
         run: |
-          poetry run src.main
+          poetry run python -m src.main
         env:
           TODOIST_USER_ID: ${{ secrets.TODOIST_USER_ID }}
           TODOIST_API_KEY: ${{ secrets.TODOIST_API_KEY }}
