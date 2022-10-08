@@ -5,13 +5,13 @@ from typing import Final
 import todoist
 from requests import HTTPError
 
-from config import TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY, get_settings
-from delay import DelayTimer
-from habitica_api import HabiticaAPI, HabiticaAPIHeaders
+from src.config import TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY, get_settings
+from src.delay import DelayTimer
+from src.habitica_api import HabiticaAPI, HabiticaAPIHeaders
 from models.generic_task import GenericTask, TaskState
 from models.habitica_task import HabiticaTask
 from models.todoist_task import TodoistTask
-from tasks_cache import TasksCache
+from src.tasks_cache import TasksCache
 
 
 class TasksSync:  # pylint: disable=too-few-public-methods
