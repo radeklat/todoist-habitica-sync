@@ -68,6 +68,7 @@ types-requests = "*"
 types-python-dateutil = "*"
 settings-doc = "^0.8.0"
 delfino = {extras = ["verify_all", "build_docker"], version = "^0.13.1"}
+pylint = "^2.15.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

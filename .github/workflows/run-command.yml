@@ -8,7 +8,7 @@ on:
     - cron:  '0 * * * *'
   push:
     branches:
-      "autosync"
+      ["autosync"]
 
 jobs:
   build:
@@ -21,28 +21,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
 
-    - name: View poetry --help
-      run: poetry --help
+      - name: View poetry --help
+        run: poetry --help
 
-    - name: Install dependencies
-      shell: bash
-      run: python -m poetry install --no-root
+      - name: Install dependencies
+        shell: bash
+        run: python -m poetry install --no-root
 
-    - name: run sync
-      run: |
-        python -m poetry run python -m src.main
-      env:
-        TODOIST_USER_ID: ${{ secrets.TODOIST_USER_ID }}
-        TODOIST_API_KEY: ${{ secrets.TODOIST_API_KEY }}
-        HABITICA_USER_ID: ${{ secrets.HABITICA_USER_ID }}
-        HABITICA_API_KEY: ${{ secrets.HABITICA_API_KEY }}
+      - name: run sync
+        run: |
+          python -m poetry run python -m src.main
+        env:
+          TODOIST_USER_ID: ${{ secrets.TODOIST_USER_ID }}
+          TODOIST_API_KEY: ${{ secrets.TODOIST_API_KEY }}
+          HABITICA_USER_ID: ${{ secrets.HABITICA_USER_ID }}
+          HABITICA_API_KEY: ${{ secrets.HABITICA_API_KEY }}
