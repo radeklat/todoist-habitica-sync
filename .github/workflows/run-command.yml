@@ -37,8 +37,7 @@ jobs:
         run: poetry --version
 
       - name: Install dependencies
-        shell: bash
-        run: poetry install
+        run: poetry install --no-root
 
       - name: run sync
         run: |
