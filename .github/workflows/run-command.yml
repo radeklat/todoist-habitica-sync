@@ -1,14 +1,9 @@
 name: Sync to Habitica
 
 on:
-  # manually triggered
-  workflow_dispatch:
   schedule:
   # run every hour on the hour
     - cron:  '0 * * * *'
-  push:
-    branches:
-      ["autosync"]
 
 jobs:
   build:
