@@ -41,8 +41,9 @@ jobs:
 
       - name: run sync
         run: |
-          poetry run python -m src.main
+          poetry run python src/main.py
         env:
+          PYTHONPATH: "src"  # <---- added env var
           TODOIST_USER_ID: ${{ secrets.TODOIST_USER_ID }}
           TODOIST_API_KEY: ${{ secrets.TODOIST_API_KEY }}
           HABITICA_USER_ID: ${{ secrets.HABITICA_USER_ID }}
