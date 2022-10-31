@@ -53,7 +53,7 @@ license = "MIT License"
 
 [tool.poetry.dependencies]
 python = "^3.10.5"
-todoist-python = "^8.0"
+todoist-python = { git = "ssh://git@github.com/guptadivyansh/todoist-python.git", branch = "main" }
 tinydb = "^4.5.2"
 ujson = "^5.1.0"
 dotmap = "^1.3"
