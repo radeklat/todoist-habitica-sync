@@ -52,7 +52,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 self._log.error(f"Unexpected network error: {ex}")
 
             try:
-                if(time.time < timeout):
+                if(time.time() < timeout):
                     self._sync_sleep()
                 else:
                     break
