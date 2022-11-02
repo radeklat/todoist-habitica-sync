@@ -42,6 +42,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         )
 
     def run_forever(self):
+        timeout = time.time() + 60*10
         while True:
             try:
                 self._sync_todoist()
@@ -51,7 +52,10 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 self._log.error(f"Unexpected network error: {ex}")
 
             try:
-                self._sync_sleep()
+                if(time.time < timeout):
+                    self._sync_sleep()
+                else:
+                    break
             except KeyboardInterrupt:
                 break
 
