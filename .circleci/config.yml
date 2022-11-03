@@ -18,7 +18,7 @@ parameters:
     default: "3.10.5"
   cache_version:
     type: string
-    default: "1"
+    default: "3"
   git_trunk_branch:
     type: string
     default: "main"
@@ -42,7 +42,10 @@ jobs: # A basic unit of work in a run
           key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install dev libraries
-          command: pip install --upgrade pip poetry && poetry install --no-ansi --no-root
+          command: |
+            curl -sSL https://install.python-poetry.org | python3 -
+            pip install --upgrade pip
+            poetry install --no-ansi --no-root
       - run:
           name: Format check
           command: << pipeline.parameters.command_prefix >> format --check
@@ -88,8 +91,13 @@ jobs: # A basic unit of work in a run
       - restore_cache:
           key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
       - run:
+          name: Install dev libraries
+          command: |
+            curl -sSL https://install.python-poetry.org | python3 -
+      - run:
           name: Update README.md
           command: |
+            poetry --version
             poetry run \
               settings-doc generate \
                 --class config.Settings \

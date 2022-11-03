@@ -12,6 +12,12 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [2.1.3] - 2022-11-03
+
+### Fixes
+
+- Drop deprecated [`todoist-python`](https://github.com/Doist/todoist-python) library to communicate with the [v8 Sync API](https://developer.todoist.com/sync/v8, which has been also terminated. This has been replaced with [a custom implementation](src/todoist_api.py) of the [v9 Sync API](https://developer.todoist.com/sync/v9).
+
 ## [2.1.2] - 2022-07-06
 
 ### Fixes
