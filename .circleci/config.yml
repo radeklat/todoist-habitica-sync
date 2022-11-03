@@ -141,7 +141,7 @@ jobs: # A basic unit of work in a run
 
   build_and_push:
     machine:
-      image: ubuntu-2004:202111-02
+      image: ubuntu-2204:2022.10.1  # https://circleci.com/developer/machine/image/ubuntu-2204
     steps:
       - checkout
       - restore_cache:
@@ -168,6 +168,7 @@ jobs: # A basic unit of work in a run
       - run:
           name: Check if build needed
           command: |
+            export PATH="/home/circleci/.local/bin:$PATH"
             export DOCKER_CLI_EXPERIMENTAL=enabled
             IMAGE_VERSION="$(poetry version -s)"
             tag_exists="$(docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_VERSION >/dev/null 2>&1; echo $?)"
@@ -207,7 +208,6 @@ jobs: # A basic unit of work in a run
       - run:
           name: Check if current version has been released
           command: |
-            export PATH="/home/circleci/.local/bin:$PATH"
             VERSION=$(poetry version -s)
             if [[ $(gh release view $VERSION >/dev/null 2>&1; echo $?) -eq 0 ]]; then
               echo "Tag '$VERSION' already exists. Skipping."
@@ -216,7 +216,6 @@ jobs: # A basic unit of work in a run
       - run:
           name: Create a release
           command: |
-            export PATH="/home/circleci/.local/bin:$PATH"
             gh release create $(poetry version -s) -F CHANGELOG.md
 
 workflows:
