@@ -1,8 +1,6 @@
 import logging
-from os.path import dirname, join
 from typing import Final
 
-import todoist
 from requests import HTTPError
 
 from config import TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY, get_settings
@@ -10,8 +8,9 @@ from delay import DelayTimer
 from habitica_api import HabiticaAPI, HabiticaAPIHeaders
 from models.generic_task import GenericTask, TaskState
 from models.habitica_task import HabiticaTask
-from models.todoist_task import TodoistTask
+from models.todoist import TodoistTask
 from tasks_cache import TasksCache
+from todoist_api import TodoistAPI
 
 
 class TasksSync:  # pylint: disable=too-few-public-methods
@@ -31,7 +30,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         )
 
         self._log = logging.getLogger(self.__class__.__name__)
-        self._todoist = todoist.TodoistAPI(settings.todoist_api_key, cache=join(dirname(__file__), ".todoist-sync/"))
+        self._todoist = TodoistAPI(settings.todoist_api_key)
         self._todoist_user_id = settings.todoist_user_id
 
         self._task_cache = TasksCache()
@@ -42,7 +41,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
     def run_forever(self):
         while True:
             try:
-                self._sync_todoist()
+                self._todoist.sync()
                 self._next_tasks_state_based_on_todoist()
                 self._next_tasks_state_in_habitica()
             except IOError as ex:
@@ -52,9 +51,6 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 self._sync_sleep()
             except KeyboardInterrupt:
                 break
-
-    def _sync_todoist(self):
-        self._todoist.sync()
 
     def _next_state_with_existing_generic_task(self, todoist_task: TodoistTask, generic_task: GenericTask) -> TaskState:
         if todoist_task.is_deleted:
@@ -83,8 +79,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
     def _next_tasks_state_based_on_todoist(self):
         initial_sync = len(self._task_cache) == 0
 
-        for task in self._todoist.state["items"]:
-            todoist_task = TodoistTask.from_task_data(task.data)
+        for todoist_task in self._todoist.state.items.values():
             generic_task = self._task_cache.get_task_by_todoist_task_id(todoist_task)
 
             if generic_task:
@@ -113,7 +108,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         if generic_task:
             recurring_task_checked = bool(
                 todoist_task.due is not None
-                and todoist_task.due["is_recurring"]
+                and todoist_task.due.is_recurring
                 and generic_task.due_date_utc_timestamp
                 and todoist_task.due_date_utc_timestamp
                 and generic_task.due_date_utc_timestamp < todoist_task.due_date_utc_timestamp

@@ -46,14 +46,13 @@ markers = [
 
 [tool.poetry]
 name = "todoist-habitica-sync"
-version = "2.1.2"
+version = "2.1.3"
 description = "One way synchronisation from Todoist to Habitica."
 authors = ["Radek Lát <radek.lat@gmail.com>"]
 license = "MIT License"
 
 [tool.poetry.dependencies]
 python = "^3.10.5"
-todoist-python = "^8.0"
 tinydb = "^4.5.2"
 ujson = "^5.1.0"
 dotmap = "^1.3"
@@ -61,13 +60,14 @@ requests = "^2.22"
 python-dateutil = "^2.8"
 pydantic = {version = "^1.8", extras = ["dotenv"]}
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 poetry = "^1.1.5"
 types-toml = "*"
 types-requests = "*"
 types-python-dateutil = "*"
-settings-doc = "^0.8.0"
-delfino = {extras = ["verify_all", "build_docker"], version = "^0.13.1"}
+settings-doc = "^0.8.1"  # https://github.com/radeklat/settings-doc/blob/main/CHANGELOG.md
+delfino = {extras = ["verify_all", "build_docker"], version = "^0.18.2"}  # https://github.com/radeklat/delfino/blob/main/CHANGELOG.md
+psutil = "^5.9.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
