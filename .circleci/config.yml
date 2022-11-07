@@ -18,7 +18,7 @@ parameters:
     default: "3.10.5"
   cache_version:
     type: string
-    default: "1"
+    default: "3"
   git_trunk_branch:
     type: string
     default: "main"
@@ -42,7 +42,10 @@ jobs: # A basic unit of work in a run
           key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install dev libraries
-          command: pip install --upgrade pip poetry && poetry install --no-ansi --no-root
+          command: |
+            curl -sSL https://install.python-poetry.org | python3 -
+            pip install --upgrade pip
+            poetry install --no-ansi --no-root
       - run:
           name: Format check
           command: << pipeline.parameters.command_prefix >> format --check
@@ -88,8 +91,12 @@ jobs: # A basic unit of work in a run
       - restore_cache:
           key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
       - run:
+          name: Install poetry
+          command: curl -sSL https://install.python-poetry.org | python3 -
+      - run:
           name: Update README.md
           command: |
+            poetry --version
             poetry run \
               settings-doc generate \
                 --class config.Settings \
@@ -134,7 +141,7 @@ jobs: # A basic unit of work in a run
 
   build_and_push:
     machine:
-      image: ubuntu-2004:202111-02
+      image: ubuntu-2204:current  # https://circleci.com/developer/machine/image/ubuntu-2204
     steps:
       - checkout
       - restore_cache:
@@ -157,10 +164,11 @@ jobs: # A basic unit of work in a run
             pyenv global ${VERSION}
       - run:
           name: Install poetry
-          command: pip3 install poetry
+          command: curl -sSL https://install.python-poetry.org | python3 -
       - run:
           name: Check if build needed
           command: |
+            export PATH="/home/circleci/.local/bin:$PATH"
             export DOCKER_CLI_EXPERIMENTAL=enabled
             IMAGE_VERSION="$(poetry version -s)"
             tag_exists="$(docker manifest inspect << pipeline.parameters.dockerhub_username >>/<< pipeline.parameters.project_name >>:$IMAGE_VERSION >/dev/null 2>&1; echo $?)"
@@ -195,6 +203,9 @@ jobs: # A basic unit of work in a run
           key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
       - gh/setup
       - run:
+          name: Install poetry
+          command: curl -sSL https://install.python-poetry.org | python3 -
+      - run:
           name: Check if current version has been released
           command: |
             VERSION=$(poetry version -s)
@@ -204,7 +215,8 @@ jobs: # A basic unit of work in a run
             fi
       - run:
           name: Create a release
-          command: gh release create $(poetry version -s) -F CHANGELOG.md
+          command: |
+            gh release create $(poetry version -s) -F CHANGELOG.md
 
 workflows:
   version: 2
