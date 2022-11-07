@@ -6,10 +6,7 @@ from tinydb import Query, TinyDB, where
 
 from config import get_settings
 from models.generic_task import GenericTask, TaskState
-from models.todoist_task import TodoistTask
-
-# Negligible performance degradation
-# pylint: disable=logging-format-interpolation
+from models.todoist import TodoistTask
 
 
 class TasksCache:
@@ -32,9 +29,6 @@ class TasksCache:
 
     def get_task_by_todoist_task_id(self, todoist_task: TodoistTask) -> Optional[GenericTask]:
         task = self._task_cache.get(where("todoist_task_id") == todoist_task.id)
-        if not task and todoist_task.legacy_id is not None:
-            task = self._task_cache.get(where("todoist_task_id") == todoist_task.legacy_id)
-
         return GenericTask(**task) if task else task
 
     def set_task_state(self, generic_task: GenericTask, new_state: TaskState):
