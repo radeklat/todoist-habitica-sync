@@ -1,4 +1,5 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
@@ -96,7 +97,7 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.2...HEAD
+[unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.2...HEAD
 [2.1.2]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.1...2.1.2
 [2.1.1]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.0.0...2.1.0
