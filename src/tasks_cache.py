@@ -15,8 +15,7 @@ class TasksCache:
     TinyDB docs: https://tinydb.readthedocs.io/en/latest/usage.html
     """
 
-    HABITICA_DIRTY_STATES = frozenset(
-        [TaskState.HABITICA_NEW, TaskState.HABITICA_CREATED, TaskState.HABITICA_FINISHED])
+    HABITICA_DIRTY_STATES = frozenset([TaskState.HABITICA_NEW, TaskState.HABITICA_CREATED, TaskState.HABITICA_FINISHED])
 
     def __init__(self):
         db_file = get_settings().database_file
@@ -29,14 +28,12 @@ class TasksCache:
         return len(self._task_cache)
 
     def get_task_by_todoist_task_id(self, todoist_task: TodoistTask) -> Optional[GenericTask]:
-        task = self._task_cache.get(
-            where("todoist_task_id") == todoist_task.id)
+        task = self._task_cache.get(where("todoist_task_id") == todoist_task.id)
         return GenericTask(**task) if task else task
 
     def set_task_state(self, generic_task: GenericTask, new_state: TaskState):
         if generic_task.state != new_state:
-            self._log.info(
-                f"'{generic_task.content}' {generic_task.state.name} -> {new_state.name}")
+            self._log.info(f"'{generic_task.content}' {generic_task.state.name} -> {new_state.name}")
             generic_task.state = new_state
             self.save_task(generic_task)
 
@@ -53,8 +50,7 @@ class TasksCache:
 
         self._task_cache.upsert(
             asdict(generic_task),
-            (where("todoist_task_id") == generic_task.todoist_task_id) & (
-                where("habitica_task_id") == habitica_id),
+            (where("todoist_task_id") == generic_task.todoist_task_id) & (where("habitica_task_id") == habitica_id),
         )
 
     def dirty_habitica_tasks(self) -> Iterator[GenericTask]:
