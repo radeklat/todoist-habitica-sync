@@ -25,7 +25,8 @@ class TodoistAPI:
         response = self._session.post(
             self._SYNC_ENDPOINT,
             headers=self._headers,
-            params={"resource_types": '["items"]', "sync_token": self.state.sync_token},
+            params={"resource_types": '["items"]',
+                    "sync_token": self.state.sync_token},
         )
 
         if response.status_code != 200:

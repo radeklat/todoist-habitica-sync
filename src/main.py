@@ -23,13 +23,15 @@ class TasksSync:  # pylint: disable=too-few-public-methods
     Habitica API: https://habitica.com/apidoc
     """
 
-    TODOIST_CONTINUE_STATES = frozenset([TaskState.HIDDEN, *TasksCache.HABITICA_DIRTY_STATES])
+    TODOIST_CONTINUE_STATES = frozenset(
+        [TaskState.HIDDEN, *TasksCache.HABITICA_DIRTY_STATES])
 
     def __init__(self):
         settings = get_settings()
 
         self._habitica = HabiticaAPI(
-            HabiticaAPIHeaders(user_id=settings.habitica_user_id, api_key=settings.habitica_api_key)
+            HabiticaAPIHeaders(user_id=settings.habitica_user_id,
+                               api_key=settings.habitica_api_key)
         )
 
         self._log = logging.getLogger(self.__class__.__name__)
@@ -87,23 +89,27 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         initial_sync = len(self._task_cache) == 0
 
         for todoist_task in self._todoist.state.items.values():
-            generic_task = self._task_cache.get_task_by_todoist_task_id(todoist_task)
+            generic_task = self._task_cache.get_task_by_todoist_task_id(
+                todoist_task)
 
             if generic_task:
                 if generic_task.state in self.TODOIST_CONTINUE_STATES:
                     continue
 
                 self._task_cache.set_task_state(
-                    generic_task, self._next_state_with_existing_generic_task(todoist_task, generic_task)
+                    generic_task, self._next_state_with_existing_generic_task(
+                        todoist_task, generic_task)
                 )
                 generic_task.content = todoist_task.content
                 generic_task.priority = todoist_task.priority
             else:
                 generic_task = GenericTask.from_todoist_task(
                     todoist_task,
-                    self._next_state_with_new_generic_task(todoist_task, initial_sync),
+                    self._next_state_with_new_generic_task(
+                        todoist_task, initial_sync),
                 )
-                self._log.info(f"New task {generic_task.content}, {generic_task.state.name}")
+                self._log.info(
+                    f"New task {generic_task.content}, {generic_task.state.name}")
 
             self._task_cache.save_task(generic_task)
 
@@ -145,8 +151,10 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                             _method="post",
                         )
                     )
-                    self._task_cache.set_habitica_id(generic_task, habitica_task.id)
-                    self._task_cache.set_task_state(generic_task, TaskState.HABITICA_CREATED)
+                    self._task_cache.set_habitica_id(
+                        generic_task, habitica_task.id)
+                    self._task_cache.set_task_state(
+                        generic_task, TaskState.HABITICA_CREATED)
 
                 if generic_task.state == TaskState.HABITICA_CREATED:
                     try:
@@ -169,10 +177,12 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
                 if generic_task.state == TaskState.HABITICA_FINISHED:
                     try:
-                        self._habitica.user.tasks(_id=generic_task.habitica_task_id, _method="delete")
+                        self._habitica.user.tasks(
+                            _id=generic_task.habitica_task_id, _method="delete")
                     except HTTPError as ex:
                         if ex.response.status_code == 404:
-                            self._log.warning(f"Habitica task '{generic_task.content}' not found.")
+                            self._log.warning(
+                                f"Habitica task '{generic_task.content}' not found.")
                         else:
                             raise ex
 
@@ -183,6 +193,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s (%(name)s) [%(levelname)s]: %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s (%(name)s) [%(levelname)s]: %(message)s")
 
     TasksSync().run_forever()

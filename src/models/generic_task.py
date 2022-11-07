@@ -36,5 +36,6 @@ class GenericTask:
             priority=todoist_task.priority,
             state=task_state,
             due_date_utc_timestamp=todoist_task.due_date_utc_timestamp,
-            is_recurring=bool(todoist_task.due and todoist_task.due.is_recurring),
+            is_recurring=bool(
+                todoist_task.due and todoist_task.due.is_recurring),
         )
