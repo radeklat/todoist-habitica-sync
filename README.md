@@ -223,7 +223,7 @@ Where to store synchronisation details. No need to change.
 
 # Resetting sync cache
 
-Sometimes certain changes require to reset the sync cache. The cache  holds state information only to allow recovery after an unexpected termination of the program. So it is not needed in between restarts and can be safely remove.
+Sometimes certain changes require to reset the sync cache. The cache  holds state information only to allow recovery after an unexpected termination of the program. So it is not needed in between restarts and can be safely removed.
 
 To reset the cache:
 1. Stop the application.
