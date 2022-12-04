@@ -100,23 +100,24 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
             self._task_cache.save_task(generic_task)
 
-    @staticmethod
-    def _should_task_score_points(todoist_task: TodoistTask, generic_task: GenericTask = None) -> bool:
+    def _should_task_score_points(self, todoist_task: TodoistTask, generic_task: GenericTask | None = None) -> bool:
+        if generic_task:
+            if todoist_task.is_recurring:
+                # The due date has moved since the last time we checked -> the task has been checked
+                recurring_task_has_been_checked = bool(
+                    generic_task.due_date_utc_timestamp
+                    and todoist_task.due_date_utc_timestamp
+                    and generic_task.due_date_utc_timestamp < todoist_task.due_date_utc_timestamp
+                )
+
+                if recurring_task_has_been_checked:
+                    generic_task.due_date_utc_timestamp = todoist_task.due_date_utc_timestamp
+                    # If completed_at is set, it has been permanently finished
+                    generic_task.completed_at = todoist_task.completed_at
+                    return True
+
         if todoist_task.checked:
             return True
-
-        if generic_task:
-            recurring_task_checked = bool(
-                todoist_task.due is not None
-                and todoist_task.due.is_recurring
-                and generic_task.due_date_utc_timestamp
-                and todoist_task.due_date_utc_timestamp
-                and generic_task.due_date_utc_timestamp < todoist_task.due_date_utc_timestamp
-            )
-
-            if recurring_task_checked:
-                generic_task.due_date_utc_timestamp = todoist_task.due_date_utc_timestamp
-                return True
 
         return False
 
@@ -126,7 +127,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         return todoist_task.responsible_uid == self._todoist_user_id
 
     # TODO: Improve FSM algorithm
-    def _next_tasks_state_in_habitica(self):  # pylint: disable=too-complex
+    def _next_tasks_state_in_habitica(self):  # pylint: disable=too-complex, too-many-branches
         for generic_task in self._task_cache.dirty_habitica_tasks():
             try:
                 if generic_task.state == TaskState.HABITICA_NEW:
@@ -169,7 +170,10 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                         else:
                             raise ex
 
-                    next_state = TaskState.TODOIST_ACTIVE if generic_task.is_recurring else TaskState.HIDDEN
+                    if generic_task.is_recurring and not generic_task.completed_at:
+                        next_state = TaskState.TODOIST_ACTIVE
+                    else:
+                        next_state = TaskState.HIDDEN
                     self._task_cache.set_task_state(generic_task, next_state)
             except IOError as ex:
                 self._log.error(f"Unexpected network error: {str(ex)}")

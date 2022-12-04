@@ -23,6 +23,7 @@ class GenericTask:
     is_recurring: bool
     due_date_utc_timestamp: int | None
     habitica_task_id: str | None = None
+    completed_at: str | None = None
 
     def __post_init__(self):
         if not isinstance(self.state, TaskState):

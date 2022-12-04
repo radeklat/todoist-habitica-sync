@@ -12,6 +12,12 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [2.1.4] - 2022-12-03
+
+### Fixes
+
+- Recurring task stuck in a loop when permanently finished.
+
 ## [2.1.3] - 2022-11-03
 
 ### Fixes
@@ -96,7 +102,9 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.2...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.4...HEAD
+[2.1.4]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.3...2.1.4
+[2.1.3]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.2...2.1.3
 [2.1.2]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.1...2.1.2
 [2.1.1]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.0.0...2.1.0
