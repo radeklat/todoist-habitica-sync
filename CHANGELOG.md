@@ -12,6 +12,12 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [2.1.5] - 2022-12-09
+
+### Fixes
+
+- Dependencies update
+
 ## [2.1.4] - 2022-12-03
 
 ### Fixes
@@ -49,7 +55,7 @@ Types of changes are:
 
 ## [2.0.0] - 2022-01-30
 
-## Breaking changes
+### Breaking changes
 
 - Recurring Todoist tasks are counted on every completion, not just the fist one. Please [reset the cache](README.md#resetting-sync-cache) as this fix doesn't work for already cached tasks.
 
@@ -102,16 +108,17 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.4...HEAD
-[2.1.4]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.3...2.1.4
-[2.1.3]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.2...2.1.3
-[2.1.2]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.1...2.1.2
-[2.1.1]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.1.0...2.1.1
-[2.1.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/2.0.0...2.1.0
-[2.0.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.2.0...2.0.0
-[1.2.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.3...1.2.0
-[1.1.3]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.2...1.1.3
-[1.1.2]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.1...1.1.2
-[1.1.1]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.1.0...1.1.1
-[1.1.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/1.0.0...1.1.0
-[1.0.0]: https://github.com/radeklat/todoist-habitica-points-sync/compare/initial...1.0.0
+[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.5...HEAD
+[2.1.5]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.4...2.1.5
+[2.1.4]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.3...2.1.4
+[2.1.3]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.2...2.1.3
+[2.1.2]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.1...2.1.2
+[2.1.1]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.0...2.1.1
+[2.1.0]: https://github.com/radeklat/todoist-habitica-sync/compare/2.0.0...2.1.0
+[2.0.0]: https://github.com/radeklat/todoist-habitica-sync/compare/1.2.0...2.0.0
+[1.2.0]: https://github.com/radeklat/todoist-habitica-sync/compare/1.1.3...1.2.0
+[1.1.3]: https://github.com/radeklat/todoist-habitica-sync/compare/1.1.2...1.1.3
+[1.1.2]: https://github.com/radeklat/todoist-habitica-sync/compare/1.1.1...1.1.2
+[1.1.1]: https://github.com/radeklat/todoist-habitica-sync/compare/1.1.0...1.1.1
+[1.1.0]: https://github.com/radeklat/todoist-habitica-sync/compare/1.0.0...1.1.0
+[1.0.0]: https://github.com/radeklat/todoist-habitica-sync/compare/initial...1.0.0
