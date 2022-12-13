@@ -180,7 +180,14 @@ Add `--detach` flag to run in the background. You can close the terminal. The se
 
 ## From docker-compose
 
-If you used the `latest` tag, run `docker-compose pull todoist-habitica-sync`.
+If you used the `latest` tag, run:
+
+```shell script
+docker-compose stop  # stop the container
+docker-compose pull todoist-habitica-sync  # pull a new image
+docker-compose up -d --force-recreate  # re-create container with the new image
+docker image prune -f  # clean up unused images
+```
 
 # Environment variables
 <!-- settings-doc start -->
