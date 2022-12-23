@@ -7,7 +7,7 @@ homepage = "https://github.com/radeklat/todoist-habitica-sync"
 license = "MIT License"
 
 [tool.poetry.dependencies]
-python = "^3.10.5"
+python = "^3.10.4"
 tinydb = "^4.5.2"
 ujson = "^5.1.0"
 dotmap = "^1.3"
