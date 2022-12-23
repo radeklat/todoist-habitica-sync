@@ -64,7 +64,7 @@ Tasks are not added immediately. Only when you finish a task in Todoist, new tas
 7. Edit the `.env` file, fill all missing values and/or change existing ones to suit your needs.
 8. Install all application dependencies:
    ```shell script
-   poetry install --no-dev
+   poetry install --only main
    ```
 9. Run the app:
     ```shell script
@@ -165,7 +165,7 @@ Add `--detach` flag to run in the background. You can close the terminal. The se
 
 4. Update application dependencies:
    ```shell script
-   poetry install --no-dev
+   poetry install --only main
    ```
 5. Run the application again.
 
