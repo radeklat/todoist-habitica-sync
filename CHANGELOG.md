@@ -12,6 +12,12 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [2.1.7] - 2022-12-30
+
+### Fixes
+
+- Downgrade `cryptography` to allow build for armv7.
+
 ## [2.1.6] - 2022-12-29
 
 ### Fixes
@@ -114,7 +120,8 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.6...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.7...HEAD
+[2.1.7]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.6...2.1.7
 [2.1.6]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.5...2.1.6
 [2.1.5]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.4...2.1.5
 [2.1.4]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.3...2.1.4

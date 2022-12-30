@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "todoist-habitica-sync"
-version = "2.1.6"
+version = "2.1.7"
 description = "One way synchronisation from Todoist to Habitica."
 authors = ["Radek Lát <radek.lat@gmail.com>"]
 homepage = "https://github.com/radeklat/todoist-habitica-sync"
@@ -98,7 +98,7 @@ ignore_missing_imports = true
 [tool.delfino.plugins.delfino-docker.docker_build]
 dockerhub_username = "radeklat"
 build_for_platforms = [
-#    "linux/arm/v7",
+    "linux/arm/v7",
     "linux/arm64",
     "linux/amd64",
 ]
