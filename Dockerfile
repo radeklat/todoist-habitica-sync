@@ -4,9 +4,12 @@ FROM python:${PYTHON_VERSION}-slim
 WORKDIR /app
 
 RUN apt-get --allow-releaseinfo-change update
-RUN apt-get install build-essential libssl-dev libffi-dev python3-dev cargo -y
+RUN apt-get install build-essential libssl-dev libffi-dev python3-dev -y
 RUN python -m pip install --upgrade pip
-RUN pip install poetry
+
+# Doesn't build consistently for armv7
+ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
+RUN pip install "cryptography<3.5" poetry
 
 COPY pyproject.toml poetry.lock ./
 

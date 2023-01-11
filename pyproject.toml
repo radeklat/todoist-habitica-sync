@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "todoist-habitica-sync"
-version = "2.1.5"
+version = "2.1.7"
 description = "One way synchronisation from Todoist to Habitica."
 authors = ["Radek Lát <radek.lat@gmail.com>"]
 homepage = "https://github.com/radeklat/todoist-habitica-sync"
 license = "MIT License"
 
 [tool.poetry.dependencies]
-python = "^3.10.4"
+python = "==3.10.9"
 tinydb = "^4.5.2"
 ujson = "^5.1.0"
 dotmap = "^1.3"
@@ -23,8 +23,9 @@ types-python-dateutil = "*"
 settings-doc = "^0.8.1"  # https://github.com/radeklat/settings-doc/blob/main/CHANGELOG.md
 psutil = "^5.9.3"
 pytest-dotenv = "^0.5.2"
-delfino-core = {extras = ["verify-all", "build_docker"], version = "^3.0.1"}  # https://github.com/radeklat/delfino-core/blob/main/CHANGELOG.md
+delfino-core = {extras = ["verify-all", "dependencies-update"], version = "^4.0"}  # https://github.com/radeklat/delfino-core/blob/main/CHANGELOG.md
 toml = "^0.10.2"
+delfino-docker = "^2.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -93,12 +94,11 @@ module = [
 ignore_missing_imports = true
 
 [tool.delfino.plugins.delfino-core]
-disable_commands = ["upload-to-pypi"]
 
-[tool.delfino.plugins.delfino-core.dockerhub]
-username = "radeklat"
+[tool.delfino.plugins.delfino-docker.docker_build]
+dockerhub_username = "radeklat"
 build_for_platforms = [
-#    "linux/arm/v7",
+    "linux/arm/v7",
     "linux/arm64",
     "linux/amd64",
 ]

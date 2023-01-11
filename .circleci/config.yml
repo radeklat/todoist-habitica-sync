@@ -15,7 +15,7 @@ parameters:
     default: "3.10"
   python_version_full:
     type: string
-    default: "3.10.4"
+    default: "3.10.9"
   cache_version:
     type: string
     default: "3"
@@ -181,18 +181,13 @@ jobs: # A basic unit of work in a run
       - run:
           name: Install dev libraries
           command: poetry install --no-ansi --no-root
-      - save_cache:
-          key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
-          paths:
-            - ".venv"
-            - "/opt/circleci/.pyenv"
       - run:
           name: Create and use a new docker build driver
           command: |
             docker buildx create --use
       - run:
           name: Build and push docker image
-          command: << pipeline.parameters.command_prefix >> build-docker --push
+          command: << pipeline.parameters.command_prefix >> docker-build --push
   release:
     working_directory: << pipeline.parameters.working_directory >>
     docker:
