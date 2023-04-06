@@ -111,18 +111,15 @@ Add `--detach` flag to run in the background. You can close the terminal, but it
 
 You can use the above mentioned docker image to run the sync as a service on server or even your local machine. The simples way is to use docker compose:
 
-1. Make sure you have [`docker`](https://docs.docker.com/get-docker/) and [`docker-compose`](https://docs.docker.com/compose/install/) installed:
+1. Make sure you have [`docker`](https://docs.docker.com/get-docker/) installed:
    ```shell script
    docker --version
-   docker-compose --version
+   docker compose version
    ```
    The output should look something like:
    ```text
-   Docker version 20.10.5, build 55c4c88
-   docker-compose version 1.28.5, build unknown
-   docker-py version: 4.4.4
-   CPython version: 3.8.5
-   OpenSSL version: OpenSSL 1.1.1f  31 Mar 2020
+   Docker version 23.0.2, build 569dd73
+   Docker Compose version v2.17.2
    ```
 2. Download the example compose file:
    ```shell script
@@ -139,7 +136,7 @@ You can use the above mentioned docker image to run the sync as a service on ser
 4. Edit the `.env` file and fill the missing details.
 5. Run the service:
    ```shell script
-   docker-compose up
+   docker compose up
    ```
    This command will run the service in the foreground (you need to keep the terminal open) and always use the latest version.
    * Change `latest` to [a specific version](https://hub.docker.com/repository/registry-1.docker.io/radeklat/todoist-habitica-sync/tags) if you don't always want the latest version.
@@ -174,9 +171,9 @@ Add `--detach` flag to run in the background. You can close the terminal. The se
 If you used the `latest` tag, run:
 
 ```shell script
-docker-compose stop  # stop the container
-docker-compose pull todoist-habitica-sync  # pull a new image
-docker-compose up -d --force-recreate  # re-create container with the new image
+docker compose stop  # stop the container
+docker compose pull todoist-habitica-sync  # pull a new image
+docker compose up -d --force-recreate  # re-create container with the new image
 docker image prune -f  # clean up unused images
 ```
 
