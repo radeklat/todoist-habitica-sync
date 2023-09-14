@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "todoist-habitica-sync"
-version = "2.1.7"
+version = "2.1.8"
 description = "One way synchronisation from Todoist to Habitica."
 authors = ["Radek Lát <radek.lat@gmail.com>"]
 homepage = "https://github.com/radeklat/todoist-habitica-sync"
@@ -16,16 +16,16 @@ python-dateutil = "^2.8"
 pydantic = {version = "^1.8", extras = ["dotenv"]}
 
 [tool.poetry.group.dev.dependencies]
-poetry = "^1.1.5"
+poetry = "^1.6"
 types-toml = "*"
 types-requests = "*"
 types-python-dateutil = "*"
-settings-doc = "^0.8.1"  # https://github.com/radeklat/settings-doc/blob/main/CHANGELOG.md
+settings-doc = "^2.0"  # https://github.com/radeklat/settings-doc/blob/main/CHANGELOG.md
 psutil = "^5.9.3"
 pytest-dotenv = "^0.5.2"
-delfino-core = {extras = ["verify-all", "dependencies-update"], version = "^4.0"}  # https://github.com/radeklat/delfino-core/blob/main/CHANGELOG.md
+delfino-core = {extras = ["verify-all", "dependencies-update"], version = "^5.0"}  # https://github.com/radeklat/delfino-core/blob/main/CHANGELOG.md
 toml = "^0.10.2"
-delfino-docker = "^2.0.0"
+delfino-docker = "^3.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -85,6 +85,7 @@ warn_unused_configs = true
 warn_unused_ignores = true
 check_untyped_defs = true
 follow_imports = "silent"
+plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
 # Source code dependencies

@@ -12,11 +12,14 @@ _API_CALLS_DELAY: Final[DelayTimer] = DelayTimer(30, "Waiting for {delay:.0f}s b
 """https://habitica.fandom.com/wiki/Guidance_for_Comrades#API_Server_Calls"""
 
 
-class HabiticaAPIHeaders(BaseModel, allow_population_by_field_name=True):
+class HabiticaAPIHeaders(BaseModel):
     user_id: str = Field(..., alias="x-api-user")
     api_key: str = Field(..., alias="x-api-key")
     client_id: str = Field("fb0ab2bf-675d-4326-83ba-d03eefe24cef-todoist-habitica-sync", alias="x-client")
     content_type: str = Field("application/json", alias="content-type")
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class HabiticaAPI:

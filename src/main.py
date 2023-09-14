@@ -44,7 +44,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 self._todoist.sync()
                 self._next_tasks_state_based_on_todoist()
                 self._next_tasks_state_in_habitica()
-            except IOError as ex:
+            except OSError as ex:
                 self._log.error(f"Unexpected network error: {ex}")
 
             try:
@@ -175,7 +175,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                     else:
                         next_state = TaskState.HIDDEN
                     self._task_cache.set_task_state(generic_task, next_state)
-            except IOError as ex:
+            except OSError as ex:
                 self._log.error(f"Unexpected network error: {str(ex)}")
 
 

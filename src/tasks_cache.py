@@ -29,6 +29,10 @@ class TasksCache:
 
     def get_task_by_todoist_task_id(self, todoist_task: TodoistTask) -> Optional[GenericTask]:
         task = self._task_cache.get(where("todoist_task_id") == todoist_task.id)
+        if isinstance(task, list):
+            self._log.warning(f"Found multiple tasks with todoist_task_id={todoist_task.id}. Using the first one.")
+            task = task[0]
+
         return GenericTask(**task) if task else None
 
     def set_task_state(self, generic_task: GenericTask, new_state: TaskState):
