@@ -29,7 +29,15 @@ class TodoistAPI:
         )
 
         if response.status_code != 200:
-            response.raise_for_status()
+            try:
+                response.raise_for_status()
+            except requests.HTTPError as ex:
+                if response.status_code == 403:
+                    raise RuntimeError(
+                        "Invalid API token for Todoist. Please check that is matches the one "
+                        "from https://todoist.com/app/settings/integrations/developer."
+                    ) from ex
+                raise
 
         self._merge_state(TodoistState(**response.json()))
 

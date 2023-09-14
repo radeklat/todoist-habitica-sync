@@ -8,7 +8,7 @@ import pytest
 
 @pytest.fixture(scope="module")
 def changelog() -> str:
-    with open(Path(__file__).parent.parent.parent / "CHANGELOG.md", "r", encoding="utf8") as changelog:
+    with open(Path(__file__).parent.parent.parent / "CHANGELOG.md", encoding="utf8") as changelog:
         return changelog.read()
 
 

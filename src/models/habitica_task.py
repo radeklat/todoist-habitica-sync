@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-from typing import Dict
 
 from pydantic import BaseModel
 
@@ -17,7 +16,7 @@ class HabiticaTask(BaseModel):
     text: str
 
     @staticmethod
-    def from_task_data(task_data: Dict) -> HabiticaTask:
+    def from_task_data(task_data: dict) -> HabiticaTask:
         try:
             updated_task_data = copy.deepcopy(task_data)
             updated_task_data.pop("_id")
