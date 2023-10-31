@@ -12,6 +12,12 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [2.1.9] - 2023-10-31
+
+### Fixes
+
+- Move verbose logging of unexpected HTTP errors.
+
 ## [2.1.8] - 2023-09-14
 
 ### Fixes
@@ -127,7 +133,8 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.8...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.9...HEAD
+[2.1.9]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.8...2.1.9
 [2.1.8]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.7...2.1.8
 [2.1.7]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.6...2.1.7
 [2.1.6]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.5...2.1.6

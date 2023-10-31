@@ -176,7 +176,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                         next_state = TaskState.HIDDEN
                     self._task_cache.set_task_state(generic_task, next_state)
             except OSError as ex:
-                self._log.error(f"Unexpected network error: {str(ex)}")
+                self._log.error(f"Unexpected network error when processing task '{generic_task.content}': {str(ex)}")
 
 
 if __name__ == "__main__":
