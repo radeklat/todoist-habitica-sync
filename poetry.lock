@@ -1967,13 +1967,13 @@ jeepney = ">=0.6"
 
 [[package]]
 name = "settings-doc"
-version = "3.0.0"
+version = "3.0.1"
 description = "A command line tool for generating Markdown documentation and .env files from pydantic BaseSettings."
 optional = false
-python-versions = ">=3.8,<4.0"
+python-versions = ">=3.8.1,<4.0.0"
 files = [
-    {file = "settings_doc-3.0.0-py3-none-any.whl", hash = "sha256:078c3873813145c772bd9670740153569d27e6b2858bf702ec5bb5d0454dcdaa"},
-    {file = "settings_doc-3.0.0.tar.gz", hash = "sha256:3c300987a2a05ee8481ed19d5ca40e2c3cc222d1796b4262b50c234545dd52a4"},
+    {file = "settings_doc-3.0.1-py3-none-any.whl", hash = "sha256:0ab5113c37a23cbf0cddd4d4d73fc34d2edb4109cbcdaa063ad1eb4dcbd0ed64"},
+    {file = "settings_doc-3.0.1.tar.gz", hash = "sha256:ee7280dcf7eb9a9208d02731def6e9be08e7896e1940298866d2098df3cd0c04"},
 ]
 
 [package.dependencies]

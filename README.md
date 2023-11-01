@@ -190,7 +190,7 @@ docker image prune -f  # clean up unused images
 <!-- settings-doc start -->
 ## `TODOIST_USER_ID`
 
-*Optional*
+*Optional*, default value: `None`
 
 See "user_id" mentioned in a link under "Calendar Subscription URL" at https://todoist.com/prefs/integrations. Needed only for shared projects to score points for tasks owned by you.
 
