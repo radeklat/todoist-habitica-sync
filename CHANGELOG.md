@@ -18,6 +18,7 @@ Types of changes are:
 
 - Upgrade to Python 3.12.0.
 - Upgrade to `pydantic` 2.x.
+- Switch to `settings-doc` in `pre-commit` config.
 
 ## [2.1.9] - 2023-10-31
 

@@ -48,7 +48,7 @@ jobs: # A basic unit of work in a run
             poetry install --no-ansi --no-root
       - run:
           name: Pre-commit check
-          command: << pipeline.parameters.command_prefix >> pre-commit run --all-files
+          command: << pipeline.parameters.command_prefix >> pre-commit run -a
       - run:
           name: Type check
           command: << pipeline.parameters.command_prefix >> mypy
