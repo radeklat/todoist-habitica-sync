@@ -3,7 +3,8 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any
 
-from pydantic import BaseSettings, Field, validator
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def positive_int(value: Any) -> int:
@@ -16,9 +17,7 @@ def positive_int(value: Any) -> int:
 
 
 class Settings(BaseSettings):
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     todoist_user_id: int | None = Field(
         None,
@@ -37,7 +36,7 @@ class Settings(BaseSettings):
     sync_delay_seconds: int = Field(
         1,
         gt=0,
-        env="sync_delay_minutes",
+        validation_alias="sync_delay_minutes",
         description="Repeat sync automatically after N minutes.",
     )
     database_file: Path = Field(
@@ -45,7 +44,8 @@ class Settings(BaseSettings):
         description="Where to store synchronisation details. No need to change.",
     )
 
-    @validator("sync_delay_seconds")
+    @field_validator("sync_delay_seconds")
+    @classmethod
     def minutes_to_seconds(cls, value: int):  # pylint: disable=no-self-argument
         return value * 60
 

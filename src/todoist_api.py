@@ -15,7 +15,7 @@ class TodoistAPI:
     def _merge_state(self, new_state: TodoistState) -> None:
         self.state.sync_token = new_state.sync_token
         self.state.full_sync = new_state.full_sync
-        self.state.items.update(new_state.items)
+        self.state.items.update(new_state.items)  # pylint: disable=no-member
 
     def sync(self) -> bool:
         """Sync resources.
