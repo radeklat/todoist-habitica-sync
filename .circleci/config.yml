@@ -12,10 +12,10 @@ parameters:
     default: ~/todoist-habitica-sync
   python_version:
     type: string
-    default: "3.10"
+    default: "3.12"
   python_version_full:
     type: string
-    default: "3.10.9"
+    default: "3.12.0"
   cache_version:
     type: string
     default: "3"
@@ -47,11 +47,11 @@ jobs: # A basic unit of work in a run
             pip install --upgrade pip
             poetry install --no-ansi --no-root
       - run:
-          name: Format check
-          command: << pipeline.parameters.command_prefix >> format --check
+          name: Pre-commit check
+          command: << pipeline.parameters.command_prefix >> pre-commit run -a
       - run:
           name: Type check
-          command: << pipeline.parameters.command_prefix >> typecheck
+          command: << pipeline.parameters.command_prefix >> mypy
       - run:
           name: Linters
           command: << pipeline.parameters.command_prefix >> lint
@@ -62,10 +62,10 @@ jobs: # A basic unit of work in a run
             - "~/.pyenv/versions/<< pipeline.parameters.python_version_full >>/lib/python<< pipeline.parameters.python_version >>/site-packages"
       - run:
           name: Unit tests
-          command: << pipeline.parameters.command_prefix >> test-unit
+          command: << pipeline.parameters.command_prefix >> pytest-unit
       - run:
           name: Integration tests
-          command: << pipeline.parameters.command_prefix >> test-integration
+          command: << pipeline.parameters.command_prefix >> pytest-integration
       - run:
           name: Build coverage report
           command: << pipeline.parameters.command_prefix >> coverage-report
@@ -79,65 +79,6 @@ jobs: # A basic unit of work in a run
           path: reports/coverage-report
       - store_test_results:
           path: reports
-  generate_documentation:
-    docker:
-      - image: cimg/python:<< pipeline.parameters.python_version_full >>
-    environment:
-      PIPENV_VENV_IN_PROJECT: "true"
-      PYTHONPATH: "src"
-    working_directory: << pipeline.parameters.working_directory >>
-    steps:
-      - checkout
-      - restore_cache:
-          key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
-      - run:
-          name: Install poetry
-          command: curl -sSL https://install.python-poetry.org | python3 -
-      - run:
-          name: Update README.md
-          command: |
-            poetry --version
-            poetry run \
-              settings-doc generate \
-                --class config.Settings \
-                --output-format markdown \
-                --heading-offset 1 \
-                --update README.md \
-                --between '<!-- settings-doc start -->' '<!-- settings-doc end -->'
-      - run:
-          name: Update .env.template
-          command: |
-            poetry run \
-              settings-doc generate \
-                --class config.Settings \
-                --output-format dotenv \
-                --update .env.template \
-                --between '# Auto-generated content start' '# Auto-generated content end'
-      - run:
-          name: Check if any changes were made
-          command: |
-            if [[ -z "$(git status -s README.md .env.template)" ]]; then
-              echo "No changes detected. Skipping."
-              circleci-agent step halt
-            fi
-      # See https://circleci.com/docs/2.0/gh-bb-integration/#creating-a-github-deploy-key
-      - add_ssh_keys:
-          fingerprints:
-            - "79:fb:6e:3a:97:35:33:ef:3a:dc:3e:fe:bf:6b:54:3e"
-      - run:
-          name: Set name and email
-          command: |
-            git config --local user.email "$(git log -1 --pretty=%ce)"
-            git config --local user.name "$(git log -1 --pretty=%cn)"
-      - run:
-          name: Add changes
-          command: git add README.md .env.template
-      - run:
-          name: Commit changes
-          command: git commit -m "Update generated content" -m "[skip ci]"
-      - run:
-          name: Push changes
-          command: git push origin ${CIRCLE_BRANCH}
 
   build_and_push:
     machine:
@@ -220,10 +161,6 @@ workflows:
       - test:
           context: << pipeline.parameters.project_name >>
           name: Tests
-      - generate_documentation:
-          name: Generate documentation
-          requires:
-            - Tests
       - build_and_push:
           name: Build and push docker image
           context:

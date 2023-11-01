@@ -2,7 +2,7 @@ import json
 from typing import Final
 
 import requests
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from delay import DelayTimer
 
@@ -17,9 +17,7 @@ class HabiticaAPIHeaders(BaseModel):
     api_key: str = Field(..., alias="x-api-key")
     client_id: str = Field("fb0ab2bf-675d-4326-83ba-d03eefe24cef-todoist-habitica-sync", alias="x-client")
     content_type: str = Field("application/json", alias="content-type")
-
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class HabiticaAPI:
@@ -64,7 +62,7 @@ class HabiticaAPI:
             uri = f"{_API_URI_BASE}/{self._resource}"
 
         # actually make the request of the API
-        http_headers = self._headers.dict(by_alias=True)
+        http_headers = self._headers.model_dump(by_alias=True)
         _API_CALLS_DELAY()
         if method in ["put", "post", "delete"]:
             res = getattr(requests, method)(uri, headers=http_headers, data=json.dumps(kwargs))

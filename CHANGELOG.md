@@ -12,6 +12,14 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [2.1.10] - 2023-11-01
+
+### Fixes
+
+- Upgrade to Python 3.12.0.
+- Upgrade to `pydantic` 2.x.
+- Switch to `settings-doc` in `pre-commit` config.
+
 ## [2.1.9] - 2023-10-31
 
 ### Fixes
@@ -133,7 +141,8 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.9...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.10...HEAD
+[2.1.10]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.0...2.1.10
 [2.1.9]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.8...2.1.9
 [2.1.8]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.7...2.1.8
 [2.1.7]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.6...2.1.7

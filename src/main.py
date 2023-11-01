@@ -79,7 +79,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
     def _next_tasks_state_based_on_todoist(self):
         initial_sync = len(self._task_cache) == 0
 
-        for todoist_task in self._todoist.state.items.values():
+        for todoist_task in self._todoist.state.items.values():  # pylint: disable=no-member
             generic_task = self._task_cache.get_task_by_todoist_task_id(todoist_task)
 
             if generic_task:
@@ -151,7 +151,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                         )
                         next_state = TaskState.HABITICA_FINISHED
                     except HTTPError as ex:
-                        if ex.response.status_code == 404:
+                        if ex.response and ex.response.status_code == 404:
                             next_state = TaskState.HABITICA_NEW
                             self._log.warning(
                                 f"Habitica task '{generic_task.content}' not found. " f"Re-setting state."
@@ -165,7 +165,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                     try:
                         self._habitica.user.tasks(_id=generic_task.habitica_task_id, _method="delete")
                     except HTTPError as ex:
-                        if ex.response.status_code == 404:
+                        if ex.response and ex.response.status_code == 404:
                             self._log.warning(f"Habitica task '{generic_task.content}' not found.")
                         else:
                             raise ex

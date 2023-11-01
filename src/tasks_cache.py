@@ -1,6 +1,6 @@
 import logging
+from collections.abc import Iterator
 from dataclasses import asdict
-from typing import Iterator, Optional
 
 from tinydb import Query, TinyDB, where
 
@@ -19,15 +19,15 @@ class TasksCache:
 
     def __init__(self):
         db_file = get_settings().database_file
-        db_file.parent.mkdir(parents=True, exist_ok=True)
-        tiny_db = TinyDB(get_settings().database_file.resolve())
+        db_file.parent.mkdir(parents=True, exist_ok=True)  # pylint: disable=no-member
+        tiny_db = TinyDB(get_settings().database_file.resolve())  # pylint: disable=no-member
         self._task_cache = tiny_db.table("tasks_cache")
         self._log = logging.getLogger(self.__class__.__name__)
 
     def __len__(self):
         return len(self._task_cache)
 
-    def get_task_by_todoist_task_id(self, todoist_task: TodoistTask) -> Optional[GenericTask]:
+    def get_task_by_todoist_task_id(self, todoist_task: TodoistTask) -> GenericTask | None:
         task = self._task_cache.get(where("todoist_task_id") == todoist_task.id)
         if isinstance(task, list):
             self._log.warning(f"Found multiple tasks with todoist_task_id={todoist_task.id}. Using the first one.")
@@ -46,7 +46,7 @@ class TasksCache:
         generic_task.habitica_task_id = new_habitica_task_id
         self.save_task(generic_task, previous_habitica_id)
 
-    def save_task(self, generic_task: GenericTask, previous_habitica_id: Optional[str] = ""):
+    def save_task(self, generic_task: GenericTask, previous_habitica_id: str | None = ""):
         if previous_habitica_id != "":
             habitica_id = previous_habitica_id
         else:

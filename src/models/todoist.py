@@ -4,12 +4,12 @@ See Also: https://developer.todoist.com/sync/v9/#read-resources
 """
 
 from dateutil.parser import parse
-from pydantic import BaseModel, Extra, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class TodoistDue(BaseModel):
     date: str
-    timezone: str | None
+    timezone: str | None = None
     string: str
     lang: str
     is_recurring: bool
@@ -18,7 +18,7 @@ class TodoistDue(BaseModel):
 class TodoistTask(BaseModel):
     checked: bool
     content: str
-    due: TodoistDue | None
+    due: TodoistDue | None = None
     id: str
     is_deleted: bool
     priority: int
@@ -44,8 +44,7 @@ class TodoistTask(BaseModel):
         if (completed_at := data.get("completed_at", None)) is not None:
             self.completed_at_utc_timestamp = int(parse(completed_at).timestamp())
 
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
 
 class TodoistState(BaseModel):
@@ -53,6 +52,7 @@ class TodoistState(BaseModel):
     full_sync: bool
     items: dict[str, TodoistTask] = Field(default_factory=dict)
 
-    @validator("items", pre=True)
+    @field_validator("items", mode="before")
+    @classmethod
     def items_list_to_dict(cls, items: list[dict]) -> dict[str, dict]:  # pylint: disable=no-self-argument
         return {item["id"]: item for item in items}

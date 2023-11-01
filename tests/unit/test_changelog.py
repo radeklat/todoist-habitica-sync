@@ -1,7 +1,6 @@
 import re
 from collections import Counter
 from pathlib import Path
-from typing import List
 
 import pytest
 
@@ -13,7 +12,7 @@ def changelog() -> str:
 
 
 @pytest.fixture(scope="module")
-def all_versions(changelog) -> List[str]:
+def all_versions(changelog) -> list[str]:
     return re.findall(r"## \[([0-9]+\.[0-9]+\.[0-9]+)\]", changelog)
 
 
