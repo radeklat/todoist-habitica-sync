@@ -1,5 +1,5 @@
 import json
-from typing import Final
+from typing import Any, Final
 
 import requests
 from pydantic import BaseModel, ConfigDict, Field
@@ -74,3 +74,15 @@ class HabiticaAPI:
             res.raise_for_status()
 
         return res.json()["data"]
+
+    def create_task(self, text: str, priority: float) -> dict[str, Any]:
+        """See https://habitica.com/apidoc/#api-Task-CreateUserTasks."""
+        return self.user.tasks(type="todo", text=text, priority=priority, _method="post")
+
+    def score_task(self, task_id: str, direction: str = "up") -> None:
+        """See https://habitica.com/apidoc/#api-Task-ScoreTask."""
+        return self.user.tasks(_id=task_id, _direction=direction, _method="post")
+
+    def delete_task(self, task_id: str) -> None:
+        """See https://habitica.com/apidoc/#api-Task-DeleteTask."""
+        return self.user.tasks(_id=task_id, _method="delete")

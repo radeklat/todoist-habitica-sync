@@ -12,6 +12,15 @@ Types of changes are:
 
 ## [Unreleased]
 
+### Breaking changes
+
+- Rewritten the state logic to the state design pattern for easier understanding and extensibility. This has resulted in changing how the data is stored in the sync cache. Please [reset the cache](README.md#resetting-sync-cache) before upgrading to this version.
+
+### Fixes
+
+- Tasks deleted in habitica being stuck in a loop and logging errors.
+- Recurring tasks completed forever in Todoist being stuck in a loop.
+
 ## [2.1.10] - 2023-11-01
 
 ### Fixes
@@ -142,7 +151,7 @@ Types of changes are:
 - Initial release
 
 [Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.10...HEAD
-[2.1.10]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.0...2.1.10
+[2.1.10]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.9...2.1.10
 [2.1.9]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.8...2.1.9
 [2.1.8]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.7...2.1.8
 [2.1.7]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.6...2.1.7
