@@ -232,8 +232,9 @@ Sometimes certain changes require to reset the sync cache. The cache  holds stat
 To reset the cache:
 1. Stop the application.
 2. Remove the `.sync_cache/sync_cache.json` file or any other location given in the [`DATABASE_FILE`](#database_file) config option.
-3. Start to application again.
-4. You should see all existing Todoist tasks loaded again either as `HIDDEN` (finished tasks) or `TODOIST_ACTIVE` (not completed yet).
+3. Optionally, [update the application](#update).
+4. Start to application again.
+5. You should see all existing Todoist tasks loaded again either as `HIDDEN` (finished tasks) or `TODOIST_ACTIVE` (not completed yet).
 
 # Planned work
 
