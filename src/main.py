@@ -75,7 +75,7 @@ class StateTodoistNew(StateTodoist):
             self._set_state(StateHidden)
         else:
             # task has not been completed ever or since last sync
-            self._set_state(StateHabiticaNew)
+            self._set_state(StateTodoistActive)
 
 
 class StateTodoistActive(StateTodoist):
