@@ -70,19 +70,12 @@ class StateTodoist(FSMState):
 
 class StateTodoistNew(StateTodoist):
     def next_state(self) -> None:
-        if self.todoist_task.is_deleted:
+        if self.todoist_task.is_deleted or (self.todoist_task.checked and self.context.initial_sync):
+            # Task has been already deleted or checked previously and this is an initial sync
             self._set_state(StateHidden)
-        elif not self.todoist_task.checked:
-            self._set_state(StateTodoistActive)
-        elif self.context.initial_sync:  # ignore completed tasks during initial sync
-            self._set_state(StateHidden)
-        elif self.todoist_task.checked:  # task has been completed since last sync
-            if self._owned_by_me():  # task is owned by me, it should score points
-                self._set_state(StateHabiticaNew)
-            else:  # task is owned by someone else, it should not score points
-                self._set_state(StateHidden)
         else:
-            self._set_state(StateTodoistActive)
+            # task has not been completed ever or since last sync
+            self._set_state(StateHabiticaNew)
 
 
 class StateTodoistActive(StateTodoist):
@@ -201,7 +194,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
             settings.sync_delay_seconds, "Next check in {delay:.0f} seconds."
         )
 
-    def run_forever(self):
+    def run_forever(self) -> None:
         while True:
             try:
                 self._todoist.sync()
@@ -221,7 +214,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
             state.generic_task.state = new_state
             self._task_cache.save_task(state.generic_task)
 
-    def create_habitica_task(self, generic_task: GenericTask):
+    def create_habitica_task(self, generic_task: GenericTask) -> None:
         previous_habitica_id = generic_task.habitica_task_id
         generic_task.habitica_task_id = self.habitica.create_task(
             generic_task.content, TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY[generic_task.priority]
@@ -236,7 +229,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
     def todoist_user_id(self) -> str | None:
         return self._todoist_user_id
 
-    def _next_tasks_state(self):
+    def _next_tasks_state(self) -> None:
         for todoist_task in self._todoist.state.items.values():  # pylint: disable=no-member
             generic_task = self._task_cache.get_task_by_todoist_task_id(todoist_task)
 

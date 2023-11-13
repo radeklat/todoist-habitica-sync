@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
+from typing import Self
 
 from models.todoist import TodoistTask
 
@@ -16,9 +15,9 @@ class GenericTask:
     habitica_task_id: str | None = None
     completed_at: str | None = None
 
-    @staticmethod
-    def from_todoist_task(todoist_task: TodoistTask, state: str) -> GenericTask:
-        return GenericTask(
+    @classmethod
+    def from_todoist_task(cls, todoist_task: TodoistTask, state: str) -> Self:
+        return cls(
             todoist_task_id=todoist_task.id,
             content=todoist_task.content,
             priority=todoist_task.priority,

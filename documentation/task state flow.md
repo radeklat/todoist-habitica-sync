@@ -2,25 +2,27 @@
 
 ```mermaid
 graph TD
-    start([START]) --> generic_task{generic_task?}
-    generic_task -->|None| deleted{Deleted?}
-    generic_task -->|found| state_in{state in<br/>HIDDEN,<br/>HABITICA_*<br/>?}
-    deleted -->|False| todoist_task_checked{todoist_task<br/>checked?}
-    deleted -->|True| initial{initial?}
-    todoist_task_checked -->|False| todoist_active[TODOIST ACTIVE]
-    todoist_task_checked -->|True| initial
-    todoist_active --> habitica_new[HABITICA NEW]
-    habitica_new --> habitica_created[HABITICA CREATED]
-    habitica_created --> habitica_finished[HABITICA FINISHED]
-    habitica_finished --> recurring{recurring?}
-    recurring -->|False| hidden([HIDDEN])
-    recurring -->|True| todoist_active
-    initial -->|True| hidden
-    initial -->|False| should_score_points{should<br/>score<br/>points?}
-    should_score_points -->|False| todoist_active
-    should_score_points -->|True| assigned_to_me{Assigned<br/>to me?}
-    assigned_to_me -->|True| habitica_new
-    assigned_to_me -->|False| hidden
-    state_in -->|True| skip([SKIP])
-    state_in -->|False| deleted
+    start([START]) --> TodoistNew
+    TodoistNew --> is_td_deleted{Is TD task\ndeleted?}
+    is_td_deleted -- No --> is_td_checked{Is TD task\nchecked?}
+    is_td_deleted -- Yes --> Hidden
+    is_td_checked -- No --> TodoistActive
+    is_td_checked -- Yes --> is_td_initial_sync{Initial\nsync?}
+    is_td_initial_sync -- No --> TodoistActive
+    is_td_initial_sync -- Yes --> Hidden
+    TodoistActive --> is_td_deleted_active{Is TD task\ndeleted?}
+    is_td_deleted_active -- Yes --> Hidden
+    is_td_deleted_active -- No --> should_td_score_points{Should\nTD task score\npoints?}
+    should_td_score_points -- Yes --> is_td_owned_by_me{Is TD task\nowned by me?}
+    should_td_score_points -- No --> TodoistActive
+    is_td_owned_by_me -- Yes --> HabiticaNew
+    is_td_owned_by_me -- No --> Hidden
+    HabiticaNew --> HabiticaCreated
+    HabiticaCreated --> HabiticaFinished
+    HabiticaFinished --> is_task_recurring{Is task\nrecurring?}
+    is_task_recurring -- Yes --> is_task_completed{Is task\ncompleted\nforever?}
+    is_task_completed -- No --> TodoistActive
+    is_task_completed -- Yes --> Hidden
+    is_task_recurring -- No --> Hidden
+    Hidden --> finish([END])
 ```

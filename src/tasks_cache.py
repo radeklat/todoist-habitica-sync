@@ -23,7 +23,7 @@ class TasksCache:
         self._task_cache = tiny_db.table("tasks_cache")
         self._log = logging.getLogger(self.__class__.__name__)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._task_cache)
 
     def get_task_by_todoist_task_id(self, todoist_task: TodoistTask) -> GenericTask | None:
@@ -34,7 +34,7 @@ class TasksCache:
 
         return GenericTask(**task) if task else None
 
-    def save_task(self, generic_task: GenericTask, previous_habitica_id: str | None = ""):
+    def save_task(self, generic_task: GenericTask, previous_habitica_id: str | None = "") -> None:
         if previous_habitica_id != "":
             habitica_id = previous_habitica_id
         else:
