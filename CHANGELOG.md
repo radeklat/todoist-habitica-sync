@@ -12,6 +12,12 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [3.0.1] - 2023-11-13
+
+### Fixes
+
+- Incorrect transition.
+
 ## [3.0.0] - 2023-11-13
 
 ### Breaking changes
@@ -152,7 +158,8 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.0...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.1...HEAD
+[3.0.1]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.1...3.0.1
 [3.0.0]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.10...3.0.0
 [2.1.10]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.9...2.1.10
 [2.1.9]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.8...2.1.9
