@@ -128,7 +128,7 @@ jobs: # A basic unit of work in a run
             docker buildx create --use
       - run:
           name: Build and push docker image
-          command: << pipeline.parameters.command_prefix >> docker-build --push
+          command: << pipeline.parameters.command_prefix >> docker-build --push --serialized
   release:
     working_directory: << pipeline.parameters.working_directory >>
     docker:

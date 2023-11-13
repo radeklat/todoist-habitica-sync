@@ -12,6 +12,8 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [3.0.0] - 2023-11-13
+
 ### Breaking changes
 
 - Rewritten the state logic to the state design pattern for easier understanding and extensibility. This has resulted in changing how the data is stored in the sync cache. Please [reset the cache](README.md#resetting-sync-cache) before upgrading to this version.
@@ -150,7 +152,8 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.10...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.0...HEAD
+[3.0.0]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.10...3.0.0
 [2.1.10]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.9...2.1.10
 [2.1.9]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.8...2.1.9
 [2.1.8]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.7...2.1.8
