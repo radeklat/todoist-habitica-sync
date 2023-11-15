@@ -104,6 +104,7 @@ jobs: # A basic unit of work in a run
                 # Fix remote
                 git remote remove origin
                 git remote add origin https://github.com/pyenv/pyenv.git
+                git fetch --all
             
                 # Update
                 git checkout master
