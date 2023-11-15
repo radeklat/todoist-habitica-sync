@@ -118,11 +118,10 @@ jobs: # A basic unit of work in a run
             pyenv global ${VERSION}
       - run:
           name: Install poetry
-          command: curl -sSL https://install.python-poetry.org | python3 -
-      - save_cache:
-          key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
-          paths:
-            - "/opt/circleci/.pyenv/versions/<< pipeline.parameters.python_version_full >>"
+          command: pip install poetry
+      - run:
+          name: Install dev libraries
+          command: poetry install --no-ansi --no-root
       - run:
           name: Check if build needed
           command: |
@@ -136,9 +135,10 @@ jobs: # A basic unit of work in a run
             else
               echo "Image tag '$IMAGE_VERSION' doesn't exist in the repository. Running build."
             fi
-      - run:
-          name: Install dev libraries
-          command: poetry install --no-ansi --no-root
+      - save_cache:
+          key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
+          paths:
+            - "/opt/circleci/.pyenv/versions/<< pipeline.parameters.python_version_full >>"
       - run:
           name: Create and use a new docker build driver
           command: |
