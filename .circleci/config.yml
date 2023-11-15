@@ -97,6 +97,15 @@ jobs: # A basic unit of work in a run
               if [[ -z "$(pyenv install --list | grep -q ${VERSION})" ]]; then
                 echo "Python ${VERSION} not available. Trying a pyenv update ..."
                 cd /opt/circleci/.pyenv
+            
+                # Fix permissions
+                sudo chown -R circleci:circleci .
+            
+                # Fix remote
+                git remote remove origin
+                git remote add origin https://github.com/pyenv/pyenv.git
+            
+                # Update
                 git checkout master
                 git pull
                 cd -
