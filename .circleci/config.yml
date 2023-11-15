@@ -95,8 +95,12 @@ jobs: # A basic unit of work in a run
               echo "Python ${VERSION} not installed."
             
               if [[ -z "$(pyenv install --list | grep -q ${VERSION})" ]]; then
-                echo "Python ${VERSION} not available. Trying a pyenv update ..."            
-                cd /opt/circleci/.pyenv/plugins/python-build/../.. && git checkout master && git pull && cd -
+                echo "Python ${VERSION} not available. Trying a pyenv update ..."
+                git config --global --add safe.directory /opt/circleci/.pyenv
+                cd /opt/circleci/.pyenv/plugins/python-build/../..
+                git checkout master
+                git pull
+                cd -
               fi
               pyenv install ${VERSION}
             else
