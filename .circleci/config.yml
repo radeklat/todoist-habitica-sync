@@ -119,6 +119,10 @@ jobs: # A basic unit of work in a run
       - run:
           name: Install poetry
           command: curl -sSL https://install.python-poetry.org | python3 -
+      - save_cache:
+          key: << pipeline.parameters.cache_version >>-docker-build-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
+          paths:
+            - "/opt/circleci/.pyenv/versions/<< pipeline.parameters.python_version_full >>"
       - run:
           name: Check if build needed
           command: |
