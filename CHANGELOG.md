@@ -12,6 +12,12 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [3.0.2] - 2024-02-17
+
+### Fixes
+
+- Incorrect awarding of points for rescheduled recurring tasks. There is no difference between rescheduled and completed once other than completed being scheduled to the future. Therefore, only recurring tasks rescheduled to the future will be awarded points. This can still be a false positive, if a recurring task is scheduled to the future manually. 
+
 ## [3.0.1] - 2023-11-13
 
 ### Fixes
@@ -158,8 +164,9 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.1...HEAD
-[3.0.1]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.1...3.0.1
+[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.2...HEAD
+[3.0.2]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.1...3.0.2
+[3.0.1]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.10...3.0.0
 [2.1.10]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.9...2.1.10
 [2.1.9]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.8...2.1.9

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime, timezone
 from typing import Final
 
 from pydantic import BaseModel, ConfigDict
@@ -82,11 +83,13 @@ class StateTodoistActive(StateTodoist):
     def _should_task_score_points(self) -> bool:
         if self.todoist_task.is_recurring:
             recurring_task_has_been_checked = bool(
-                # The due date has moved since the last time we checked -> the task has been checked
                 (
+                    # The due date has moved since the last time we checked -> the task has been checked OR rescheduled
                     self.generic_task.due_date_utc_timestamp
                     and self.todoist_task.due_date_utc_timestamp
                     and self.generic_task.due_date_utc_timestamp < self.todoist_task.due_date_utc_timestamp
+                    # The due date has moved to the future -> the task has been checked
+                    and self.todoist_task.due_date_utc_timestamp > int(datetime.now(timezone.utc).timestamp())
                 )
                 # If completed_at is set, it has been permanently finished
                 or self.todoist_task.completed_at is not None
