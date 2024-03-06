@@ -12,6 +12,17 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [3.1.0] - 2024-03-06
+
+### Features
+
+- Log path to sync cache file on app startup.
+
+### Fixes
+
+- Path to sync cache in `docker-compose.yml`
+- Improved iteration over Habitica states (less waiting).
+
 ## [3.0.2] - 2024-02-17
 
 ### Fixes
@@ -164,7 +175,8 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.2...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.1.0...HEAD
+[3.1.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.2...3.1.0
 [3.0.2]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.1...3.0.2
 [3.0.1]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/radeklat/todoist-habitica-sync/compare/2.1.10...3.0.0
