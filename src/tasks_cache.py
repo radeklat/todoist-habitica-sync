@@ -1,6 +1,7 @@
 import logging
 from collections.abc import Iterator
 from dataclasses import asdict
+from typing import cast
 
 from tinydb import Query, TinyDB, where
 
@@ -22,6 +23,7 @@ class TasksCache:
         self._habitica_dirty_states = frozenset(habitica_dirty_states)
         self._task_cache = tiny_db.table("tasks_cache")
         self._log = logging.getLogger(self.__class__.__name__)
+        self._log.info(f"Tasks cache in {db_file.absolute()}")  # pylint: disable=no-member
 
     def __len__(self) -> int:
         return len(self._task_cache)
@@ -46,6 +48,7 @@ class TasksCache:
         )
 
     def dirty_habitica_tasks(self) -> Iterator[GenericTask]:
-        condition = Query().state.test(lambda _: _ in self._habitica_dirty_states)
-        for task in self._task_cache.search(condition):
+        condition = Query().state.one_of(self._habitica_dirty_states)
+
+        while task := cast(dict, self._task_cache.get(condition)):
             yield GenericTask(**task)
