@@ -6,6 +6,5 @@ services:
     env_file:
       - .env
     volumes:
-      - ./src:/app/src
-#    - ./.sync_cache:/app/.sync_cache
+    - ./.sync_cache:/app/.sync_cache
     restart: always
