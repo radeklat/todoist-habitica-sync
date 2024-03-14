@@ -3,15 +3,13 @@ FROM python:${PYTHON_VERSION}-slim
 
 WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y build-essential libssl-dev libffi-dev python3-dev rustc cargo && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
+RUN apt-get --allow-releaseinfo-change update
+RUN apt-get install build-essential libssl-dev libffi-dev python3-dev -y
 RUN python -m pip install --upgrade pip
 
 # Doesn't build consistently for armv7
-RUN pip install "cryptography" poetry
+ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
+RUN pip install "cryptography<3.5" poetry
 
 COPY pyproject.toml poetry.lock ./
 
