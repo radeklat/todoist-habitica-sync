@@ -71,7 +71,10 @@ class HabiticaAPI:
 
         # print(res.url)  # debug...
         if res.status_code not in _SUCCESS_CODES:
-            res.raise_for_status()
+            try:
+                res.raise_for_status()
+            except requests.HTTPError as exc:
+                raise requests.HTTPError(f"{exc}, JSON Payload: {res.json()}", res) from exc
 
         return res.json()["data"]
 
