@@ -26,8 +26,8 @@ Tasks are not added immediately. Only when you finish a task in Todoist, new tas
 
 | Todoist Priority | Habitica Difficulty |    Eisenhower Quadrant    |
 |:----------------:|:-------------------:|:-------------------------:|
-|        p1        |        Medium       |     Important, urgent     |
-|        p2        |         Hard        | Important, not urgent     |
+|        p1        |         Hard        |     Important, urgent     |
+|        p2        |        Medium       | Important, not urgent     |
 |        p3        |         Easy        |   Not important, urgent   |
 |        p4        |       Trivial       | Not important, not urgent |
 
