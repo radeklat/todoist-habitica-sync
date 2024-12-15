@@ -50,11 +50,16 @@ class FSMState(BaseModel):
 
     @classmethod
     def factory(
-        cls, context: TasksSync, generic_task: GenericTask, optional_todoist_task: TodoistTask | None = None
+        cls,
+        context: TasksSync,
+        generic_task: GenericTask,
+        optional_todoist_task: TodoistTask | None = None,
     ) -> FSMState:
         state_name = generic_task.state
         state = cls._STATES[state_name](
-            context=context, generic_task=generic_task, optional_todoist_task=optional_todoist_task
+            context=context,
+            generic_task=generic_task,
+            optional_todoist_task=optional_todoist_task,
         )
         return state
 
@@ -220,7 +225,8 @@ class TasksSync:  # pylint: disable=too-few-public-methods
     def create_habitica_task(self, generic_task: GenericTask) -> None:
         previous_habitica_id = generic_task.habitica_task_id
         generic_task.habitica_task_id = self.habitica.create_task(
-            generic_task.content, TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY[generic_task.priority]
+            generic_task.content,
+            TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY[generic_task.priority],
         )["id"]
         self._task_cache.save_task(generic_task, previous_habitica_id)
 

@@ -13,7 +13,7 @@ RUN pip install "cryptography<3.5" poetry
 
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry install --without=dev --no-root
+RUN poetry install --only=main --no-root
 
 # PYTHONPATH set after install to prevent bugs
 ENV PYTHONPATH="src"

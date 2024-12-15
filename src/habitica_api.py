@@ -26,7 +26,12 @@ class HabiticaAPI:
     Based on https://github.com/philadams/habitica/blob/master/habitica/api.py
     """
 
-    def __init__(self, headers: HabiticaAPIHeaders, resource: str | None = None, aspect: str | None = None):
+    def __init__(
+        self,
+        headers: HabiticaAPIHeaders,
+        resource: str | None = None,
+        aspect: str | None = None,
+    ):
         self._resource = resource
         self._aspect = aspect
         self._headers = headers
