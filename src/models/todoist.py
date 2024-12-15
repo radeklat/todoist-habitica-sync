@@ -3,8 +3,17 @@
 See Also: https://developer.todoist.com/sync/v9/#read-resources
 """
 
+from enum import Enum
+
 from dateutil.parser import parse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+
+class TodoistPriority(Enum):
+    P1 = 4
+    P2 = 3
+    P3 = 2
+    P4 = 1
 
 
 class TodoistDue(BaseModel):
