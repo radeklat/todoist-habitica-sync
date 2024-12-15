@@ -1,7 +1,11 @@
-version: '3.8'
 services:
   todoist-habitica-sync:
-    image: "radeklat/todoist-habitica-sync:latest"
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - PYTHON_VERSION=3.12.4
+    image: todoist-habitica-sync:local
     container_name: todoist-habitica-sync
     env_file:
       - .env

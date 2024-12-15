@@ -12,6 +12,12 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [3.2.1] - 2024-12-15
+
+### Fixes
+
+- Dependencies update.
+
 ## [3.2.0] - 2024-03-14
 
 ### Features
@@ -181,7 +187,8 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.2.0...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.2.1...HEAD
+[3.2.1]: https://github.com/radeklat/todoist-habitica-sync/compare/3.2.0...3.2.1
 [3.2.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.1.0...3.2.0
 [3.1.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.2...3.1.0
 [3.0.2]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.1...3.0.2
