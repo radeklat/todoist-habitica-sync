@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Self
 
-from models.todoist import TodoistTask
+from models.todoist import TodoistPriority, TodoistTask
 
 
 @dataclass
@@ -30,3 +30,7 @@ class GenericTask:
         if self.habitica_task_id is None:
             raise RuntimeError("Habitica task ID is not set")
         return self.habitica_task_id
+
+    @property
+    def priority_enum(self) -> TodoistPriority:
+        return TodoistPriority(self.priority)

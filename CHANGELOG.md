@@ -12,6 +12,18 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [3.3.0] - 2024-12-15
+
+### Features
+
+- Added configuration option [`PRIORITY_TO_DIFFICULTY`](README.md#environment-variables) to define how Todoist priorities map to Habitica difficulties. The default has changed from:
+
+  p1 -> Medium, p2 -> Hard, p3 -> Easy, p4 -> Trivial
+
+  to:
+
+  p1 -> Hard, p2 -> Medium, p3 -> Easy, p4 -> Trivial
+
 ## [3.2.1] - 2024-12-15
 
 ### Fixes
@@ -187,7 +199,8 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.2.1...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.3.0...HEAD
+[3.3.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.2.1...3.3.0
 [3.2.1]: https://github.com/radeklat/todoist-habitica-sync/compare/3.2.0...3.2.1
 [3.2.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.1.0...3.2.0
 [3.1.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.0.2...3.1.0

@@ -22,14 +22,6 @@ Tasks are not added immediately. Only when you finish a task in Todoist, new tas
 
 * Scores points in Habitica when Todoist task is finished.
 * Works for repeated tasks in Todoist, as long as the date string contains `every`.
-* To form a positive habit of prioritizing long term tasks, difficulty in Habitica is assigned by priority in Todoist. The priority is them assumed to match [Eisenhower Matrix](https://en.wikipedia.org/wiki/Time_management#The_Eisenhower_Method) quadrants.
-
-| Todoist Priority | Habitica Difficulty |    Eisenhower Quadrant    |
-|:----------------:|:-------------------:|:-------------------------:|
-|        p1        |        Medium       |     Important, urgent     |
-|        p2        |         Hard        | Important, not urgent     |
-|        p3        |         Easy        |   Not important, urgent   |
-|        p4        |       Trivial       | Not important, not urgent |
 
 # Installation
 
@@ -223,6 +215,12 @@ Repeat sync automatically after N minutes.
 *Optional*, default value: `.sync_cache/sync_cache.json`
 
 Where to store synchronisation details. No need to change.
+
+## `PRIORITY_TO_DIFFICULTY`
+
+*Optional*, default value: `{'P1': 'HARD', 'P2': 'MEDIUM', 'P3': 'EASY', 'P4': 'TRIVIAL'}`
+
+Defines how Todoist priorities map to Habitica difficulties. Keys/values are case-insensitive and can be both names or numerical values defines by the APIs. See https://habitica.com/apidoc/#api-Task-CreateUserTasks and https://developer.todoist.com/sync/v9/#items for numerical values definitions.
 <!-- settings-doc end -->
 
 # Resetting sync cache

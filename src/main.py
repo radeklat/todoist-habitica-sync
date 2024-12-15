@@ -7,7 +7,7 @@ from typing import Final
 from pydantic import BaseModel, ConfigDict
 from requests import HTTPError
 
-from config import TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY, get_settings
+from config import get_settings
 from delay import DelayTimer
 from habitica_api import HabiticaAPI, HabiticaAPIHeaders
 from models.generic_task import GenericTask
@@ -226,7 +226,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         previous_habitica_id = generic_task.habitica_task_id
         generic_task.habitica_task_id = self.habitica.create_task(
             generic_task.content,
-            TODOIST_PRIORITY_TO_HABITICA_DIFFICULTY[generic_task.priority],
+            get_settings().priority_to_difficulty[generic_task.priority_enum].value,
         )["id"]
         self._task_cache.save_task(generic_task, previous_habitica_id)
 
