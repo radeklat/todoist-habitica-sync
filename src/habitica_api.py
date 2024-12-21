@@ -5,6 +5,7 @@ import requests
 from pydantic import BaseModel, ConfigDict, Field
 
 from delay import DelayTimer
+from models.habitica import HabiticaDifficulty
 
 _API_URI_BASE: Final[str] = "https://habitica.com/api/v3"
 _SUCCESS_CODES = frozenset([requests.codes.ok, requests.codes.created])  # pylint: disable=no-member
@@ -83,9 +84,9 @@ class HabiticaAPI:
 
         return res.json()["data"]
 
-    def create_task(self, text: str, priority: float) -> dict[str, Any]:
+    def create_task(self, text: str, priority: HabiticaDifficulty) -> dict[str, Any]:
         """See https://habitica.com/apidoc/#api-Task-CreateUserTasks."""
-        return self.user.tasks(type="todo", text=text, priority=priority, _method="post")
+        return self.user.tasks(type="todo", text=text, priority=priority.value, _method="post")
 
     def score_task(self, task_id: str, direction: str = "up") -> None:
         """See https://habitica.com/apidoc/#api-Task-ScoreTask."""

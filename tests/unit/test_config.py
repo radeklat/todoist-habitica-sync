@@ -41,8 +41,13 @@ class TestConfigPriorityToDifficulty:
         assert settings.priority_to_difficulty == _DEFAULT_PRIORITY_TO_DIFFICULTY
 
     @staticmethod
-    def should_accept_keys_as_enum_values():
-        settings = Settings(priority_to_difficulty={4: 2, 3: 1.5, 2: 1, 1: 0.1})
+    def should_accept_keys_as_direct_enum_values():
+        settings = Settings(priority_to_difficulty={4: "2", 3: "1.5", 2: "1", 1: "0.1"})
+        assert settings.priority_to_difficulty == _DEFAULT_PRIORITY_TO_DIFFICULTY
+
+    @staticmethod
+    def should_accept_keys_as_indirect_enum_values():
+        settings = Settings(priority_to_difficulty={"4": 2, "3": 1.5, "2": 1, "1": 0.1})
         assert settings.priority_to_difficulty == _DEFAULT_PRIORITY_TO_DIFFICULTY
 
     @staticmethod
@@ -52,13 +57,13 @@ class TestConfigPriorityToDifficulty:
 
 class TestConfigLabelToDifficulty:
     @staticmethod
-    def should_accept_label_to_difficulty():
+    def should_accept_case_insensitive_labels():
         settings = Settings(
             label_to_difficulty={
-                "urgent": "hard",
-                "important": "medium",
-                "normal": "easy",
-                "low": "trivial",
+                "Urgent": "hard",
+                "Important": "medium",
+                "Normal": "easy",
+                "Low": "trivial",
             }
         )
         assert settings.label_to_difficulty == {
@@ -69,20 +74,16 @@ class TestConfigLabelToDifficulty:
         }
 
     @staticmethod
-    def should_ignore_casing_in_label_to_difficulty():
-        settings = Settings(
-            label_to_difficulty={
-                "Urgent": "Hard",
-                "IMPORTANT": "Medium",
-                "Normal": "Easy",
-                "low": "Trivial",
-            }
-        )
+    def should_allow_missing_difficulty_values():
+        settings = Settings(label_to_difficulty={"Urgent": "Hard"})
+        assert settings.label_to_difficulty == {"urgent": HabiticaDifficulty.HARD}
+
+    @staticmethod
+    def should_allow_multiple_identical_difficulty_values():
+        settings = Settings(label_to_difficulty={"Urgent": "Hard", "Important": "Hard"})
         assert settings.label_to_difficulty == {
             "urgent": HabiticaDifficulty.HARD,
-            "important": HabiticaDifficulty.MEDIUM,
-            "normal": HabiticaDifficulty.EASY,
-            "low": HabiticaDifficulty.TRIVIAL,
+            "important": HabiticaDifficulty.HARD,
         }
 
     @staticmethod

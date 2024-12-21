@@ -224,9 +224,9 @@ Defines how Todoist priorities map to Habitica difficulties. Keys/values are cas
 
 ## `LABEL_TO_DIFFICULTY`
 
-*Optional*, default value: `{}`
+*Optional*
 
-Defines how Todoist labels map to Habitica difficulties. Keys are case-insensitive. See https://habitica.com/apidoc/#api-Task-CreateUserTasks for difficulty values.
+Defines how Todoist labels map to Habitica difficulties. Keys are case-insensitive. See https://habitica.com/apidoc/#api-Task-CreateUserTasks for difficulty values. If a task has no matching label, the `priority_to_difficulty` mapping is used. If a task has multiple labels, the highest difficulty is used.
 <!-- settings-doc end -->
 
 # Resetting sync cache
@@ -243,4 +243,3 @@ To reset the cache:
 # Planned work
 
 * Synchronise overdue task to cause damage in habitica
-* Parse difficulty from string (similar to p0-p4 in Todoist)
