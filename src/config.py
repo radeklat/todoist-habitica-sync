@@ -52,6 +52,13 @@ class Settings(BaseSettings):
             "https://developer.todoist.com/sync/v9/#items for numerical values definitions."
         ),
     )
+    label_to_difficulty: dict[str, HabiticaDifficulty] = Field(
+        default_factory=dict,
+        description=(
+            "Defines how Todoist labels map to Habitica difficulties. Keys are case-insensitive. "
+            "See https://habitica.com/apidoc/#api-Task-CreateUserTasks for difficulty values."
+        ),
+    )
 
     @field_validator("sync_delay_seconds")
     @classmethod
@@ -79,6 +86,28 @@ class Settings(BaseSettings):
             raise ValueError(
                 f"priority_to_difficulty must have all priority levels defined, but missing: {missing_keys}"
             )
+        return value
+
+    @field_validator("label_to_difficulty", mode="before")
+    @classmethod
+    def transform_label_to_difficulty(
+        cls,
+        label_to_difficulty: dict[str, str | HabiticaDifficulty],
+    ) -> dict[str, HabiticaDifficulty]:
+        return {
+            label.lower(): (
+                HabiticaDifficulty[difficulty.upper()] if isinstance(difficulty, str) else difficulty
+            )
+            for label, difficulty in label_to_difficulty.items()
+        }
+
+    @field_validator("label_to_difficulty")
+    @classmethod
+    def validate_label_to_difficulty(cls, value: dict[str, HabiticaDifficulty]):
+        # Ensure all values are valid HabiticaDifficulty
+        for difficulty in value.values():
+            if not isinstance(difficulty, HabiticaDifficulty):
+                raise ValueError(f"Invalid difficulty value: {difficulty}")
         return value
 
 

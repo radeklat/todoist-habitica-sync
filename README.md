@@ -221,6 +221,12 @@ Where to store synchronisation details. No need to change.
 *Optional*, default value: `{'P1': 'HARD', 'P2': 'MEDIUM', 'P3': 'EASY', 'P4': 'TRIVIAL'}`
 
 Defines how Todoist priorities map to Habitica difficulties. Keys/values are case-insensitive and can be both names or numerical values defines by the APIs. See https://habitica.com/apidoc/#api-Task-CreateUserTasks and https://developer.todoist.com/sync/v9/#items for numerical values definitions.
+
+## `LABEL_TO_DIFFICULTY`
+
+*Optional*, default value: `{}`
+
+Defines how Todoist labels map to Habitica difficulties. Keys are case-insensitive. See https://habitica.com/apidoc/#api-Task-CreateUserTasks for difficulty values.
 <!-- settings-doc end -->
 
 # Resetting sync cache
@@ -238,4 +244,3 @@ To reset the cache:
 
 * Synchronise overdue task to cause damage in habitica
 * Parse difficulty from string (similar to p0-p4 in Todoist)
-* Use @ Todoist labels for difficulty

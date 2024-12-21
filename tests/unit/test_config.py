@@ -50,6 +50,46 @@ class TestConfigPriorityToDifficulty:
         assert Settings().priority_to_difficulty == _DEFAULT_PRIORITY_TO_DIFFICULTY
 
 
+class TestConfigLabelToDifficulty:
+    @staticmethod
+    def should_accept_label_to_difficulty():
+        settings = Settings(
+            label_to_difficulty={
+                "urgent": "hard",
+                "important": "medium",
+                "normal": "easy",
+                "low": "trivial",
+            }
+        )
+        assert settings.label_to_difficulty == {
+            "urgent": HabiticaDifficulty.HARD,
+            "important": HabiticaDifficulty.MEDIUM,
+            "normal": HabiticaDifficulty.EASY,
+            "low": HabiticaDifficulty.TRIVIAL,
+        }
+
+    @staticmethod
+    def should_ignore_casing_in_label_to_difficulty():
+        settings = Settings(
+            label_to_difficulty={
+                "Urgent": "Hard",
+                "IMPORTANT": "Medium",
+                "Normal": "Easy",
+                "low": "Trivial",
+            }
+        )
+        assert settings.label_to_difficulty == {
+            "urgent": HabiticaDifficulty.HARD,
+            "important": HabiticaDifficulty.MEDIUM,
+            "normal": HabiticaDifficulty.EASY,
+            "low": HabiticaDifficulty.TRIVIAL,
+        }
+
+    @staticmethod
+    def should_have_default_empty_label_to_difficulty():
+        assert Settings().label_to_difficulty == {}
+
+
 class TestGetSettings:
     @staticmethod
     def should_cache_settings():

@@ -226,9 +226,16 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         previous_habitica_id = generic_task.habitica_task_id
         generic_task.habitica_task_id = self.habitica.create_task(
             generic_task.content,
-            get_settings().priority_to_difficulty[generic_task.priority_enum].value,
+            self._get_task_difficulty(generic_task),
         )["id"]
         self._task_cache.save_task(generic_task, previous_habitica_id)
+
+    def _get_task_difficulty(self, generic_task: GenericTask) -> float:
+        settings = get_settings()
+        for label in self._todoist.state.items[generic_task.todoist_task_id].labels:
+            if label in settings.label_to_difficulty:
+                return settings.label_to_difficulty[label].value
+        return settings.priority_to_difficulty[generic_task.priority_enum].value
 
     @property
     def initial_sync(self) -> bool:
