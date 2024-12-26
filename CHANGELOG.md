@@ -12,6 +12,18 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [3.4.1] - 2024-12-26
+
+### Fixes
+
+- Make the configuration options [`LABEL_TO_DIFFICULTY`](README.md#environment-variables) and [`PRIORITY_TO_DIFFICULTY`](README.md#environment-variables) more tolerant to different value types.
+
+## [3.4.0] - 2024-12-21
+
+### Features
+
+- Added configuration option [`LABEL_TO_DIFFICULTY`](README.md#environment-variables) to define how Todoist labels map to Habitica difficulties. If a task has no matching label, the `PRIORITY_TO_DIFFICULTY` mapping is used. If a task has multiple labels, the highest difficulty is used.
+
 ## [3.3.0] - 2024-12-15
 
 ### Features
@@ -199,7 +211,9 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.3.0...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.4.1...HEAD
+[3.4.1]: https://github.com/radeklat/todoist-habitica-sync/compare/3.4.0...3.4.1
+[3.4.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.3.0...3.4.0
 [3.3.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.2.1...3.3.0
 [3.2.1]: https://github.com/radeklat/todoist-habitica-sync/compare/3.2.0...3.2.1
 [3.2.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.1.0...3.2.0

@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -16,7 +17,7 @@ _DEFAULT_PRIORITY_TO_DIFFICULTY = {
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file_encoding="utf-8")
 
     todoist_user_id: int | None = Field(
         None,
@@ -52,6 +53,15 @@ class Settings(BaseSettings):
             "https://developer.todoist.com/sync/v9/#items for numerical values definitions."
         ),
     )
+    label_to_difficulty: dict[str, HabiticaDifficulty] = Field(
+        default_factory=dict,
+        description=(
+            "Defines how Todoist labels map to Habitica difficulties. Keys are case-insensitive. "
+            "See https://habitica.com/apidoc/#api-Task-CreateUserTasks for difficulty values. If a task "
+            "has no matching label, the `priority_to_difficulty` mapping is used. If a task has multiple "
+            "labels, the highest difficulty is used."
+        ),
+    )
 
     @field_validator("sync_delay_seconds")
     @classmethod
@@ -60,16 +70,32 @@ class Settings(BaseSettings):
 
     @field_validator("priority_to_difficulty", mode="before")
     @classmethod
-    def tranforms_enum_names_to_values(
+    def transform_enum_names_to_values(
         cls,
-        priority_to_difficulty: dict[str | TodoistPriority, str | HabiticaDifficulty],
-    ) -> dict[TodoistPriority, HabiticaDifficulty]:
-        return {
-            TodoistPriority[priority.upper()] if isinstance(priority, str) else priority: (
-                HabiticaDifficulty[difficulty.upper()] if isinstance(difficulty, str) else difficulty
-            )
-            for priority, difficulty in priority_to_difficulty.items()
-        }
+        priority_to_difficulty: dict[str | int | float | TodoistPriority, str | HabiticaDifficulty],
+    ) -> dict[TodoistPriority | str, HabiticaDifficulty | float | int]:
+        output: dict[Any, Any] = {}  # disable type checking for the dict values as it gets it wrong and tests cover it
+
+        for priority, difficulty in priority_to_difficulty.items():
+            if isinstance(priority, str):
+                try:
+                    priority = int(priority)
+                except ValueError:
+                    # If it's not a number, it could be an enum name
+                    priority = TodoistPriority[priority.upper()]  # type: ignore[union-attr]
+
+            if isinstance(difficulty, str):
+                try:
+                    float(difficulty)  # If it's a number, it's an enum value
+                except ValueError:  # If it's not a number, it's an enum name
+                    difficulty = HabiticaDifficulty[difficulty.upper()]
+
+            if isinstance(difficulty, (float, int)):  # If it's a number, it's an enum value
+                difficulty = str(difficulty)
+
+            output[priority] = difficulty
+
+        return output
 
     @field_validator("priority_to_difficulty")
     @classmethod
@@ -81,7 +107,20 @@ class Settings(BaseSettings):
             )
         return value
 
+    @field_validator("label_to_difficulty", mode="before")
+    @classmethod
+    def transform_label_to_difficulty(
+        cls, label_to_difficulty: dict[str, str | HabiticaDifficulty]
+    ) -> dict[str, HabiticaDifficulty]:
+        return {
+            label.lower(): (HabiticaDifficulty[difficulty.upper()] if isinstance(difficulty, str) else difficulty)
+            for label, difficulty in label_to_difficulty.items()
+        }
+
 
 @lru_cache(maxsize=1)
 def get_settings():
+    # We don't want to read the environment variables in the tests
+    Settings.model_config["env_file"] = ".env"
+
     return Settings()

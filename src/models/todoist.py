@@ -33,6 +33,7 @@ class TodoistTask(BaseModel):
     priority: int
     responsible_uid: str | None = None
     completed_at: str | None = None
+    labels: list[str] = Field(default_factory=list)
 
     # custom fields with default value
     due_date_utc_timestamp: int | None = None

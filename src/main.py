@@ -7,11 +7,12 @@ from typing import Final
 from pydantic import BaseModel, ConfigDict
 from requests import HTTPError
 
-from config import get_settings
+from config import Settings, get_settings
 from delay import DelayTimer
 from habitica_api import HabiticaAPI, HabiticaAPIHeaders
 from models.generic_task import GenericTask
-from models.todoist import TodoistTask
+from models.habitica import HabiticaDifficulty
+from models.todoist import TodoistPriority, TodoistTask
 from tasks_cache import TasksCache
 from todoist_api import TodoistAPI
 
@@ -224,11 +225,24 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
     def create_habitica_task(self, generic_task: GenericTask) -> None:
         previous_habitica_id = generic_task.habitica_task_id
-        generic_task.habitica_task_id = self.habitica.create_task(
-            generic_task.content,
-            get_settings().priority_to_difficulty[generic_task.priority_enum].value,
-        )["id"]
+        difficulty = self._get_task_difficulty(
+            get_settings(),
+            self._todoist.state.items[generic_task.todoist_task_id].labels,
+            generic_task.priority_enum,
+        )
+        generic_task.habitica_task_id = self.habitica.create_task(generic_task.content, difficulty)["id"]
         self._task_cache.save_task(generic_task, previous_habitica_id)
+
+    @staticmethod
+    def _get_task_difficulty(settings: Settings, labels: list[str], priority: TodoistPriority) -> HabiticaDifficulty:
+        label_difficulties = [
+            settings.label_to_difficulty[label_lower]
+            for label in labels
+            if (label_lower := label.lower()) in settings.label_to_difficulty
+        ]
+        if label_difficulties:
+            return max(label_difficulties)
+        return settings.priority_to_difficulty[priority]
 
     @property
     def initial_sync(self) -> bool:
