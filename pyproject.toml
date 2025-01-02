@@ -22,7 +22,7 @@ poetry = "^1.6"
 types-toml = "*"
 types-requests = "*"
 types-python-dateutil = "*"
-settings-doc = "^4.3"
+settings-doc = "^4.3.2"
 psutil = "^6.1"
 pytest-dotenv = "^0.5.2"
 delfino-core = {extras = ["verify", "dependencies-update"], version = "^8.1"}
