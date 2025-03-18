@@ -40,7 +40,7 @@ class Settings(BaseSettings):
         description="Repeat sync automatically after N minutes.",
     )
     database_file: Path = Field(
-        Path(".sync_cache/sync_cache.json"),
+        Path(".sync_cache/sync_cache.sqlite"),
         description="Where to store synchronisation details. No need to change.",
     )
     priority_to_difficulty: dict[TodoistPriority, HabiticaDifficulty] = Field(

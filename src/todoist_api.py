@@ -1,3 +1,4 @@
+import logging
 from typing import Iterator
 
 import requests
@@ -24,6 +25,7 @@ class TodoistAPI:
         self._headers = {"Authorization": f"Bearer {token}"}
         self._last_sync_datetime_utc: str | None = last_sync_datetime_utc
         self._completed_tasks: list[CompletedTodoistTask] = []
+        self._log = logging.getLogger(self.__class__.__name__)
 
     def iter_pop_newly_completed_tasks(self) -> Iterator[CompletedTodoistTask]:
         """Pop tasks from last sync."""
@@ -50,7 +52,10 @@ class TodoistAPI:
         response.raise_for_status()
 
         if newly_completed_tasks := [CompletedTodoistTask(**data) for data in response.json()["items"]]:
+            self._log.info(f"Synced {len(newly_completed_tasks)} new completed tasks.")
             self._last_sync_datetime_utc = newly_completed_tasks[0].completed_at
             self._completed_tasks.extend(newly_completed_tasks)
+        else:
+            self._log.debug("No new completed tasks.")
 
         return self._last_sync_datetime_utc

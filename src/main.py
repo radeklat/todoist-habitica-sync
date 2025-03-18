@@ -48,7 +48,9 @@ class FSMState(BaseModel):
 
 class StateHabiticaNew(FSMState):
     def next_state(self) -> None:
-        self.context.create_habitica_task(self.generic_task)
+        self.generic_task.habitica_task_id = self.context.habitica.create_task(
+            self.generic_task.content, self.generic_task.difficulty
+        )["id"]
         self._set_state(StateHabiticaCreated)
 
 
@@ -77,7 +79,7 @@ class StateHabiticaFinished(FSMState):
             else:
                 raise ex
 
-        self.context.delete_task(self.generic_task)
+        self.context.delete_state(self.generic_task)
 
 
 FSMState.register(StateHabiticaNew)
@@ -101,12 +103,10 @@ class TasksSync:  # pylint: disable=too-few-public-methods
 
         self._log = logging.getLogger(self.__class__.__name__)
 
-        self._todoist = TodoistAPI(settings.todoist_api_key)
+        self._task_cache = TasksCache()
+        self._todoist = TodoistAPI(settings.todoist_api_key, self._task_cache.last_sync_datetime_utc)
         self._todoist_user_id = settings.todoist_user_id
 
-        self._task_cache = TasksCache(
-            in_progress_states={_.name() for _ in [StateHabiticaNew, StateHabiticaCreated, StateHabiticaFinished]}
-        )
         self._sync_sleep: Final[DelayTimer] = DelayTimer(
             settings.sync_delay_seconds, "Next check in {delay:.0f} seconds."
         )
@@ -114,7 +114,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
     def run_forever(self) -> None:
         while True:
             try:
-                self._todoist.sync()
+                self._task_cache.last_sync_datetime_utc = self._todoist.sync()
                 self._next_tasks_state()
             except OSError as ex:
                 self._log.error(f"Unexpected network error: {ex}")
@@ -125,20 +125,14 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 break
 
     def set_state(self, state: FSMState) -> None:
-        new_state = state.name()
-        if state.generic_task.state != new_state:
+        if state.generic_task.state != (new_state := state.name()):
             self._log.info(f"'{state.generic_task.content}' {state.generic_task.state} -> {new_state}")
             state.generic_task.state = new_state
             self._task_cache.save_task(state.generic_task)
 
-    def delete_task(self, generic_task: GenericTask) -> None:
+    def delete_state(self, generic_task: GenericTask) -> None:
+        self._log.info(f"'{generic_task.content}' done.")
         self._task_cache.delete_task(generic_task)
-
-    def create_habitica_task(self, generic_task: GenericTask) -> None:
-        previous_habitica_id = generic_task.habitica_task_id
-        difficulty = self._get_task_difficulty(get_settings(), generic_task.labels, generic_task.priority_enum)
-        generic_task.habitica_task_id = self.habitica.create_task(generic_task.content, difficulty)["id"]
-        self._task_cache.save_task(generic_task, previous_habitica_id)
 
     @staticmethod
     def _get_task_difficulty(settings: Settings, labels: list[str], priority: TodoistPriority) -> HabiticaDifficulty:
@@ -152,10 +146,6 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         return settings.priority_to_difficulty[priority]
 
     @property
-    def initial_sync(self) -> bool:
-        return len(self._task_cache) == 0
-
-    @property
     def todoist_user_id(self) -> str | None:
         return self._todoist_user_id
 
@@ -163,18 +153,15 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         for todoist_completed_task in self._todoist.iter_pop_newly_completed_tasks():  # pylint: disable=no-member
             generic_task = GenericTask(
                 content=todoist_completed_task.item_object.content,
-                priority=todoist_completed_task.item_object.priority,
-                labels=todoist_completed_task.item_object.labels,
+                difficulty=self._get_task_difficulty(
+                    get_settings(),
+                    todoist_completed_task.item_object.labels,
+                    TodoistPriority(todoist_completed_task.item_object.priority),
+                ),
                 state=StateHabiticaNew.name(),
             )
-            self._log.info(f"New completed Todoist task {generic_task.content}, {generic_task.state}")
-
-            state = FSMState.factory(self, generic_task)
-
-            try:
-                state.next_state()
-            except OSError as ex:
-                self._log.error(f"Unexpected network error when processing task '{generic_task.content}': {str(ex)}")
+            self._task_cache.save_task(generic_task)
+            self._log.info(f"'{generic_task.content}' -> {generic_task.state}")
 
         for generic_task in self._task_cache.in_progress_tasks():
             try:
