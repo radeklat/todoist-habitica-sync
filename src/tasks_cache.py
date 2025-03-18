@@ -1,54 +1,100 @@
+import json
 import logging
+import sqlite3
 from collections.abc import Iterator
-from dataclasses import asdict
-from typing import cast
-
-from tinydb import Query, TinyDB, where
+from contextlib import contextmanager
+from datetime import datetime, timezone
+from typing import Iterator as TypingIterator
 
 from config import get_settings
 from models.generic_task import GenericTask
-from models.todoist import TodoistTask
+
+_DATABASE_SCHEMAS = [
+    """
+CREATE TABLE IF NOT EXISTS tasks_cache (
+    id TEXT PRIMARY KEY NOT NULL,
+    task_data TEXT
+)
+""",
+    """
+CREATE TABLE IF NOT EXISTS metadata (
+    key TEXT PRIMARY KEY NOT NULL,
+    value TEXT
+)
+""",
+]
 
 
 class TasksCache:
-    """Tasks cache on disk.
+    """Tasks cache on disk using SQLite."""
 
-    TinyDB docs: https://tinydb.readthedocs.io/en/latest/usage.html
-    """
-
-    def __init__(self, habitica_dirty_states: set[str]):
-        db_file = get_settings().database_file
+    def __init__(self):
+        db_file = get_settings().database_file  # pylint: disable=no-member
         db_file.parent.mkdir(parents=True, exist_ok=True)  # pylint: disable=no-member
-        tiny_db = TinyDB(get_settings().database_file.resolve())  # pylint: disable=no-member
-        self._habitica_dirty_states = frozenset(habitica_dirty_states)
-        self._task_cache = tiny_db.table("tasks_cache")
+        self._db_path = str(db_file.resolve())  # pylint: disable=no-member
         self._log = logging.getLogger(self.__class__.__name__)
         self._log.info(f"Tasks cache in {db_file.absolute()}")  # pylint: disable=no-member
 
-    def __len__(self) -> int:
-        return len(self._task_cache)
+        self._initialize_database()
 
-    def get_task_by_todoist_task_id(self, todoist_task: TodoistTask) -> GenericTask | None:
-        task = self._task_cache.get(where("todoist_task_id") == todoist_task.id)
-        if isinstance(task, list):
-            self._log.warning(f"Found multiple tasks with todoist_task_id={todoist_task.id}. Using the first one.")
-            task = task[0]
+    @contextmanager
+    def _cursor(self, row_factory=None) -> TypingIterator[sqlite3.Cursor]:
+        """Context manager for database cursor operations."""
+        conn = sqlite3.connect(self._db_path)
+        if row_factory:
+            conn.row_factory = row_factory
+        cursor = conn.cursor()
+        try:
+            yield cursor
+            conn.commit()
+        finally:
+            conn.close()
 
-        return GenericTask(**task) if task else None
+    def _initialize_database(self) -> None:
+        with self._cursor() as cursor:
+            for database_schema in _DATABASE_SCHEMAS:
+                cursor.execute(database_schema)
 
-    def save_task(self, generic_task: GenericTask, previous_habitica_id: str | None = "") -> None:
-        if previous_habitica_id != "":
-            habitica_id = previous_habitica_id
-        else:
-            habitica_id = generic_task.habitica_task_id
+    def _read_metadata(self, key: str, default: str | None = None) -> str | None:
+        with self._cursor() as cursor:
+            cursor.execute("SELECT value FROM metadata WHERE key = ?", (key,))
+            return row[0] if (row := cursor.fetchone()) else default
 
-        self._task_cache.upsert(
-            asdict(generic_task),
-            (where("todoist_task_id") == generic_task.todoist_task_id) & (where("habitica_task_id") == habitica_id),
+    def _write_metadata(self, key: str, value: str) -> None:
+        with self._cursor() as cursor:
+            cursor.execute(
+                "INSERT OR REPLACE INTO metadata (key, value) VALUES (?, ?)",
+                (key, value),
+            )
+
+    @property
+    def last_sync_datetime_utc(self) -> str | None:
+        return self._read_metadata(
+            "last_sync_datetime_utc",
+            datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         )
 
-    def dirty_habitica_tasks(self) -> Iterator[GenericTask]:
-        condition = Query().state.one_of(self._habitica_dirty_states)
+    @last_sync_datetime_utc.setter
+    def last_sync_datetime_utc(self, value: str) -> None:
+        self._write_metadata("last_sync_datetime_utc", value)
 
-        while task := cast(dict, self._task_cache.get(condition)):
-            yield GenericTask(**task)
+    def save_task(self, generic_task: GenericTask) -> None:
+        with self._cursor() as cursor:
+            cursor.execute(
+                "INSERT OR REPLACE INTO tasks_cache (id, task_data) VALUES (?, ?)",
+                (str(generic_task.id), generic_task.model_dump_json()),
+            )
+
+    def delete_task(self, generic_task: GenericTask) -> None:
+        with self._cursor() as cursor:
+            cursor.execute("DELETE FROM tasks_cache WHERE id = ?", (str(generic_task.id),))
+
+    def in_progress_tasks(self) -> Iterator[GenericTask]:
+        while True:
+            with self._cursor(row_factory=sqlite3.Row) as cursor:
+                cursor.execute("SELECT task_data FROM tasks_cache LIMIT 1")
+
+                if not (row := cursor.fetchone()):
+                    break
+
+                yield GenericTask(**json.loads(row["task_data"]))

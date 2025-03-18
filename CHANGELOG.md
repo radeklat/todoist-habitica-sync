@@ -12,6 +12,18 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [4.0.0] - 2025-03-18
+
+### Breaking changes
+
+- The default sync cache file has changed to `sync_cache.sqlite`, so the previously used `sync_cache.json` will not be used anymore and can be deleted. However, if you set the `SYNC_CACHE_FILE` environment variable, the old file will be used and a manual [cache reset](README.md#resetting-sync-cache) before upgrading to this version is needed.
+
+### Features
+
+- The Todoist synchronisation logic has been rewritten to use the `completed/get_all` endpoint instead of the `sync` endpoint of the Todoist API. This endpoint returns reliably all completed tasks, including recurring tasks. It also returns only completed tasks since last sync, making it much faster. In turn, it allowed greatly simplifying the sync logic.
+- The sync cache has been migrated from tinydb to sqlite. This should improve performance.
+
+
 ## [3.4.1] - 2024-12-26
 
 ### Fixes
@@ -211,7 +223,8 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/3.4.1...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/4.0.0...HEAD
+[4.0.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.4.1...4.0.0
 [3.4.1]: https://github.com/radeklat/todoist-habitica-sync/compare/3.4.0...3.4.1
 [3.4.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.3.0...3.4.0
 [3.3.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.2.1...3.3.0

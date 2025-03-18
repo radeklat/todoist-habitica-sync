@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "todoist-habitica-sync"
-version = "3.4.1"
+version = "4.0.0"
 description = "One way synchronisation from Todoist to Habitica."
 authors = ["Radek Lát <radek.lat@gmail.com>"]
 homepage = "https://github.com/radeklat/todoist-habitica-sync"

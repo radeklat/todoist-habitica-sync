@@ -4,6 +4,7 @@ See Also: https://developer.todoist.com/sync/v9/#read-resources
 """
 
 from enum import Enum
+from typing import TypeAlias
 
 from dateutil.parser import parse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -57,10 +58,20 @@ class TodoistTask(BaseModel):
     model_config = ConfigDict(extra="allow")
 
 
+class CompletedTodoistTask(BaseModel):
+    task_id: str
+    user_id: str
+    completed_at: str
+    item_object: TodoistTask
+
+
+TodoistTasks: TypeAlias = dict[str, TodoistTask]
+
+
 class TodoistState(BaseModel):
     sync_token: str
     full_sync: bool
-    items: dict[str, TodoistTask] = Field(default_factory=dict)
+    items: TodoistTasks = Field(default_factory=dict)
 
     @field_validator("items", mode="before")
     @classmethod
