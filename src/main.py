@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
 from typing import Final
 
 from pydantic import BaseModel, ConfigDict
@@ -12,7 +11,7 @@ from delay import DelayTimer
 from habitica_api import HabiticaAPI, HabiticaAPIHeaders
 from models.generic_task import GenericTask
 from models.habitica import HabiticaDifficulty
-from models.todoist import TodoistPriority, TodoistTask
+from models.todoist import TodoistPriority
 from tasks_cache import TasksCache
 from todoist_api import TodoistAPI
 
@@ -22,7 +21,6 @@ _LOGGER = logging.getLogger(__name__)
 class FSMState(BaseModel):
     context: TasksSync
     generic_task: GenericTask
-    optional_todoist_task: TodoistTask | None = None
 
     _STATES: Final[dict[str, type[FSMState]]] = {}
 
@@ -39,90 +37,13 @@ class FSMState(BaseModel):
     def name(cls) -> str:
         return cls.__name__.replace("State", "")
 
-    @property
-    def todoist_task(self) -> TodoistTask:
-        if self.optional_todoist_task is None:
-            raise RuntimeError("optional_todoist_task is not set but required by the state transition.")
-        return self.optional_todoist_task
-
     @classmethod
     def register(cls, state_cls: type[FSMState]) -> None:
         cls._STATES[state_cls.name()] = state_cls
 
     @classmethod
-    def factory(
-        cls,
-        context: TasksSync,
-        generic_task: GenericTask,
-        optional_todoist_task: TodoistTask | None = None,
-    ) -> FSMState:
-        state_name = generic_task.state
-        state = cls._STATES[state_name](
-            context=context,
-            generic_task=generic_task,
-            optional_todoist_task=optional_todoist_task,
-        )
-        return state
-
-
-class StateTodoist(FSMState):
-    def next_state(self) -> None:
-        raise NotImplementedError
-
-    def _owned_by_me(self) -> bool:
-        if self.context.todoist_user_id is None or self.todoist_task.responsible_uid is None:
-            return True
-        return self.todoist_task.responsible_uid == self.context.todoist_user_id
-
-
-class StateTodoistNew(StateTodoist):
-    def next_state(self) -> None:
-        if self.todoist_task.is_deleted or (self.todoist_task.checked and self.context.initial_sync):
-            # Task has been already deleted or checked previously and this is an initial sync
-            self._set_state(StateHidden)
-        else:
-            # task has not been completed ever or since last sync
-            self._set_state(StateTodoistActive)
-
-
-class StateTodoistActive(StateTodoist):
-    def _should_task_score_points(self) -> bool:
-        if self.todoist_task.is_recurring:
-            recurring_task_has_been_checked = bool(
-                (
-                    # The due date has moved since the last time we checked -> the task has been checked OR rescheduled
-                    self.generic_task.due_date_utc_timestamp
-                    and self.todoist_task.due_date_utc_timestamp
-                    and self.generic_task.due_date_utc_timestamp < self.todoist_task.due_date_utc_timestamp
-                    # The due date has moved to the future -> the task has been checked
-                    and self.todoist_task.due_date_utc_timestamp > int(datetime.now(timezone.utc).timestamp())
-                )
-                # If completed_at is set, it has been permanently finished
-                or self.todoist_task.completed_at is not None
-            )
-
-            if recurring_task_has_been_checked:
-                self.generic_task.due_date_utc_timestamp = self.todoist_task.due_date_utc_timestamp
-                self.generic_task.completed_at = self.todoist_task.completed_at
-                return True
-
-        if self.todoist_task.checked:
-            return True
-
-        return False
-
-    def next_state(self) -> None:
-        if self.todoist_task.is_deleted:
-            self._set_state(StateHidden)
-        elif self._should_task_score_points():
-            if self._owned_by_me():
-                self.generic_task.content = self.todoist_task.content
-                self.generic_task.priority = self.todoist_task.priority
-                self._set_state(StateHabiticaNew)
-            else:
-                self._set_state(StateHidden)
-        else:
-            self._set_state(StateTodoistActive)
+    def factory(cls, context: TasksSync, generic_task: GenericTask) -> FSMState:
+        return cls._STATES[generic_task.state](context=context, generic_task=generic_task)
 
 
 class StateHabiticaNew(FSMState):
@@ -156,25 +77,12 @@ class StateHabiticaFinished(FSMState):
             else:
                 raise ex
 
-        if self.generic_task.is_recurring and not self.generic_task.completed_at:
-            next_state: type[FSMState] = StateTodoistActive
-        else:
-            next_state = StateHidden
-
-        self._set_state(next_state)
+        self.context.delete_task(self.generic_task)
 
 
-class StateHidden(FSMState):
-    def next_state(self) -> None:
-        pass  # no action
-
-
-FSMState.register(StateTodoistNew)
-FSMState.register(StateTodoistActive)
 FSMState.register(StateHabiticaNew)
 FSMState.register(StateHabiticaCreated)
 FSMState.register(StateHabiticaFinished)
-FSMState.register(StateHidden)
 
 
 class TasksSync:  # pylint: disable=too-few-public-methods
@@ -197,7 +105,7 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         self._todoist_user_id = settings.todoist_user_id
 
         self._task_cache = TasksCache(
-            habitica_dirty_states={_.name() for _ in [StateHabiticaNew, StateHabiticaCreated, StateHabiticaFinished]}
+            in_progress_states={_.name() for _ in [StateHabiticaNew, StateHabiticaCreated, StateHabiticaFinished]}
         )
         self._sync_sleep: Final[DelayTimer] = DelayTimer(
             settings.sync_delay_seconds, "Next check in {delay:.0f} seconds."
@@ -223,13 +131,12 @@ class TasksSync:  # pylint: disable=too-few-public-methods
             state.generic_task.state = new_state
             self._task_cache.save_task(state.generic_task)
 
+    def delete_task(self, generic_task: GenericTask) -> None:
+        self._task_cache.delete_task(generic_task)
+
     def create_habitica_task(self, generic_task: GenericTask) -> None:
         previous_habitica_id = generic_task.habitica_task_id
-        difficulty = self._get_task_difficulty(
-            get_settings(),
-            self._todoist.state.items[generic_task.todoist_task_id].labels,
-            generic_task.priority_enum,
-        )
+        difficulty = self._get_task_difficulty(get_settings(), generic_task.labels, generic_task.priority_enum)
         generic_task.habitica_task_id = self.habitica.create_task(generic_task.content, difficulty)["id"]
         self._task_cache.save_task(generic_task, previous_habitica_id)
 
@@ -253,21 +160,23 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         return self._todoist_user_id
 
     def _next_tasks_state(self) -> None:
-        for todoist_task in self._todoist.state.items.values():  # pylint: disable=no-member
-            generic_task = self._task_cache.get_task_by_todoist_task_id(todoist_task)
+        for todoist_completed_task in self._todoist.iter_pop_newly_completed_tasks():  # pylint: disable=no-member
+            generic_task = GenericTask(
+                content=todoist_completed_task.item_object.content,
+                priority=todoist_completed_task.item_object.priority,
+                labels=todoist_completed_task.item_object.labels,
+                state=StateHabiticaNew.name(),
+            )
+            self._log.info(f"New completed Todoist task {generic_task.content}, {generic_task.state}")
 
-            if not generic_task:
-                generic_task = GenericTask.from_todoist_task(todoist_task, StateTodoistNew.name())
-                self._log.info(f"New task {generic_task.content}, {generic_task.state}")
-
-            state = FSMState.factory(self, generic_task, todoist_task)
+            state = FSMState.factory(self, generic_task)
 
             try:
                 state.next_state()
             except OSError as ex:
                 self._log.error(f"Unexpected network error when processing task '{generic_task.content}': {str(ex)}")
 
-        for generic_task in self._task_cache.dirty_habitica_tasks():
+        for generic_task in self._task_cache.in_progress_tasks():
             try:
                 state = FSMState.factory(self, generic_task)
                 state.next_state()

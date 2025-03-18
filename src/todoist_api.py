@@ -1,44 +1,56 @@
-import requests
+from typing import Iterator
 
-from models.todoist import TodoistState
+import requests
+from pydantic import BaseModel
+
+from models.todoist import CompletedTodoistTask
+
+
+class QueryParamsCompletedGetAll(BaseModel):
+    """See https://developer.todoist.com/sync/v9/#get-all-completed-items."""
+
+    limit: int = 200
+    since: str | None
+    annotate_items: bool = True
 
 
 class TodoistAPI:
-    SYNC_VERSION = "v9"
-    _SYNC_ENDPOINT = f"https://api.todoist.com/sync/{SYNC_VERSION}/sync"
+    _SYNC_VERSION = "v9"
+    _BASE_URL = f"https://api.todoist.com/sync/{_SYNC_VERSION}"
+    _ENDPOINT_COMPLETED_GET_ALL = f"{_BASE_URL}/completed/get_all"
 
-    def __init__(self, token: str) -> None:
+    def __init__(self, token: str, last_sync_datetime_utc: str | None = None) -> None:
         self._session = requests.Session()
         self._headers = {"Authorization": f"Bearer {token}"}
-        self.state = TodoistState(sync_token="*", full_sync=True)
+        self._last_sync_datetime_utc: str | None = last_sync_datetime_utc
+        self._completed_tasks: list[CompletedTodoistTask] = []
 
-    def _merge_state(self, new_state: TodoistState) -> None:
-        self.state.sync_token = new_state.sync_token
-        self.state.full_sync = new_state.full_sync
-        self.state.items.update(new_state.items)  # pylint: disable=no-member
+    def iter_pop_newly_completed_tasks(self) -> Iterator[CompletedTodoistTask]:
+        """Pop tasks from last sync."""
+        while self._completed_tasks:
+            yield self._completed_tasks.pop()
 
-    def sync(self) -> bool:
-        """Sync resources.
+    def sync(self) -> str | None:
+        """Sync recently completed tasks.
 
-        See Also: https://developer.todoist.com/sync/v9/#read-resources
+        Returns: Last sync datetime to persist.
         """
-        response = self._session.post(
-            self._SYNC_ENDPOINT,
+        response = self._session.get(
+            self._ENDPOINT_COMPLETED_GET_ALL,
             headers=self._headers,
-            params={"resource_types": '["items"]', "sync_token": self.state.sync_token},
+            params=QueryParamsCompletedGetAll(since=self._last_sync_datetime_utc).model_dump(exclude_none=True),
         )
 
-        if response.status_code != 200:
-            try:
-                response.raise_for_status()
-            except requests.HTTPError as ex:
-                if response.status_code == 403:
-                    raise RuntimeError(
-                        "Invalid API token for Todoist. Please check that is matches the one "
-                        "from https://todoist.com/app/settings/integrations/developer."
-                    ) from ex
-                raise
+        if response.status_code == 403:
+            raise RuntimeError(
+                "Invalid API token for Todoist. Please check that is matches the one "
+                "from https://todoist.com/app/settings/integrations/developer."
+            )
 
-        self._merge_state(TodoistState(**response.json()))
+        response.raise_for_status()
 
-        return response.ok
+        if newly_completed_tasks := [CompletedTodoistTask(**data) for data in response.json()["items"]]:
+            self._last_sync_datetime_utc = newly_completed_tasks[0].completed_at
+            self._completed_tasks.extend(newly_completed_tasks)
+
+        return self._last_sync_datetime_utc
