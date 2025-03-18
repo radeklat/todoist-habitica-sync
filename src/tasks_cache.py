@@ -70,7 +70,8 @@ class TasksCache:
     @property
     def last_sync_datetime_utc(self) -> str | None:
         return self._read_metadata(
-            "last_sync_datetime_utc", datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+            "last_sync_datetime_utc",
+            datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         )
 
     @last_sync_datetime_utc.setter
