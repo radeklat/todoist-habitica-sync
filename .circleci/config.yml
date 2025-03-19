@@ -46,25 +46,16 @@ jobs: # A basic unit of work in a run
             pip install --upgrade pip poetry
             poetry install --no-ansi --no-root
       - run:
-          name: Pre-commit check
+          name: Pre-commit checks
           command: << pipeline.parameters.command_prefix >> pre-commit run -a
       - run:
-          name: Type check
-          command: << pipeline.parameters.command_prefix >> mypy
-      - run:
-          name: Linters
-          command: << pipeline.parameters.command_prefix >> lint
+          name: Verify checks
+          command: << pipeline.parameters.command_prefix >> verify
       - save_cache:
           key: << pipeline.parameters.cache_version >>-<< pipeline.parameters.project_name >>-<< pipeline.parameters.python_version_full >>-{{ checksum "poetry.lock" }}
           paths:
             - ".venv"
             - "~/.pyenv/versions/<< pipeline.parameters.python_version_full >>/lib/python<< pipeline.parameters.python_version >>/site-packages"
-      - run:
-          name: Unit tests
-          command: << pipeline.parameters.command_prefix >> pytest-unit
-      - run:
-          name: Integration tests
-          command: << pipeline.parameters.command_prefix >> pytest-integration
       - run:
           name: Build coverage report
           command: << pipeline.parameters.command_prefix >> coverage-report

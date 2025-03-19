@@ -12,6 +12,11 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [4.0.1] - 2025-03-19
+
+- Dependencies update.
+- Fix magic constants.
+
 ## [4.0.0] - 2025-03-18
 
 ### Breaking changes
@@ -223,7 +228,8 @@ Types of changes are:
 
 - Initial release
 
-[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/4.0.0...HEAD
+[Unreleased]: https://github.com/radeklat/todoist-habitica-sync/compare/4.0.1...HEAD
+[4.0.1]: https://github.com/radeklat/todoist-habitica-sync/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.4.1...4.0.0
 [3.4.1]: https://github.com/radeklat/todoist-habitica-sync/compare/3.4.0...3.4.1
 [3.4.0]: https://github.com/radeklat/todoist-habitica-sync/compare/3.3.0...3.4.0

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from http import HTTPStatus
 from typing import Final
 
 from pydantic import BaseModel, ConfigDict
@@ -60,7 +61,7 @@ class StateHabiticaCreated(FSMState):
             self.context.habitica.score_task(self.generic_task.get_habitica_task_id())
             next_state: type[FSMState] = StateHabiticaFinished
         except HTTPError as ex:
-            if ex.response is not None and ex.response.status_code == 404:
+            if ex.response is not None and ex.response.status_code == HTTPStatus.NOT_FOUND:
                 next_state = StateHabiticaNew
                 _LOGGER.warning(f"Habitica task '{self.generic_task.content}' not found. Re-setting state.")
             else:
@@ -74,7 +75,7 @@ class StateHabiticaFinished(FSMState):
         try:
             self.context.habitica.delete_task(self.generic_task.get_habitica_task_id())
         except HTTPError as ex:
-            if ex.response is not None and ex.response.status_code == 404:
+            if ex.response is not None and ex.response.status_code == HTTPStatus.NOT_FOUND:
                 _LOGGER.warning(f"Habitica task '{self.generic_task.content}' not found.")
             else:
                 raise ex

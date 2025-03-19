@@ -77,23 +77,26 @@ class Settings(BaseSettings):
         output: dict[Any, Any] = {}  # disable type checking for the dict values as it gets it wrong and tests cover it
 
         for priority, difficulty in priority_to_difficulty.items():
+            new_priority = priority
+            new_difficulty = difficulty
+
             if isinstance(priority, str):
                 try:
-                    priority = int(priority)
+                    new_priority = int(priority)
                 except ValueError:
                     # If it's not a number, it could be an enum name
-                    priority = TodoistPriority[priority.upper()]  # type: ignore[union-attr]
+                    new_priority = TodoistPriority[priority.upper()]
 
             if isinstance(difficulty, str):
                 try:
                     float(difficulty)  # If it's a number, it's an enum value
                 except ValueError:  # If it's not a number, it's an enum name
-                    difficulty = HabiticaDifficulty[difficulty.upper()]
+                    new_difficulty = HabiticaDifficulty[difficulty.upper()]
 
             if isinstance(difficulty, (float, int)):  # If it's a number, it's an enum value
-                difficulty = str(difficulty)
+                new_difficulty = str(difficulty)
 
-            output[priority] = difficulty
+            output[new_priority] = new_difficulty
 
         return output
 

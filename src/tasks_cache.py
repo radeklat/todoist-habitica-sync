@@ -2,9 +2,9 @@ import json
 import logging
 import sqlite3
 from collections.abc import Iterator
+from collections.abc import Iterator as TypingIterator
 from contextlib import contextmanager
 from datetime import datetime, timezone
-from typing import Iterator as TypingIterator
 
 from config import get_settings
 from models.generic_task import GenericTask
