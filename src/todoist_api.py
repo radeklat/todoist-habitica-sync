@@ -1,5 +1,6 @@
 import logging
-from typing import Iterator
+from collections.abc import Iterator
+from http import HTTPStatus
 
 import requests
 from pydantic import BaseModel
@@ -43,7 +44,7 @@ class TodoistAPI:
             params=QueryParamsCompletedGetAll(since=self._last_sync_datetime_utc).model_dump(exclude_none=True),
         )
 
-        if response.status_code == 403:
+        if response.status_code == HTTPStatus.FORBIDDEN:
             raise RuntimeError(
                 "Invalid API token for Todoist. Please check that is matches the one "
                 "from https://todoist.com/app/settings/integrations/developer."

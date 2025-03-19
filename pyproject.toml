@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "todoist-habitica-sync"
-version = "4.0.0"
+version = "4.0.1"
 description = "One way synchronisation from Todoist to Habitica."
 authors = ["Radek Lát <radek.lat@gmail.com>"]
 homepage = "https://github.com/radeklat/todoist-habitica-sync"
@@ -23,43 +23,15 @@ types-toml = "*"
 types-requests = "*"
 types-python-dateutil = "*"
 settings-doc = "^4.3.2"
-psutil = "^6.1"
 pytest-dotenv = "^0.5.2"
-delfino-core = {extras = ["verify", "dependencies-update"], version = "^8.1"}
+delfino-core = {extras = ["verify", "dependencies-update"], version = "^9.0"}
 toml = "^0.10.2"
 delfino-docker = "^4.0"  # https://github.com/radeklat/delfino-docker/blob/main/CHANGELOG.md
-ruff = "^0.8.3"
+ruff = "^0.11.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.isort]
-# Setting compatible with black. See https://black.readthedocs.io/en/stable/compatible_configs.html
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
-line_length = 120
-
-[tool.black]
-line-length = 120
-target-version = ['py312']
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
 
 [tool.pytest.ini_options]
 testpaths = "tests/unit tests/integration"
@@ -106,3 +78,44 @@ build_for_platforms = [
     "linux/arm64",
     "linux/amd64",
 ]
+
+[tool.ruff]
+line-length = 120
+fix = true
+
+
+[tool.ruff.lint]
+select = [
+    "C90", # mccabe
+    "D",   # pydocstyle
+    "E",   # pycodestyle, errors
+    "F",   # Pyflakes
+    "I",   # isort
+    "N",   # PEP8-naming
+    "PL",  # Pylint
+    "UP",  # pyupgrade
+    "W",   # pycodestyle, warning
+]
+ignore = [
+    # See https://docs.astral.sh/ruff/rules/#pydocstyle-d
+    "D1",  # Missing docstrings. We rely on code reviews. Names are often descriptive enough and don't need additional docstring.
+    "D401",  # "First line should be in imperative mood"
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "D102",  # missing-documentation-for-public-method
+]
+
+[tool.ruff.lint.pylint]
+max-args = 6
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.pep8-naming]
+# Allow Pydantic's `@validator` decorator to trigger class method treatment.
+classmethod-decorators = ["classmethod", "pydantic.field_validator"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
