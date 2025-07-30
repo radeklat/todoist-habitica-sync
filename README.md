@@ -97,7 +97,7 @@ Tasks are not added immediately. Only when you finish a task in Todoist, new tas
    docker run \
       --pull always --rm --name todoist-habitica-sync \
       --env-file=.env \
-      -v $(pwd)/.sync_cache:/usr/src/app/.sync_cache \
+      -v $(pwd)/.sync_cache:/app/.sync_cache \
       radeklat/todoist-habitica-sync:latest
    ```
    This configuration will run the service in the foreground (you need to keep the terminal open) and always use the latest version.
