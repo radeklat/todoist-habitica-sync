@@ -90,11 +90,9 @@ class TasksCache:
             cursor.execute("DELETE FROM tasks_cache WHERE id = ?", (str(generic_task.id),))
 
     def in_progress_tasks(self) -> Iterator[GenericTask]:
-        while True:
-            with self._cursor(row_factory=sqlite3.Row) as cursor:
-                cursor.execute("SELECT task_data FROM tasks_cache LIMIT 1")
+        with self._cursor(row_factory=sqlite3.Row) as cursor:
+            cursor.execute("SELECT task_data FROM tasks_cache")
+            rows = cursor.fetchall()
 
-                if not (row := cursor.fetchone()):
-                    break
-
-                yield GenericTask(**json.loads(row["task_data"]))
+        for row in rows:
+            yield GenericTask(**json.loads(row["task_data"]))
