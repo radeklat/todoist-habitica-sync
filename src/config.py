@@ -1,3 +1,4 @@
+from datetime import time
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -14,6 +15,15 @@ _DEFAULT_PRIORITY_TO_DIFFICULTY = {
     TodoistPriority.P3: HabiticaDifficulty.EASY,
     TodoistPriority.P4: HabiticaDifficulty.TRIVIAL,
 }
+
+
+def parse_hh_mm(value: str) -> time:
+    """Parse "HH:MM" (or "H:MM") into a time."""
+    try:
+        hours, minutes = (int(part) for part in value.strip().split(":"))
+        return time(hours, minutes)
+    except (TypeError, ValueError) as ex:
+        raise ValueError(f"Expected a time as HH:MM, got {value!r}.") from ex
 
 
 class Settings(BaseSettings):
@@ -50,7 +60,8 @@ class Settings(BaseSettings):
             "Defines how Todoist priorities map to Habitica difficulties. Keys/values are case-insensitive "
             "and can be both names or numerical values defines by the APIs. "
             "See https://habitica.com/apidoc/#api-Task-CreateUserTasks and "
-            "https://developer.todoist.com/sync/v9/#items for numerical values definitions."
+            "https://developer.todoist.com/api/v1/ (task `priority`: 4 is p1, 1 is p4) for numerical values "
+            "definitions."
         ),
     )
     label_to_difficulty: dict[str, HabiticaDifficulty] = Field(
@@ -62,6 +73,56 @@ class Settings(BaseSettings):
             "labels, the highest difficulty is used."
         ),
     )
+    nightly_penalty_enabled: bool = Field(
+        False,
+        description=(
+            "Once a night, tap a negative Habitica habit for each overdue Todoist task assigned to you or to no one. "
+            "Costs HP, so it is off by default."
+        ),
+    )
+    penalty_time: str = Field(
+        "00:05",
+        description="Local time (HH:MM, in your Todoist timezone) to run the nightly penalty.",
+    )
+    penalty_window_hours: float = Field(
+        4,
+        ge=0,
+        description=(
+            "If the nightly penalty could not run within this many hours after `PENALTY_TIME` "
+            "(e.g. the server was off), that night is skipped. It never charges late."
+        ),
+    )
+    penalty_max_per_night: int = Field(5, ge=0, description="Most habit taps per night.")
+    penalty_habit_name: str = Field(
+        "Unaccounted task",
+        description="The Habitica habit to tap for the nightly penalty. It is created if missing.",
+    )
+    penalty_exclude_labels: str = Field(
+        "Exclude,no_penalty",
+        description=(
+            "Comma-separated Todoist labels (case-insensitive) whose tasks never count for the nightly penalty."
+        ),
+    )
+    penalty_pause_label: str = Field(
+        "pause_penalties",
+        description=(
+            "If any active Todoist task has this label (case-insensitive), the nightly penalty skips the night."
+        ),
+    )
+
+    @field_validator("penalty_time")
+    @classmethod
+    def validate_penalty_time(cls, value: str) -> str:
+        parse_hh_mm(value)
+        return value
+
+    @property
+    def penalty_run_at(self) -> time:
+        return parse_hh_mm(self.penalty_time)
+
+    @property
+    def penalty_exclude_label_set(self) -> set[str]:
+        return {label.strip().lower() for label in self.penalty_exclude_labels.split(",") if label.strip()}
 
     @field_validator("sync_delay_seconds")
     @classmethod

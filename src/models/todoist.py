@@ -1,13 +1,14 @@
-"""Models matching the v9 SYnc API.
+"""Models for Todoist tasks.
 
-See Also: https://developer.todoist.com/sync/v9/#read-resources
+`todoist_api.TodoistAPI` builds these from Todoist API v1 responses.
+
+See Also: https://developer.todoist.com/api/v1/
 """
 
 from enum import Enum
-from typing import TypeAlias
 
 from dateutil.parser import parse
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TodoistPriority(Enum):
@@ -63,17 +64,3 @@ class CompletedTodoistTask(BaseModel):
     user_id: str
     completed_at: str
     item_object: TodoistTask
-
-
-TodoistTasks: TypeAlias = dict[str, TodoistTask]
-
-
-class TodoistState(BaseModel):
-    sync_token: str
-    full_sync: bool
-    items: TodoistTasks = Field(default_factory=dict)
-
-    @field_validator("items", mode="before")
-    @classmethod
-    def items_list_to_dict(cls, items: list[dict]) -> dict[str, dict]:  # pylint: disable=no-self-argument
-        return {item["id"]: item for item in items}

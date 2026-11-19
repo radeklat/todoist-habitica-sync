@@ -13,6 +13,7 @@ from habitica_api import HabiticaAPI, HabiticaAPIHeaders
 from models.generic_task import GenericTask
 from models.habitica import HabiticaDifficulty
 from models.todoist import TodoistPriority
+from nightly_penalty import NightlyPenalty
 from tasks_cache import TasksCache
 from todoist_api import TodoistAPI
 
@@ -91,7 +92,7 @@ FSMState.register(StateHabiticaFinished)
 class TasksSync:  # pylint: disable=too-few-public-methods
     """Class managing tasks synchronisation.
 
-    Todoist API: https://developer.todoist.com/sync/v7/?python#overview
+    Todoist API: https://developer.todoist.com/api/v1/
     Habitica API: https://habitica.com/apidoc
     """
 
@@ -108,6 +109,8 @@ class TasksSync:  # pylint: disable=too-few-public-methods
         self._todoist = TodoistAPI(settings.todoist_api_key, self._task_cache.last_sync_datetime_utc)
         self._todoist_user_id = settings.todoist_user_id
 
+        self._penalty = NightlyPenalty(settings, self._todoist, self.habitica, self._task_cache)
+
         self._sync_sleep: Final[DelayTimer] = DelayTimer(
             settings.sync_delay_seconds, "Next check in {delay:.0f} seconds."
         )
@@ -119,6 +122,13 @@ class TasksSync:  # pylint: disable=too-few-public-methods
                 self._next_tasks_state()
             except OSError as ex:
                 self._log.error(f"Unexpected network error: {ex}")
+
+            try:
+                self._penalty.run()
+            except OSError as ex:
+                self._log.error(f"Unexpected network error in nightly penalty: {ex}")
+            except Exception as ex:  # pylint: disable=broad-except
+                self._log.error(f"Nightly penalty failed: {ex}")
 
             try:
                 self._sync_sleep()
