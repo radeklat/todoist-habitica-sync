@@ -35,6 +35,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 testpaths = "tests/unit tests/integration"
+pythonpath = ["src"]
 python_functions = "should_*"
 junit_family = "xunit2"
 # pytest-dotenv settings

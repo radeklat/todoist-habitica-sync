@@ -21,7 +21,8 @@ Tasks are not added immediately. Only when you finish a task in Todoist, new tas
 # Features
 
 * Scores points in Habitica when Todoist task is finished.
-* Works for repeated tasks in Todoist, as long as the date string contains `every`.
+* Works for recurring tasks in Todoist: every completion scores, read from the Todoist API v1 activity log.
+* Only tasks completed by you score, not ones completed by collaborators in shared projects.
 
 # Installation
 
@@ -220,7 +221,7 @@ Where to store synchronisation details. No need to change.
 
 *Optional*, default value: `{'P1': 'HARD', 'P2': 'MEDIUM', 'P3': 'EASY', 'P4': 'TRIVIAL'}`
 
-Defines how Todoist priorities map to Habitica difficulties. Keys/values are case-insensitive and can be both names or numerical values defines by the APIs. See https://habitica.com/apidoc/#api-Task-CreateUserTasks and https://developer.todoist.com/sync/v9/#items for numerical values definitions.
+Defines how Todoist priorities map to Habitica difficulties. Keys/values are case-insensitive and can be both names or numerical values defines by the APIs. See https://habitica.com/apidoc/#api-Task-CreateUserTasks and https://developer.todoist.com/api/v1/ (task `priority`: 4 is p1, 1 is p4) for numerical values definitions.
 
 ## `LABEL_TO_DIFFICULTY`
 

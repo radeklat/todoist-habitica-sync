@@ -91,7 +91,7 @@ FSMState.register(StateHabiticaFinished)
 class TasksSync:  # pylint: disable=too-few-public-methods
     """Class managing tasks synchronisation.
 
-    Todoist API: https://developer.todoist.com/sync/v7/?python#overview
+    Todoist API: https://developer.todoist.com/api/v1/
     Habitica API: https://habitica.com/apidoc
     """
 

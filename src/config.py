@@ -50,7 +50,8 @@ class Settings(BaseSettings):
             "Defines how Todoist priorities map to Habitica difficulties. Keys/values are case-insensitive "
             "and can be both names or numerical values defines by the APIs. "
             "See https://habitica.com/apidoc/#api-Task-CreateUserTasks and "
-            "https://developer.todoist.com/sync/v9/#items for numerical values definitions."
+            "https://developer.todoist.com/api/v1/ (task `priority`: 4 is p1, 1 is p4) for numerical values "
+            "definitions."
         ),
     )
     label_to_difficulty: dict[str, HabiticaDifficulty] = Field(
