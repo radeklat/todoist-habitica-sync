@@ -56,6 +56,7 @@ class TodoistAPI:
     _ENDPOINT_ACTIVITIES = f"{_BASE_URL}/activities"
     _ENDPOINT_COMPLETED = f"{_BASE_URL}/tasks/completed/by_completion_date"
     _ENDPOINT_USER = f"{_BASE_URL}/user"
+    _ENDPOINT_TASKS_FILTER = f"{_BASE_URL}/tasks/filter"
 
     def __init__(self, token: str, last_sync_datetime_utc: str | None = None) -> None:
         self._session = requests.Session()
@@ -121,6 +122,18 @@ class TodoistAPI:
     def _get_user_id(self) -> str:
         """Own user ID, so completions by collaborators in shared projects are not scored."""
         return str(self.get_user()["id"])
+
+    def get_overdue_tasks(self) -> list[dict]:
+        """Active tasks that are overdue and assigned to the user or to no one."""
+        return self._get_pages(
+            self._ENDPOINT_TASKS_FILTER,
+            {"query": "overdue & (assigned to: me | !assigned)", "limit": 200},
+            "results",
+        )
+
+    def has_task_with_label(self, label: str) -> bool:
+        """Whether any active task has the given label."""
+        return bool(self._get_pages(self._ENDPOINT_TASKS_FILTER, {"query": f"@{label}", "limit": 1}, "results"))
 
     def _from_activity_log(self, since: datetime) -> list[CompletedTodoistTask]:
         user_id = self._get_user_id()

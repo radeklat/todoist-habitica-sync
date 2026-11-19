@@ -22,7 +22,8 @@ LAST_SYNC = "2025-06-15T10:00:00.000000Z"
 ACTIVITIES = "/api/v1/activities"
 COMPLETED = "/api/v1/tasks/completed/by_completion_date"
 USER = "/api/v1/user"
-MAX_PAGE_SIZE = 200  # Todoist API v1 limit for activities
+TASKS_FILTER = "/api/v1/tasks/filter"
+MAX_PAGE_SIZE = 200  # Todoist API v1 limit for activities and tasks/filter
 
 
 def make_response(status: int = 200, payload: dict | None = None, url: str = "") -> requests.Response:
@@ -344,3 +345,19 @@ class TestFallback:
         api.sync()  # next loop retries the activity log
         assert len(synced(api)) == 1
         assert not fake.calls_to(COMPLETED)
+
+
+class TestOtherEndpoints:
+    @staticmethod
+    def should_query_overdue_tasks_for_me_or_unassigned(fake):
+        fake.route(TASKS_FILTER, {"results": [{"id": "1"}], "next_cursor": "x"}, {"results": [{"id": "2"}]})
+        assert [task["id"] for task in TodoistAPI("token").get_overdue_tasks()] == ["1", "2"]
+        assert fake.calls_to(TASKS_FILTER)[0]["query"] == "overdue & (assigned to: me | !assigned)"
+        assert fake.calls_to(TASKS_FILTER)[0]["limit"] <= MAX_PAGE_SIZE
+
+    @staticmethod
+    @pytest.mark.parametrize("results, expected", [([{"id": "1"}], True), ([], False)])
+    def should_check_for_label(fake, results, expected):
+        fake.route(TASKS_FILTER, {"results": results})
+        assert TodoistAPI("token").has_task_with_label("pause_penalties") is expected
+        assert fake.calls_to(TASKS_FILTER)[0]["query"] == "@pause_penalties"

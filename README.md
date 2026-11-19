@@ -23,6 +23,17 @@ Tasks are not added immediately. Only when you finish a task in Todoist, new tas
 * Scores points in Habitica when Todoist task is finished.
 * Works for recurring tasks in Todoist: every completion scores, read from the Todoist API v1 activity log.
 * Only tasks completed by you score, not ones completed by collaborators in shared projects.
+* Optional nightly penalty for overdue tasks (off by default, see below).
+
+## Nightly penalty
+
+Off by default. When `NIGHTLY_PENALTY_ENABLED=true`, once a night at `PENALTY_TIME` (in your Todoist timezone) the service counts overdue Todoist tasks that are assigned to you or to no one. It then taps a negative Habitica habit (`PENALTY_HABIT_NAME`, created if missing) once per task, up to `PENALTY_MAX_PER_NIGHT`. The aim is to have every task accounted for (done, rescheduled or dropped) before bed.
+
+* Tasks with any of the `PENALTY_EXCLUDE_LABELS` never count.
+* If any active task has the `PENALTY_PAUSE_LABEL` label, the night is skipped (e.g. for holidays).
+* On the first start, nothing is charged; penalties start the following night.
+* If the service could not run within `PENALTY_WINDOW_HOURS` after `PENALTY_TIME` (e.g. the server was off), that night is skipped. It never charges late.
+* Progress is stored in the sync cache, so a restart in the middle of the night neither skips nor repeats taps.
 
 # Installation
 
@@ -228,6 +239,48 @@ Defines how Todoist priorities map to Habitica difficulties. Keys/values are cas
 *Optional*
 
 Defines how Todoist labels map to Habitica difficulties. Keys are case-insensitive. See https://habitica.com/apidoc/#api-Task-CreateUserTasks for difficulty values. If a task has no matching label, the `priority_to_difficulty` mapping is used. If a task has multiple labels, the highest difficulty is used.
+
+## `NIGHTLY_PENALTY_ENABLED`
+
+*Optional*, default value: `False`
+
+Once a night, tap a negative Habitica habit for each overdue Todoist task assigned to you or to no one. Costs HP, so it is off by default.
+
+## `PENALTY_TIME`
+
+*Optional*, default value: `00:05`
+
+Local time (HH:MM, in your Todoist timezone) to run the nightly penalty.
+
+## `PENALTY_WINDOW_HOURS`
+
+*Optional*, default value: `4`
+
+If the nightly penalty could not run within this many hours after `PENALTY_TIME` (e.g. the server was off), that night is skipped. It never charges late.
+
+## `PENALTY_MAX_PER_NIGHT`
+
+*Optional*, default value: `5`
+
+Most habit taps per night.
+
+## `PENALTY_HABIT_NAME`
+
+*Optional*, default value: `Unaccounted task`
+
+The Habitica habit to tap for the nightly penalty. It is created if missing.
+
+## `PENALTY_EXCLUDE_LABELS`
+
+*Optional*, default value: `Exclude,no_penalty`
+
+Comma-separated Todoist labels (case-insensitive) whose tasks never count for the nightly penalty.
+
+## `PENALTY_PAUSE_LABEL`
+
+*Optional*, default value: `pause_penalties`
+
+If any active Todoist task has this label (case-insensitive), the nightly penalty skips the night.
 <!-- settings-doc end -->
 
 # Resetting sync cache
@@ -240,6 +293,13 @@ To reset the cache:
 3. Optionally, [update the application](#update).
 4. Start to application again.
 
-# Planned work
+# Development
 
-* Synchronise overdue task to cause damage in habitica
+Tests mock all HTTP calls and never reach the real Todoist or Habitica APIs. Run them against the pinned dependencies in `poetry.lock`:
+
+```shell script
+poetry install --no-root
+poetry run pytest
+```
+
+GitHub Actions runs the tests on every pull request. On every push to `main` it builds a `linux/amd64` image and pushes it to `ghcr.io/<owner>/todoist-habitica-sync` with the tags `latest` and `sha-<commit>`.

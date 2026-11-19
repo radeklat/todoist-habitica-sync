@@ -55,12 +55,12 @@ class TasksCache:
             for database_schema in _DATABASE_SCHEMAS:
                 cursor.execute(database_schema)
 
-    def _read_metadata(self, key: str, default: str | None = None) -> str | None:
+    def read_metadata(self, key: str, default: str | None = None) -> str | None:
         with self._cursor() as cursor:
             cursor.execute("SELECT value FROM metadata WHERE key = ?", (key,))
             return row[0] if (row := cursor.fetchone()) else default
 
-    def _write_metadata(self, key: str, value: str) -> None:
+    def write_metadata(self, key: str, value: str) -> None:
         with self._cursor() as cursor:
             cursor.execute(
                 "INSERT OR REPLACE INTO metadata (key, value) VALUES (?, ?)",
@@ -69,14 +69,14 @@ class TasksCache:
 
     @property
     def last_sync_datetime_utc(self) -> str | None:
-        return self._read_metadata(
+        return self.read_metadata(
             "last_sync_datetime_utc",
             datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         )
 
     @last_sync_datetime_utc.setter
     def last_sync_datetime_utc(self, value: str) -> None:
-        self._write_metadata("last_sync_datetime_utc", value)
+        self.write_metadata("last_sync_datetime_utc", value)
 
     def save_task(self, generic_task: GenericTask) -> None:
         with self._cursor() as cursor:

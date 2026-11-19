@@ -17,6 +17,10 @@ Types of changes are:
 - Todoist retired the v9 Sync API (`sync/v9/completed/get_all` returns 410 Gone). Completed tasks are now read from the Todoist API v1 activity log, which includes every completion of recurring tasks. If the activity log returns a 4xx (other than 401 or 429), the `tasks/completed/by_completion_date` endpoint is used instead, which does not include recurring tasks that are still active.
 - Only tasks completed by the owner of the API token score points. Completions by collaborators in shared projects are ignored.
 
+### Features
+
+- Optional nightly penalty (off by default, `NIGHTLY_PENALTY_ENABLED`): once a night, a negative Habitica habit is tapped for each overdue Todoist task assigned to you or to no one, up to a nightly cap. See the `PENALTY_*` settings.
+
 ## [4.0.1] - 2025-03-19
 
 - Dependencies update.
